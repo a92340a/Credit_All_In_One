@@ -30,7 +30,7 @@ dev_logger.file_handler(today)
 
 
 def _get_mongodb():
-    # connect to mongodb database: stylish_data_engineering
+    # connect to mongodb database: credit
     MONGO_CONFIG = f"mongodb://{os.getenv('MONGO_USERNAME')}:{os.getenv('MONGO_PASSWORD')}@{os.getenv('MONGO_HOST')}:{os.getenv('MONGO_PORT')}/credit?authMechanism={os.getenv('MONGO_AUTHMECHANISM')}"
     client = pymongo.MongoClient(MONGO_CONFIG) 
     return client['credit']
@@ -48,7 +48,8 @@ def crawling_list(url):
     for i in crawler.TOPICS:
         for index, title in enumerate(pagetitle):
             if crawler.KEYWORD in title and i in title and (year in title or str(int(year)+1) in title):
-                target.append({'topic':i, 'pagetitle':pagetitle[index], 'pagepath':pagepath[index]})
+                yr = year if year in title else year+1
+                target.append({'valid_year': yr, 'topic':i, 'pagetitle':pagetitle[index], 'pagepath':pagepath[index]})
     return target
     
 
@@ -72,6 +73,7 @@ def crawling_detail(target):
                    'source_detail':'callingtaiwan', 
                    'page_title':target['pagetitle'],
                    'page_path':target['pagepath'],
+                   'valid_year': target['valid_year'],
                    'topic':target['topic'],
                    'content':json_data,
                    'create_date':today,
