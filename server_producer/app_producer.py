@@ -3,7 +3,7 @@ import sys
 from datetime import datetime
 from dotenv import load_dotenv
 
-from flask import Flask, request
+from flask import Flask, request, render_template
 from flask_socketio import SocketIO
 from google.cloud.pubsublite.cloudpubsub import PublisherClient
 from google.cloud.pubsublite.types import MessageMetadata
@@ -62,6 +62,9 @@ class LanguageModel(Resource):
 api.add_resource(LanguageModel, '/lang')
 
 
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 if __name__ == '__main__':
     socketio.run(app, host=os.getenv('COMMON_HOST'), port=os.getenv('PRODUCER_PORT'), debug=True, allow_unsafe_werkzeug=True)
