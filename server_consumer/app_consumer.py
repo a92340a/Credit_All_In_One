@@ -10,6 +10,8 @@ from google.cloud.pubsublite.cloudpubsub import SubscriberClient
 from google.cloud.pubsublite.types import (CloudRegion, CloudZone,
                                            MessageMetadata, SubscriptionPath, FlowControlSettings)
 
+import openai
+
 
 load_dotenv()
 
@@ -54,14 +56,14 @@ def language_calculation(message_data):
     3. Tuning prompt to complete a conversation with query result and openai API
     """
     message_output = message_data + ' Finn!'
-    print(message_output)
+    dev_logger.info(message_output)
     return message_output
 
 
 def callback(message: PubsubMessage):
     message_data = message.data.decode("utf-8")
     metadata = MessageMetadata.decode(message.message_id)
-    print(
+    dev_logger.info(
         f"Received {message_data} of ordering key {message.ordering_key} with id {metadata}."
     )
     # Acknowledgement to Pub/Sub Lite with successful subscription
@@ -90,7 +92,7 @@ if __name__ == '__main__':
             per_partition_flow_control_settings=per_partition_flow_control_settings
         )
         
-        print(f"Listening for messages on {str(subscription_path)}...")
+        dev_logger.info(f"Listening for messages on {str(subscription_path)}...")
 
         try:
             streaming_pull_future.result()
