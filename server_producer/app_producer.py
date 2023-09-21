@@ -1,5 +1,5 @@
 import os
-import sys
+import json
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -12,7 +12,6 @@ from flask_restful import Resource, Api
 
 load_dotenv()
 
-sys.path.append('../Credit_All_In_One/')
 import my_logger
 
 
@@ -29,6 +28,7 @@ dev_logger.file_handler(today)
 
 
 app = Flask(__name__)
+app.secret_key = os.getenv('APP_SECRET_KEY')
 api = Api(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv('KEY')
@@ -36,12 +36,16 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv('KEY')
 
 @socketio.on('message')
 def get_and_produce_message(message):
+    """
+    First response with waiting message and publish message, sid to PubSub Lite
+    """
+    message_sid = {'message':message, 'sid':request.sid}
     with PublisherClient() as publisher_client:
-        api_future = publisher_client.publish(os.getenv('TOPIC'), message.encode("utf-8"))
+        api_future = publisher_client.publish(os.getenv('TOPIC'), json.dumps(message_sid).encode("utf-8"))
         # result() blocks. To resolve API futures asynchronously, use add_done_callback().
         message_id = api_future.result()
         calculating = f'Please wait for calculating... {message}'
-        socketio.emit('calculating', calculating)
+        socketio.emit('calculating', calculating, to=request.sid)
 
         message_metadata = MessageMetadata.decode(message_id)
         dev_logger.info(
@@ -55,7 +59,7 @@ class LanguageModel(Resource):
         Receive results from consumer server 
         """
         message_output = request.get_json()['message']
-        socketio.emit('result', message_output)
+        socketio.emit('result', message_output['message'], to=message_output['sid'])
         return {'data': message_output}
     
 
