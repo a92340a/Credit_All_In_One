@@ -10,7 +10,7 @@ from google.cloud.pubsublite.cloudpubsub import SubscriberClient
 from google.cloud.pubsublite.types import (CloudRegion, CloudZone,
                                            MessageMetadata, SubscriptionPath, FlowControlSettings)
 
-import openai
+from lang_openai import load_data
 
 
 load_dotenv()
@@ -51,17 +51,23 @@ per_partition_flow_control_settings = FlowControlSettings(
 def language_calculation(message_data):
     # !!!Replacing this with openai API or Language Model!!!
     """ 
-    1. Tokenization with openai API
+    1. load ChromaDB
     2. Build a Neo4j query
     3. Tuning prompt to complete a conversation with query result and openai API
     """
-    message_output = message_data + ' Finn!'
-    dev_logger.info(message_output)
-    return message_output
+    message_sid = json.loads(message_data)
+
+    qa_database = load_data()
+    query = message_sid['message']
+    answer = qa_database(query)
+    message_sid['message'] = answer['result']
+    dev_logger.info('Finish query on LangChain QAbot: {}'.format(message_sid['message']))
+    return message_sid
 
 
 def callback(message: PubsubMessage):
     message_data = message.data.decode("utf-8")
+    print(f'message_data:{message_data}')
     metadata = MessageMetadata.decode(message.message_id)
     dev_logger.info(
         f"Received {message_data} of ordering key {message.ordering_key} with id {metadata}."
@@ -74,8 +80,11 @@ def callback(message: PubsubMessage):
     processed_message = language_calculation(message_data)
     payload = {'message': processed_message}
     headers = {'content-type': 'application/json'}
-    response = requests.post('http://{}:{}/lang'.format(os.getenv('LOCAL_HOST'),
-                                                        os.getenv('PRODUCER_PORT')), 
+    if os.getenv('ENV') == 'development':
+        HOST = '127.0.0.1'
+    else:
+        HOST = '0.0.0.0'
+    response = requests.post('http://{}:{}/lang'.format(HOST, os.getenv('PRODUCER_PORT')), 
                                 data=json.dumps(payload), headers=headers)
 
     if response.status_code == 200:
