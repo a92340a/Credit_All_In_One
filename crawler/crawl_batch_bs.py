@@ -19,8 +19,8 @@ load_dotenv()
 sys.path.append('../Credit_All_In_One/')
 import my_logger
 import crawler 
-from crawler.utils import list_target_url, load_data, insert_into_mongo, insert_into_chroma,\
-    check_data_updated, select_mongo_schema, get_chroma_schema, truncate_chroma
+from crawler.utils import list_target_url, crawl_banks,\
+    select_mongo_schema, get_chroma_schema, truncate_chroma
 
 
 os.environ["OPENAI_API_KEY"] = os.getenv('OPEN_KEY')
@@ -160,7 +160,7 @@ def crawling_chartered(url):
 
 
 BANK = [
-    {'function':crawling_taishin, 'url':[#'https://www.taishinbank.com.tw/TSB/personal/credit/intro/overview/index.html?type=type2',
+    {'function':crawling_taishin, 'url':['https://www.taishinbank.com.tw/TSB/personal/credit/intro/overview/index.html?type=type2',
                 'https://www.taishinbank.com.tw/TSB/personal/credit/intro/overview/index.html?type=type3',
                 'https://www.taishinbank.com.tw/TSB/personal/credit/intro/overview/index.html?type=type4']},
     {'function':crawling_cathay, 'url':['https://www.cathaybk.com.tw/cathaybk/personal/product/credit-card/cards/']},
@@ -174,7 +174,8 @@ BANK = [
     {'function':crawling_chartered, 'url':['https://www.sc.com/tw/credit-cards/']},    
 ]
 
- 
+
+
 
 
 if __name__ == '__main__':
@@ -183,12 +184,7 @@ if __name__ == '__main__':
     dev_logger.info('======== Start batch bs ========')
     get_chroma_schema()
 
-    for each_bank in pg_list_all:
-        for url in each_bank['urls']: # list of urls
-            content = load_data(url)
-            if check_data_updated(url, content):
-                insert_into_chroma(each_bank['bank'], url, content)
-            insert_into_mongo(each_bank['bank'], url, content)
+    crawl_banks(pg_list_all)
     
     get_chroma_schema()
     dev_logger.info('======== End batch bs ========')    

@@ -41,7 +41,7 @@ def _get_mongodb():
 
 # ========= data loading, embedding ========= 
 
-def list_target_url(BANK):
+def list_target_url(BANK, ti):
     """
     List the credit card introduction url between banks
     """
@@ -58,10 +58,30 @@ def list_target_url(BANK):
                 dev_logger.warning('Fail to listing the {} from {}.'.format(bk['url'][i], bk['function'].__name__))
         page_list_all.append({'bank':bk['function'].__name__, 'urls':page_list_bk})
         dev_logger.info('Finish listing {}.'.format(bk['function'].__name__))
-    return page_list_all    
+    ti.xcom_push(key="pg_list", value=page_list_all)    
 
 
-def load_data(url):
+# def list_target_url(BANK):
+#     """
+#     List the credit card introduction url between banks
+#     """
+#     page_list_all = []
+#     for bk in BANK:
+#         page_list_bk = []
+#         for i in range(len(bk['url'])):
+#             try:
+#                 page = bk['function'](bk['url'][i])
+#                 page_list_bk.extend(list(set(page)))
+#                 page_list_bk = list(set(page_list_bk))
+#             except Exception as e:
+#                 dev_logger.warning(e)
+#                 dev_logger.warning('Fail to listing the {} from {}.'.format(bk['url'][i], bk['function'].__name__))
+#         page_list_all.append({'bank':bk['function'].__name__, 'urls':page_list_bk})
+#         dev_logger.info('Finish listing {}.'.format(bk['function'].__name__))
+#     return page_list_all 
+
+
+def _load_data(url):
     """
     Use LangChain loader(crawling) to fetch html content
     """
@@ -80,7 +100,7 @@ def load_data(url):
     return text
 
 
-def insert_into_mongo(bank, url, text):
+def _insert_into_mongo(bank, url, text):
     """ 
     Save into MongoDB to routine schedule and HA purpose
     """
@@ -97,7 +117,7 @@ def insert_into_mongo(bank, url, text):
     dev_logger.info(f'Finish inserting into MongoDB {bank}, \n {url}.')
 
 
-def insert_into_chroma(bank, url, text, chunk_size=200, chunk_overlap=40):
+def _insert_into_chroma(bank, url, text, chunk_size=200, chunk_overlap=40):
     """
     Split text and convert to vectors into ChromaDB
     """
@@ -134,6 +154,24 @@ def check_data_updated(url, text):
     else:
         return True
 
+
+# def crawl_banks(page_list_all): 
+#     for each_bank in page_list_all:
+#         for url in each_bank['urls']: # list of urls
+#             content = _load_data(url)
+#             if check_data_updated(url, content):
+#                 _insert_into_chroma(each_bank['bank'], url, content)
+#             _insert_into_mongo(each_bank['bank'], url, content)
+
+
+def crawl_banks(ti): 
+    page_list_all = ti.xcom_pull(key="pg_list", task_ids="list_all_url")
+    for each_bank in page_list_all:
+        for url in each_bank['urls']: # list of urls
+            content = _load_data(url)
+            if check_data_updated(url, content):
+                _insert_into_chroma(each_bank['bank'], url, content)
+            _insert_into_mongo(each_bank['bank'], url, content)
 
 # ========== healthy check ===========
 def select_mongo_schema():
