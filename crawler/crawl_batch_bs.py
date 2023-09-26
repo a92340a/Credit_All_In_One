@@ -15,6 +15,7 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 
 load_dotenv()
+os.environ["OPENAI_API_KEY"] = os.getenv('OPEN_KEY')
 
 sys.path.append('../Credit_All_In_One/')
 import my_logger
@@ -23,7 +24,6 @@ from crawler.utils import list_target_url, crawl_banks,\
     select_mongo_schema, get_chroma_schema, truncate_chroma
 
 
-os.environ["OPENAI_API_KEY"] = os.getenv('OPEN_KEY')
 persist_directory = './chroma_db'
 embedding = OpenAIEmbeddings() # default: "text-davinci-003", try to find replacable embedding function
 

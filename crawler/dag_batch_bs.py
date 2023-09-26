@@ -17,7 +17,7 @@ load_dotenv()
 
 default_args = {
     'owner': 'Finn',
-    'start_date': datetime(2023, 1, 1),
+    'start_date': datetime(2023, 9, 25, 22, 0),
     'email_on_failure': False,
     'email_on_retry': False,
     'retries': 5,
