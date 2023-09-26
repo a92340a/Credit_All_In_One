@@ -15,15 +15,16 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 
 load_dotenv()
+os.environ["OPENAI_API_KEY"] = os.getenv('OPEN_KEY')
 
 sys.path.append('../Credit_All_In_One/')
 import my_logger
 import crawler 
-from crawler.utils import list_target_url, load_data, insert_into_mongo, insert_into_chroma,\
-    check_data_updated, select_mongo_schema, get_chroma_schema, truncate_chroma
+from crawler.utils import list_target_url, crawl_banks,\
+    select_mongo_schema, get_chroma_schema, truncate_chroma
 
 
-os.environ["OPENAI_API_KEY"] = os.getenv('OPEN_KEY')
+
 persist_directory = './chroma_db'
 embedding = OpenAIEmbeddings() # default: "text-davinci-003", try to find replacable embedding function
 
@@ -41,18 +42,6 @@ dev_logger.file_handler(today)
 
 
 # ========= target url list crawling ========= 
-
-def crawling_dbs(url):
-    """
-    13. crawler on dbs credit card
-    """
-    resp = requests.get(url, headers={'User-Agent':random.choice(crawler.USER_AGENT)})
-    soup = bs(resp.text, 'lxml')
-    # rebuild some url
-    pattern_full = re.compile(r'^https:\/\/www.dbs.com.tw.*')
-    pagepath = [element['href'] for element in soup.select('h3.sc-1ep3p59.iEzFxk > a')]
-    pagepath_full = [i if re.search(pattern_full, i) else 'https://www.dbs.com.tw'+i for i in pagepath]
-    return pagepath_full
 
 
 def crawling_yuanta(url):
@@ -150,7 +139,6 @@ def crawling_rakuten(url):
 
 
 BANK = [    
-    {'function':crawling_dbs, 'url':['https://www.dbs.com.tw/personal-zh/cards/dbs-credit-cards/default.page']},
     {'function':crawling_yuanta, 'url':['https://www.yuantabank.com.tw/bank/creditCard/creditCard/list.do']},
     {'function':crawling_fareast, 'url':['https://www.feib.com.tw/introduce/cardInfo?type=1',
                     'https://www.feib.com.tw/introduce/cardInfo?type=2']},
@@ -163,19 +151,13 @@ BANK = [
     {'function':crawling_rakuten, 'url':['https://www.card.rakuten.com.tw/corp/product/']},
 ]
 
-
 if __name__ == '__main__':
     pg_list_all = list_target_url(BANK) 
     
-    dev_logger.info('======== Start batch bs2 ========')
+    dev_logger.info('======== Start batch bs ========')
     get_chroma_schema()
 
-    for each_bank in pg_list_all:
-        for url in each_bank['urls']: # list of urls
-            content = load_data(url)
-            if check_data_updated(url, content):
-                insert_into_chroma(each_bank['bank'], url, content)
-            insert_into_mongo(each_bank['bank'], url, content)
+    crawl_banks(pg_list_all)
     
     get_chroma_schema()
-    dev_logger.info('======== End batch bs2 ========')    
+    dev_logger.info('======== End batch bs ========')    
