@@ -11,14 +11,28 @@ from google.cloud.pubsublite.cloudpubsub import SubscriberClient
 from google.cloud.pubsublite.types import (CloudRegion, CloudZone,
                                            MessageMetadata, SubscriptionPath, FlowControlSettings)
 
-from lang_openai import load_data
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.vectorstores import Chroma
+from langchain.chat_models import ChatOpenAI
+from langchain.prompts.chat import (
+    ChatPromptTemplate,
+    MessagesPlaceholder,
+    SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate,
+)
+from langchain.chains import RetrievalQA, RetrievalQAWithSourcesChain, ConversationalRetrievalChain
+from langchain.memory import ConversationBufferMemory
 
 
 load_dotenv()
+os.environ["OPENAI_API_KEY"] = os.getenv('OPEN_KEY')
 
 sys.path.append('../Credit_All_In_One/')
 import my_logger
 
+persist_directory = './chroma_db'
+embedding = OpenAIEmbeddings() # default: “text-davinci-003”
+llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
 
 # datetime
 now = datetime.now()
@@ -58,20 +72,6 @@ def _get_pgsql():
         )
     return pg_client
 
-# def language_calculation(message_data):
-#     """ 
-#     1. load ChromaDB
-#     2. Build a Neo4j query
-#     3. Tuning prompt to complete a conversation with query result and openai API
-#     """
-#     message_sid = json.loads(message_data)
-#     qa_database = load_data()
-#     query = message_sid['message']
-#     answer = qa_database(query)
-#     message_sid['message'] = answer['result']
-#     dev_logger.info('Finish query on LangChain QAbot: {}'.format(message_sid['message']))
-#     return message_sid
-
 
 def language_calculation(message_data):
     """ 
@@ -81,8 +81,37 @@ def language_calculation(message_data):
     """
     message_sid = json.loads(message_data)
     query = message_sid['message']
-    qa_database = load_data()
-    answer = qa_database({"question": query})
+    
+    chat_prompt_template = ChatPromptTemplate(
+        messages=[
+            SystemMessagePromptTemplate.from_template(
+                """
+                你是一個親切且優秀的聊天機器人，擁有台灣各家銀行的信用卡介紹與優惠資訊。
+                請依使用者提問的語言回答他的問題。
+                當你無法理解使用者的提問時，請引導使用者作出更詳細的提問。
+                當資料庫中完全沒有相關資訊時，請回答「抱歉，我目前沒有這個問題的相關資訊。您可以調整您的提問，或是詢問我其他問題。」
+                """
+            ),
+            # 设置历史消息的模板参数变量是chat_history
+            MessagesPlaceholder(variable_name="chat_history"),
+            HumanMessagePromptTemplate.from_template("{question}")
+        ]
+    )
+
+    vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding)
+    
+    retriever = vectordb.as_retriever() # retriever = vectordb.as_retriever(search_kwargs={"k": 2}) 
+    # memory_key的chat_history参数要跟前面的历史消息模板参数对应，`return_messages=True` 参数目的是返回langchain封装的对话消息格式
+    memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+    conversation_qa_chain = ConversationalRetrievalChain.from_llm(
+        llm=llm, 
+        retriever=retriever, 
+        memory=memory,
+        condense_question_prompt=chat_prompt_template #CUSTOM_QUESTION_PROMPT
+        # return_source_documents=True
+        )
+    
+    answer = conversation_qa_chain({"question": query})
     print(answer) # {'question': '你好，可以詢問你信用卡相關問題嗎', 'chat_history': [HumanMessage(content='你好，可以詢問你信用卡相關問題嗎', additional_kwargs={}, example=False), AIMessage(content='當然可以！請問你有什麼信用卡相關的問題需要幫忙解答呢？', additional_kwargs={}, example=False)], 'answer': '當然可以！請問你有什麼信用卡相關的問題需要幫忙解答呢？'}
     message_sid['message'] = answer['answer']
     dev_logger.info('Finish query on LangChain QAbot: {}'.format(message_sid['message']))
