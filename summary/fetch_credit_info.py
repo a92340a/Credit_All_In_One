@@ -92,32 +92,27 @@ BANK_CH_NAME = {
 if __name__ == '__main__':
     mongo_db = _get_mongodb()
     mongo_collection = mongo_db["official_web"]
-    pipeline = [{'$match': {'url','https://www.fubon.com/banking/personal/credit_card/all_card/omiyage/omiyage.htm'}}]
-    # cur = mongo_collection.find()
-    # for i in cur:
-    #     print(i)
-    r = list(mongo_collection.aggregate(pipeline))
-    print(r)
-    # fetch_latest_info = list(mongo_collection.aggregate(pipeline))
+    pipeline = [{'$group': {'_id': ['$source', '$url'], 'lst_update_dt': {'$max': '$create_date'}}}]
+    fetch_latest_info = list(mongo_collection.aggregate(pipeline))
 
-    # credit_latest_info = []
-    # for i in fetch_latest_info:
-    #     bank_name = BANK_CH_NAME[i['_id'][0]]
-    #     function_name = i['_id'][0]
-    #     url = i['_id'][1]
-    #     lst_update_dt = i['lst_update_dt']
-    #     credit_latest_info.append(tuple([bank_name, function_name, None, url, lst_update_dt]))
-    # dev_logger.info(f'Numbers of latest MongoDB data: {len(credit_latest_info)}')
+    credit_latest_info = []
+    for i in fetch_latest_info:
+        bank_name = BANK_CH_NAME[i['_id'][0]]
+        function_name = i['_id'][0]
+        url = i['_id'][1]
+        lst_update_dt = i['lst_update_dt']
+        credit_latest_info.append(tuple([bank_name, function_name, None, url, lst_update_dt]))
+    dev_logger.info(f'Numbers of latest MongoDB data: {len(credit_latest_info)}')
 
-    # pg_db = _get_pgsql()
-    # cursor = pg_db.cursor()
-    # # cursor.execute('SELECT * from credit_info;')
-    # # result = cursor.fetchall()
-    # try:
-    #     cursor.executemany('INSERT INTO credit_info VALUES (%s, %s, %s, %s, %s);', credit_latest_info)
-    #     pg_db.commit()
-    #     dev_logger.info('Successfully insert into PostgreSQL')
-    # except Exception as e:
-    #     dev_logger.warning(e)
-    # else:
-    #     cursor.close()
+    pg_db = _get_pgsql()
+    cursor = pg_db.cursor()
+    # cursor.execute('SELECT * from credit_info;')
+    # result = cursor.fetchall()
+    try:
+        cursor.executemany('INSERT INTO credit_info VALUES (%s, %s, %s, %s, %s);', credit_latest_info)
+        pg_db.commit()
+        dev_logger.info('Successfully insert into PostgreSQL')
+    except Exception as e:
+        dev_logger.warning(e)
+    else:
+        cursor.close()
