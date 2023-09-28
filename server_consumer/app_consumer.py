@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import time
 from datetime import datetime
 from dotenv import load_dotenv
 import psycopg2
@@ -10,7 +11,8 @@ from google.pubsub_v1 import PubsubMessage
 from google.cloud.pubsublite.cloudpubsub import SubscriberClient
 from google.cloud.pubsublite.types import (CloudRegion, CloudZone,
                                            MessageMetadata, SubscriptionPath, FlowControlSettings)
-
+from langchain.memory import PostgresChatMessageHistory
+from langchain.memory import MongoDBChatMessageHistory
 from lang_openai import load_data
 
 
@@ -24,7 +26,6 @@ import my_logger
 now = datetime.now()
 today_date = now.date()
 today = now.strftime('%Y-%m-%d')
-year = now.strftime('%Y')
 
 # create a logger
 dev_logger = my_logger.MyLogger('consumer')
@@ -79,35 +80,76 @@ def _fetch_history_from_pgsql(sid):
     pg_db = _get_pgsql()
     cursor = pg_db.cursor()
     try:
-        cursor.execute('SELECT question, answer FROM question_answer WHERE sid = %s ORDER BY q_id;', sid)
+        cursor.execute('SELECT question, answer FROM question_answer WHERE sid = %s ORDER BY q_id;', (sid,))
         history = cursor.fetchall()
+        print(history)
         pg_db.commit()
         cursor.close()
         return history
     except Exception as e:
-        dev_logger.warning(e)
+        dev_logger.warning(f'Fetching history from pgsql error: {e}')
         cursor.close()
+        return list()
     
+
+def _insert_into_pgsql(sid, question, answer):
+    """
+    sid: user's sockect sid
+    question: user's question 
+    answer: answer from QA model
+    """
+    pg_db = _get_pgsql()
+    cursor = pg_db.cursor()
+    # qa_result = tuple([sid, today, int(time.time()), question, answer])
+    try:
+        cursor.execute("""INSERT INTO question_answer(sid,create_dt,create_timestamp,question,answer) 
+                       VALUES (%s, %s, %s, %s, %s);""", 
+                       (sid, today, int(time.time()), question, answer['answer']))
+        pg_db.commit()
+        dev_logger.info('Successfully insert into PostgreSQL')
+    except Exception as e:
+        dev_logger.warning(f'Inserting into pgsql error: {e}')
+    else:
+        cursor.close()
+#   
 
 def language_calculation(message_data):
     """ 
-    1. load ChromaDB
-    2. Build a Neo4j query
-    3. Tuning prompt to complete a conversation with query result and openai API
+    1. Fetching chatting history for specific sid 
+    2. Loading Conversational Retrieval Chain with vector ChromaDB
+    3. Inserting the question and answer info to PostgreSQL from chatting history
     """
     message_sid = json.loads(message_data)
     query = message_sid['message']
     sid = message_sid['sid']
 
     # fetch chatting history
-    chat_history = []
-    
+    # chat_history = _fetch_history_from_pgsql(sid)
+    # history = PostgresChatMessageHistory(connection_string=f"postgresql://{os.getenv('PGSQL_USER')}:{os.getenv('PGSQL_PASSWD')}@{os.getenv('PGSQL_HOST')}:{os.getenv('PGSQL_PORT')}/{os.getenv('PGSQL_DB')}", session_id=sid)
+    # Provide the connection string to connect to the MongoDB database
+    # connection_string = f"mongodb://{os.getenv('MONGO_USERNAME')}:{os.getenv('MONGO_PASSWORD')}@{os.getenv('MONGO_HOST')}:{os.getenv('MONGO_PORT')}"
+    connection_string = f"mongodb://{os.getenv('MONGO_USERNAME')}:{os.getenv('MONGO_PASSWORD')}@{os.getenv('MONGO_HOST')}:{os.getenv('MONGO_PORT')}/credit?authMechanism={os.getenv('MONGO_AUTHMECHANISM')}"
+
+    history = MongoDBChatMessageHistory(
+        connection_string=connection_string, 
+        session_id=sid,
+        database_name='credit',
+        collection_name='chat_history'    
+    )
+
+    print(f'history: {history.messages}')
+
     # QA chain
     qa_database = load_data()
-    answer = qa_database({"question": query})
+    answer = qa_database({"question": query, "chat_history":history.messages})
     print(answer) # {'question': '你好，可以詢問你信用卡相關問題嗎', 'chat_history': [HumanMessage(content='你好，可以詢問你信用卡相關問題嗎', additional_kwargs={}, example=False), AIMessage(content='當然可以！請問你有什麼信用卡相關的問題需要幫忙解答呢？', additional_kwargs={}, example=False)], 'answer': '當然可以！請問你有什麼信用卡相關的問題需要幫忙解答呢？'}
     message_sid['message'] = answer['answer']
     dev_logger.info('Finish query on LangChain QAbot: {}'.format(message_sid['message']))
+    
+    history.add_user_message(query)  ###
+    history.add_ai_message(answer['answer'])  ###
+    # Insert QA data into PostgreSQL
+    _insert_into_pgsql(sid, query, answer)
     return message_sid
 
 
@@ -136,27 +178,6 @@ def callback(message: PubsubMessage):
         dev_logger.info('Successfully send to producer server')
     else:
         dev_logger.warning(f'Error sending message. Status code: {response.status_code}')
-
-    # Insert QA data into PostgreSQL
-
-# def _insert_into_pgsql(message_data, processed_message):
-#     """
-#     message_data: user's question and sockect sid
-#     processed_message: answer from QA model
-#     """
-#     question = message_data["message"]
-#     answer = processed_message
-
-#     pg_db = _get_pgsql()
-#     cursor = pg_db.cursor()
-#     try:
-#         cursor.execute('INSERT INTO question_answer VALUES (%s, %s, %s, %s, %s);', credit_latest_info)
-#         pg_db.commit()
-#         dev_logger.info('Successfully insert into PostgreSQL')
-#     except Exception as e:
-#         dev_logger.warning(e)
-#     else:
-#         cursor.close()
 
 
 if __name__ == '__main__':
