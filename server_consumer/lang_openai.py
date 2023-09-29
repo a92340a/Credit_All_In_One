@@ -13,7 +13,7 @@ from langchain.prompts.chat import (
 )
 from langchain.chains import RetrievalQA, RetrievalQAWithSourcesChain, ConversationalRetrievalChain, ConversationChain
 from langchain.memory import ConversationBufferMemory
-
+from langchain.schema import ChatMessage
 
 load_dotenv()
 os.environ["OPENAI_API_KEY"] = os.getenv('OPEN_KEY')
@@ -25,40 +25,34 @@ llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
   
 
 def load_data():
-    # human_message_prompt = HumanMessagePromptTemplate(
-    #     prompt=PromptTemplate(
-    #         template="What is a good name for a company that makes {product}?",
-    #         input_variables=["product"],
-    #     )
-    # )
-    # chat_prompt_template = ChatPromptTemplate.from_messages([human_message_prompt])
     chat_prompt_template = ChatPromptTemplate(
         messages=[
             SystemMessagePromptTemplate.from_template(
                 """
-                你是一個親切且優秀的聊天機器人，擁有台灣各家銀行的信用卡介紹與優惠資訊。
-                請依使用者提問的語言回答他的問題，預設是繁體中文。
-                回答內容以條列式呈現，字數最多不要超過300字。
-                當你無法理解使用者的提問時，請引導使用者作出更詳細的提問。
-                當資料庫中完全沒有相關資訊時，請回答「抱歉，我目前沒有這個問題的相關資訊。您可以調整您的提問，或是詢問我其他問題。」
+                You are a kind and professional chatbot about credit card information in Taiwan.
+                Please answer questions in user's language as the default language is traditional chinese.
+                Please answer with list-formatted and not exceed in 300 words.
                 """
             ),
             MessagesPlaceholder(variable_name="chat_history"),
             HumanMessagePromptTemplate.from_template("{question}")
         ]
     )
-    # chat_prompt_template = PromptTemplate(
-    #     input_variables=["chat_history", "question"],
-    #     template = """
-    #     你是一個親切且優秀的聊天機器人，擁有台灣各家銀行的信用卡介紹與優惠資訊。
-    #     請依使用者提問的語言回答他的問題，預設是繁體中文。
-    #     回答內容以條列式呈現，字數最多不要超過300字。
-    #     當無法理解使用者的提問時，請引導使用者作出更詳細的提問。
-    #     當資料庫中完全沒有相關資訊時，請回答「抱歉，我目前沒有這個問題的相關資訊。您可以調整您的提問，或是詢問我其他問題。」
-    #     歷史對話紀錄:{chat_history}
-    #     Human:{question}
-    #     """
-    # )
+    # 你是一個親切且優秀的聊天機器人，擁有台灣各家銀行的信用卡介紹與優惠資訊。
+    # 請依使用者提問的語言回答他的問題，預設是繁體中文。
+    # 回答內容以條列式呈現，字數最多不要超過300字。
+    # 當你無法理解使用者的提問時，請引導使用者作出更詳細的提問。
+    # 當資料庫中完全沒有相關資訊時，請回答「抱歉，我目前沒有這個問題的相關資訊。您可以調整您的提問，或是詢問我其他問題。」
+    chat_prompt_template = PromptTemplate(
+        input_variables=["chat_history", "question"],
+        template = """
+        You are a kind and professional chatbot about credit card information in Taiwan.
+        Please answer questions in user's language as the default language is traditional chinese.
+        Please answer with list-formatted and not exceed in 300 words.
+        Chatting history:{chat_history}
+        Human:{question}
+        """
+    )
     # 4. Now we can load the persisted database from disk
     vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding)
     

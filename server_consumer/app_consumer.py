@@ -100,7 +100,6 @@ def _insert_into_pgsql(sid, question, answer):
     """
     pg_db = _get_pgsql()
     cursor = pg_db.cursor()
-    # qa_result = tuple([sid, today, int(time.time()), question, answer])
     try:
         cursor.execute("""INSERT INTO question_answer(sid,create_dt,create_timestamp,question,answer) 
                        VALUES (%s, %s, %s, %s, %s);""", 

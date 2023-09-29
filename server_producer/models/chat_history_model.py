@@ -4,10 +4,6 @@ from datetime import datetime
 from dotenv import load_dotenv
 
 from flask import Flask, request, render_template
-from flask_socketio import SocketIO
-from flask_sqlalchemy import Model, SQLAlchemy
-from google.cloud.pubsublite.cloudpubsub import PublisherClient
-from google.cloud.pubsublite.types import MessageMetadata
 import psycopg2
 
 import my_logger 
@@ -59,3 +55,4 @@ def _get_pgsql():
         port=os.getenv('PGSQL_PORT')
         )
     return pg_client
+

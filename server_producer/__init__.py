@@ -8,7 +8,6 @@ from flask_socketio import SocketIO
 from flask_sqlalchemy import Model, SQLAlchemy
 from google.cloud.pubsublite.cloudpubsub import PublisherClient
 from google.cloud.pubsublite.types import MessageMetadata
-from sqlalchemy import inspect
 
 import my_logger 
 load_dotenv()
@@ -29,14 +28,16 @@ dev_logger.file_handler(today)
 # class BaseModel(Model):
 #     def to_json(self):
 #         # return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-#         return {column.key: getattr(self, column.key) for column in inspect(self).mapper.column_attrs}
     
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('APP_SECRET_KEY')
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv('KEY')
 socketio = SocketIO(app, cors_allowed_origins="*") 
-db = SQLAlchemy(app)
+
+# app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{}:password@host:port/database_name'
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# db = SQLAlchemy(app)
 
 
 @app.route('/')
