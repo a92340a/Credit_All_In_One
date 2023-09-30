@@ -6,3 +6,28 @@ h1 {
 h2,h3,h4,h5,h6 {
     font-family: 'Noto Sans TC', sans-serif;
 }
+
+.cube {
+    padding: 1rem;
+}
+ 
+.qa-box p.collapse[aria-expanded="false"] {
+    display: block;
+    height: 50px;
+    overflow: hidden;
+}
+
+.qa-box p.collapsing[aria-expanded="false"] {
+    /* height: 100%; */
+    /* max-height: none !important; Override Bootstrap's max-height */
+    max-height: none !important; /* Override Bootstrap's max-height */
+    transition: max-height 0.3s ease; /* Add a transition effect */
+}
+
+.qa-box a.collapsed:after  {
+    content: '+ Show More';
+}
+
+.qa-box a:not(.collapsed):after {
+    content: '- Show Less';
+}

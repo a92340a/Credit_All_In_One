@@ -11,7 +11,7 @@ const clientIcons = ['https://img.icons8.com/color/48/parrot.png','https://img.i
     'https://img.icons8.com/color/48/whale.png','https://img.icons8.com/color/48/crab.png','https://img.icons8.com/color/48/bear.png',
     'https://img.icons8.com/color/48/deer.png','https://img.icons8.com/color/48/elephant.png','https://img.icons8.com/color/48/giraffe.png'];
 
-// choose a icon for client
+// random choose a icon for client
 let selectedIcon; 
 function getRandomIcon() {
     const randomIndex = Math.floor(Math.random() * clientIcons.length); 
@@ -50,7 +50,6 @@ socket.on('calculating', function(calculating) {
     keepPublisherAtBottom();
     // scroll down
     chatContent.scrollTop = chatContent.scrollHeight;
-    // document.getElementById('messages_output').innerText = calculating;
 });
 
 // show results
@@ -61,12 +60,45 @@ socket.on('result', function(data) {
     lastPTag.innerText = data;
 });
 
+// show 5 latest chats
+socket.on('chats', function(chats) {
+    const recentQA = document.getElementById('recent_qa');
+    for (let i = 0; i < chats.length; i++){
+        var qaBox = document.createElement("div");
+        qaBox.classList.add("qa-box", "card-body");
+
+        var qaQuestion = document.createElement("h5");
+        qaQuestion.classList.add("qa-Question", "card-title");
+        qaQuestion.textContent = chats[i][1];
+
+        var qaDate = document.createElement("h6");
+        qaDate.classList.add("qa-date", "card-subtitle", "mb-2", "text-muted");
+        qaDate.textContent = chats[i][0];
+
+        var qaAnswer = document.createElement("p");
+        qaAnswer.classList.add("qa-answer", "card-text", "collapse");
+        qaAnswer.textContent = chats[i][2];
+        qaAnswer.setAttribute("id", "qa-answer-"+i);
+        qaAnswer.setAttribute("aria-expanded", "false");
+
+        var qaCollapse = document.createElement("a");
+        qaCollapse.classList.add("collapsed");
+        qaCollapse.setAttribute("role", "button");
+        qaCollapse.setAttribute("data-bs-toggle", "collapse");
+        qaCollapse.setAttribute("href", "#qa-answer-"+i);
+        qaCollapse.setAttribute("aria-expanded", "false");
+        qaCollapse.setAttribute("aria-controls", "qa-answer-"+i);
+        
+        qaBox.appendChild(qaQuestion);
+        qaBox.appendChild(qaDate);
+        qaBox.appendChild(qaAnswer);
+        qaBox.appendChild(qaCollapse);
+        recentQA.appendChild(qaBox);
+    }
+});
 
 
 function keepPublisherAtBottom() {
-    // var chatContent = document.getElementById("chat-content");
-    // var publisher = document.querySelector(".publisher");
-    // chatContent.scrollTop = chatContent.scrollHeight - chatContent.clientHeight;
     publisher.style.position = "relative";
     publisher.style.bottom = "0";
 }

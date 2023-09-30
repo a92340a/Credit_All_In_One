@@ -61,3 +61,23 @@ def fetch_total_cards():
     cursor.close()
     pgsql_db.close()
     return data
+
+
+def fetch_latest_cards(date_interval):
+    pgsql_db = _get_pgsql()
+    cursor = pgsql_db.cursor()
+    sql = """
+    SELECT bank_name, url
+    FROM credit_info 
+    WHERE lst_update_dt = current_date
+    EXCEPT 
+    SELECT bank_name, url
+    FROM credit_info 
+    WHERE lst_update_dt = current_date - %s;
+    """
+    cursor.execute(sql, (date_interval,))
+    data = cursor.fetchall()
+    cursor.close()
+    pgsql_db.close()
+    return data
+
