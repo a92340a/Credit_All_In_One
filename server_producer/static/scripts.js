@@ -45,7 +45,7 @@ function sendMessage() {
 
 // waiting and showing marquee
 socket.on('calculating', function(calculating) {
-    addServerMessage(calculating)
+    addServerMessage(calculating);
     // make publisher sticked in the bottom
     keepPublisherAtBottom();
     // scroll down

@@ -25,34 +25,31 @@ llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
   
 
 def load_data():
-    chat_prompt_template = ChatPromptTemplate(
-        messages=[
-            SystemMessagePromptTemplate.from_template(
-                """
-                You are a kind and professional chatbot about credit card information in Taiwan.
-                Please answer questions in user's language as the default language is traditional chinese.
-                Please answer with list-formatted and not exceed in 300 words.
-                """
-            ),
-            MessagesPlaceholder(variable_name="chat_history"),
-            HumanMessagePromptTemplate.from_template("{question}")
-        ]
-    )
-    # 你是一個親切且優秀的聊天機器人，擁有台灣各家銀行的信用卡介紹與優惠資訊。
-    # 請依使用者提問的語言回答他的問題，預設是繁體中文。
-    # 回答內容以條列式呈現，字數最多不要超過300字。
-    # 當你無法理解使用者的提問時，請引導使用者作出更詳細的提問。
-    # 當資料庫中完全沒有相關資訊時，請回答「抱歉，我目前沒有這個問題的相關資訊。您可以調整您的提問，或是詢問我其他問題。」
-    chat_prompt_template = PromptTemplate(
-        input_variables=["chat_history", "question"],
-        template = """
-        You are a kind and professional chatbot about credit card information in Taiwan.
-        Please answer questions in user's language as the default language is traditional chinese.
-        Please answer with list-formatted and not exceed in 300 words.
-        Chatting history:{chat_history}
-        Human:{question}
-        """
-    )
+    _template = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
+    You can assume the question about the credit card information.
+
+    Chat History:
+    {chat_history}
+    Follow Up Input: {question}
+    Standalone question:"""
+    CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template(_template)
+    
+    template = """
+    你是一個叫做「Finn Bot」的聊天機器人，擁有台灣各家銀行的信用卡介紹與優惠資訊。
+    請依據下方給定的內容與使用者本次問題進行回覆。
+    請依使用者提問的語言回答他的問題，若有不清楚使用者語言或是簡體中文，一律使用繁體中文回答。
+    回答前須先確認使用者是針對特定信用卡提問，或是想要綜合比較各家信用卡的某項目。
+    回答內容以條列式呈現，字數最多不要超過200字。
+    如果使用者的問題與信用卡、問候或重新依照歷史訊息回答無關的話，請回答「抱歉，我目前沒有這個問題的相關資訊。您可以調整您的提問，或是詢問我其他問題。」。
+    當你無法理解使用者的提問時，請引導使用者作出更詳細的提問。
+    Question: {question}
+    =========
+    {context}
+    =========
+    Answer in Markdown:"""
+    QA_PROMPT = PromptTemplate(template=template, input_variables=[
+                            "question", "context"])
+
     # 4. Now we can load the persisted database from disk
     vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding)
     
@@ -65,19 +62,11 @@ def load_data():
         # memory=memory,
         verbose=True,
         # chain_type="stuff",
-        condense_question_prompt=chat_prompt_template 
+        condense_question_prompt=CONDENSE_QUESTION_PROMPT,
+        combine_docs_chain_kwargs={"prompt": QA_PROMPT}
         )
     
     return conversation_qa_chain
-
-    # qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever,
-    #                                 #  chain_type_kwargs={"prompt": PromptTemplate(
-    #                                 #             template=template,
-    #                                 #             input_variables=["summaries", "question"],
-    #                                 #         ),
-    #                                 #     }, 
-    #                                  return_source_documents=True, verbose=True)
-    # return qa
 
 
 if __name__ == '__main__':
