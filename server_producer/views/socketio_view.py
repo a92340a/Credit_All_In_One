@@ -9,7 +9,7 @@ from server_producer import socketio
 from flask import Blueprint, request
 from google.cloud.pubsublite.cloudpubsub import PublisherClient
 from google.cloud.pubsublite.types import MessageMetadata
-from server_producer.models.chat_model import fetch_latest_chats
+
 
 import my_logger 
 load_dotenv()
@@ -45,12 +45,4 @@ def get_and_produce_message(message):
             f"Published a message with partition {message_metadata.partition.value} and offset {message_metadata.cursor.offset}."
         )
 
-
-@socketio.on('connect')
-def return_latest_qa():
-    """
-    First response with waiting message and publish message, sid to PubSub Lite
-    """
-    chats = fetch_latest_chats()
-    socketio.emit('chats', chats)
 

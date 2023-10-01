@@ -13,6 +13,7 @@ import plotly as py
 import plotly.graph_objects as go
 
 from server_producer.models.hot_cards_model import fetch_cards_ranking, fetch_total_cards, fetch_latest_cards
+from server_producer.models.chat_model import fetch_latest_chats
 import my_logger 
 load_dotenv()
 
@@ -47,40 +48,32 @@ def index():
     bank_names = [_[0] for _ in cards]
     card_counts = [_[1] for _ in cards]
 
-    fig.add_trace(go.Bar(x=bank_names, y=card_counts, name='S'))
+    fig.add_trace(go.Bar(x=bank_names, y=card_counts, name='S', 
+                         marker=dict(color=card_counts, colorscale='dense'))) #Blues
     fig.update_layout(autosize=True, title_x=0.5,
                       title_text=f'Quantity of top {top_k} active cards in Taiwan',
-                      xaxis_title='Banks', yaxis_title='Quantity')
+                      xaxis_title='Banks', yaxis_title='Quantity',
+                      paper_bgcolor='rgba(0,0,0,0)',
+                      plot_bgcolor='rgba(0,0,0,0)')
     plot_1 = json.dumps(fig, cls=py.utils.PlotlyJSONEncoder)
 
     # === part 2: bank name, card name, url and image ===
     latest = fetch_latest_cards()
     if latest:
-        bank_latest = [_[0] for _ in latest]
-        url_latest = [_[1] for _ in latest]
-        plot_2 = go.Figure(data=[go.Table(
-            header=dict(values=bank_latest,
-                        line_color='gray',
-                        fill_color='gray',
-                        align='center'),
-            cells=dict(values=url_latest,
-                        line_color='gray',
-                        fill_color='white',
-                        align='center'))
-            ])
-
-        plot_2.update_layout(autosize=True, title_x=0.5,
-                        title_text=f"Take a loot at what's new")
-        plot_2 = json.dumps(plot_2, cls=py.utils.PlotlyJSONEncoder)
+        plot_2 = latest
     else:
-        plot_2 = json.dumps('No new release in these 7 days!')
+        plot_2 = 'No new release in these 7 days!'
+    
+    # === part 5: recent chats: create_dt, question, answer ===
+    plot_5 = fetch_latest_chats()
+    
     # pie_color = go.Figure(go.Pie(labels=distinct_color_name, values=distinct_color_freq,
     #                              showlegend=True, marker=dict(colors=colors)))
     # pie_color.update_layout(title_text='Product sold percentage in different colors',
     #                         xaxis_title='', yaxis_title='Quantity')
     # plot_2 = json.dumps(pie_color, cls=py.utils.PlotlyJSONEncoder)
     
-    return render_template('index.html', card_1=card_1, plot_1=plot_1, plot_2=plot_2)
+    return render_template('index.html', card_1=card_1, plot_1=plot_1, plot_2=plot_2, plot_5=plot_5)
 
 
 from server_producer.views import socketio_view

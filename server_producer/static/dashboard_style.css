@@ -21,17 +21,17 @@ h2,h3,h4,h5,h6 {
     overflow: hidden;
 }
 
-.qa-box p.collapsing[aria-expanded="false"] {
+/* .qa-box p.collapsing[aria-expanded="false"] { */
     /* height: 100%; */
     /* max-height: none !important; Override Bootstrap's max-height */
-    max-height: none !important; /* Override Bootstrap's max-height */
-    transition: max-height 0.3s ease; /* Add a transition effect */
-}
+    /* max-height: none !important; Override Bootstrap's max-height */
+    /* transition: max-height 0.3s ease; Add a transition effect */
+/* } */
 
 .qa-box a.collapsed:after  {
-    content: '+ Show More';
+    content: '+ Read More';
 }
 
 .qa-box a:not(.collapsed):after {
-    content: '- Show Less';
+    content: '- Read Less';
 }

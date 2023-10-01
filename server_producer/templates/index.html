@@ -41,7 +41,18 @@
                 </div>
                 <div class="col text-center cube">
                     <h5>New Release</h5>
-                    <div id="new_release"></div>
+                    <div id="new_release">
+                        {% if plot_2 is string %}
+                            <div>No new release in these 7 days!</div>
+                        {% else %}
+                            {% for card in plot_2 %}
+                            <div class="bank-name">{{ card[0] }}</div>
+                            <img class="card-image" src="../static/images/credit_card_image.png" alt="card-image" height="100"><br>
+                            <a class="url" href="{{card[1]}}">{{ card[1] }}</a>
+                            <br>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             <br>
@@ -60,7 +71,25 @@
     <section id="chill-questions" class="padding container">   
         <h3>Chill Questions</h3>
         <div class="container">
-            <div id="recent_qa" class="card"></div>
+            <div id="recent_qa" class="card">
+                {% for chat in plot_5 %}
+                <div class="qa-box card-body">
+                    <h5 class="qa-Question card-title"><span>Q:</span>{{ chat[1] }}</h5>
+                    <h6 class="qa-date card-subtitle mb-2 text-muted">{{ chat[0] }}</h6>
+                    <span>A: </span>
+                    {% if '\n' in chat[2] %}
+                        <ul class="qa-answer card-text collapse" id="qa-answer-{{plot_5.index(chat)}}">
+                            {% for item in chat[2].split('\n') %}
+                                <li>{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="qa-answer card-text collapse" id="qa-answer-{{plot_5.index(chat)}}">{{ chat[2] }}</p>
+                    {% endif %}
+                    <a class="collapsed" data-bs-toggle="collapse" href="#qa-answer-{{plot_5.index(chat)}}" role="button" aria-expanded="false" aria-controls="#qa-answer-{{plot_5.index(chat)}}"></a>
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </section>
     <!-- Dashboard -->
@@ -124,13 +153,5 @@
 <script type="text/javascript">
     let plot_1 = {{ plot_1 | safe }};
     Plotly.plot("cards_counts_ranking", plot_1, {});
-    
-    let plot_2 = {{ plot_2 | safe }};
-    if (typeof plot_2 === 'string'){
-        const p2 = document.getElementById('new_release');
-        p2.textContent = plot_2;
-    } else {
-        Plotly.plot("new_release", plot_2, {});
-    }    
 </script>
 </html>
