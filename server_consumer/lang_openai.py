@@ -4,13 +4,16 @@ from dotenv import load_dotenv
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.chat_models import ChatOpenAI
+from langchain.prompts import PromptTemplate
 from langchain.prompts.chat import (
     ChatPromptTemplate,
+    MessagesPlaceholder,
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate,
 )
-from langchain.chains import RetrievalQA, RetrievalQAWithSourcesChain
-
+from langchain.chains import RetrievalQA, RetrievalQAWithSourcesChain, ConversationalRetrievalChain, ConversationChain
+from langchain.memory import ConversationBufferMemory
+from langchain.schema import ChatMessage
 
 load_dotenv()
 os.environ["OPENAI_API_KEY"] = os.getenv('OPEN_KEY')
@@ -22,29 +25,53 @@ llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
   
 
 def load_data():
-    # prompt_template = """Use the following pieces of context to answer the question at the end. If you don't know the answer, just say GTGTGTGTGTGTGTGTGTG, don't try to make up an answer.
-    #     {context}
-    #     Question: {question}
-    #     Helpful Answer:"""
-    # QA_PROMPT = ChatPromptTemplate(
-    #     template=prompt_template, input_variables=['context',"question"]
-    # )
+    _template = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
+    You can assume the question about the credit card information.
+
+    Chat History:
+    {chat_history}
+    Follow Up Input: {question}
+    Standalone question:"""
+    CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template(_template)
+    
+    template = """
+    你是一個叫做「Finn Bot」的聊天機器人，擁有台灣各家銀行的信用卡介紹與優惠資訊。
+    請依據下方給定的內容與使用者本次問題進行回覆。
+    請依使用者提問的語言回答他的問題，若有不清楚使用者語言或是簡體中文，一律使用繁體中文回答。
+    回答前須先確認使用者是針對特定信用卡提問，或是想要綜合比較各家信用卡的某項目。
+    回答內容以條列式呈現，字數最多不要超過200字。
+    如果使用者的問題與信用卡、問候或重新依照歷史訊息回答無關的話，請回答「抱歉，我目前沒有這個問題的相關資訊。您可以調整您的提問，或是詢問我其他問題。」。
+    當你無法理解使用者的提問時，請引導使用者作出更詳細的提問。
+    Question: {question}
+    =========
+    {context}
+    =========
+    Answer in Markdown:"""
+    QA_PROMPT = PromptTemplate(template=template, input_variables=[
+                            "question", "context"])
+
     # 4. Now we can load the persisted database from disk
     vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding)
     
-    retriever = vectordb.as_retriever() # retriever = vectordb.as_retriever(search_kwargs={"k": 2}) # retriever = index.vectorstore.as_retriever()
-    qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever,
-                                    #  chain_type_kwargs={"prompt": PromptTemplate(
-                                    #             template=template,
-                                    #             input_variables=["summaries", "question"],
-                                    #         ),
-                                    #     }, 
-                                     return_source_documents=True, verbose=True)
-    return qa
+    retriever = vectordb.as_retriever() # retriever = vectordb.as_retriever(search_kwargs={"k": 2}) 
+    # memory_key的chat_history参数要跟前面的历史消息模板参数对应，`return_messages=True` 参数目的是返回langchain封装的对话消息格式
+    # memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+    conversation_qa_chain = ConversationalRetrievalChain.from_llm(
+        llm=llm, 
+        retriever=retriever, 
+        # memory=memory,
+        verbose=True,
+        # chain_type="stuff",
+        condense_question_prompt=CONDENSE_QUESTION_PROMPT,
+        combine_docs_chain_kwargs={"prompt": QA_PROMPT}
+        )
+    
+    return conversation_qa_chain
 
 
 if __name__ == '__main__':
-    qa_database = load_data()
-    query = "Richart 利上加利是什麼" #"同意申請卡號速取是什麼" "Richart 利上加利是什麼"
-    result = qa_database(query)
-    print(result)
+    # qa_database = load_data()
+    # query = "Richart 利上加利是什麼" #"同意申請卡號速取是什麼" "Richart 利上加利是什麼"
+    # result = qa_database(query)
+    # print(result)
+    pass
