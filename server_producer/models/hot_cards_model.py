@@ -63,19 +63,23 @@ def fetch_total_cards():
     return data
 
 
-def fetch_latest_cards(date_interval):
+def fetch_latest_cards():
     pgsql_db = _get_pgsql()
     cursor = pgsql_db.cursor()
     sql = """
+    WITH fst AS (
+        SELECT 
+            bank_name, url, min(lst_update_dt) AS first_date
+        FROM credit_info
+        group by bank_name, url
+    )
     SELECT bank_name, url
-    FROM credit_info 
-    WHERE lst_update_dt = current_date
-    EXCEPT 
-    SELECT bank_name, url
-    FROM credit_info 
-    WHERE lst_update_dt = current_date - %s;
+    FROM fst 
+    WHERE first_date BETWEEN current_date - 7 AND current_date
+    ORDER BY first_date DESC
+    LIMIT 5;
     """
-    cursor.execute(sql, (date_interval,))
+    cursor.execute(sql)
     data = cursor.fetchall()
     cursor.close()
     pgsql_db.close()

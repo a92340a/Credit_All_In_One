@@ -54,28 +54,26 @@ def index():
     plot_1 = json.dumps(fig, cls=py.utils.PlotlyJSONEncoder)
 
     # === part 2: bank name, card name, url and image ===
-    latest = fetch_latest_cards(1)
-    if not latest[0]:
-        latest = fetch_latest_cards(3)
-        if not latest[0]:
-            latest = 'No new release in these 3 days!'
-    bank_latest = [_[0] for _ in latest]
-    url_latest = [_[1] for _ in latest]
-    plot_2 = go.Figure(data=[go.Table(
-        header=dict(values=bank_latest,
-                    line_color='gray',
-                    fill_color='gray',
-                    align='center'),
-        cells=dict(values=url_latest,
-                    line_color='gray',
-                    fill_color='white',
-                    align='center'))
-        ])
+    latest = fetch_latest_cards()
+    if latest:
+        bank_latest = [_[0] for _ in latest]
+        url_latest = [_[1] for _ in latest]
+        plot_2 = go.Figure(data=[go.Table(
+            header=dict(values=bank_latest,
+                        line_color='gray',
+                        fill_color='gray',
+                        align='center'),
+            cells=dict(values=url_latest,
+                        line_color='gray',
+                        fill_color='white',
+                        align='center'))
+            ])
 
-    plot_2.update_layout(autosize=True, title_x=0.5,
-                      title_text=f"Take a loot at what's new")
-    plot_2 = json.dumps(plot_2, cls=py.utils.PlotlyJSONEncoder)
-
+        plot_2.update_layout(autosize=True, title_x=0.5,
+                        title_text=f"Take a loot at what's new")
+        plot_2 = json.dumps(plot_2, cls=py.utils.PlotlyJSONEncoder)
+    else:
+        plot_2 = json.dumps('No new release in these 7 days!')
     # pie_color = go.Figure(go.Pie(labels=distinct_color_name, values=distinct_color_freq,
     #                              showlegend=True, marker=dict(colors=colors)))
     # pie_color.update_layout(title_text='Product sold percentage in different colors',
