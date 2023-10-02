@@ -5,15 +5,9 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
-from langchain.prompts.chat import (
-    ChatPromptTemplate,
-    MessagesPlaceholder,
-    SystemMessagePromptTemplate,
-    HumanMessagePromptTemplate,
-)
-from langchain.chains import RetrievalQA, RetrievalQAWithSourcesChain, ConversationalRetrievalChain, ConversationChain
+from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
-from langchain.schema import ChatMessage
+
 
 load_dotenv()
 os.environ["OPENAI_API_KEY"] = os.getenv('OPEN_KEY')
@@ -24,7 +18,7 @@ embedding = OpenAIEmbeddings() # default: “text-davinci-003”
 llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
   
 
-def load_data():
+def load_data(mongo_history):
     _template = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
     You can assume the question about greetings and credit card information.
 
@@ -35,7 +29,7 @@ def load_data():
     CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template(_template)
     
     template = """
-    你是一個叫做「Finn Bot」的聊天機器人，擁有台灣各家銀行的信用卡介紹與優惠資訊。
+    你是一個擁有台灣各家銀行的信用卡介紹與優惠資訊的聊天機器人。
     請依據下方給定的內容與使用者本次問題進行回覆。
     請依使用者提問的語言回答他的問題，若有不清楚使用者語言或是簡體中文，一律使用繁體中文回答。
     回答前須先確認是否為基本問候或信用卡相關問題，若使用者是針對特定信用卡提問，或是想要綜合比較各家信用卡的某項目。
@@ -54,12 +48,11 @@ def load_data():
     vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding)
     
     retriever = vectordb.as_retriever() # retriever = vectordb.as_retriever(search_kwargs={"k": 2}) 
-    # memory_key的chat_history参数要跟前面的历史消息模板参数对应，`return_messages=True` 参数目的是返回langchain封装的对话消息格式
-    # memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+    memory = ConversationBufferMemory(memory_key="chat_history", chat_memory=mongo_history, return_messages=True)
     conversation_qa_chain = ConversationalRetrievalChain.from_llm(
         llm=llm, 
         retriever=retriever, 
-        # memory=memory,
+        memory=memory,
         verbose=True,
         # chain_type="stuff",
         condense_question_prompt=CONDENSE_QUESTION_PROMPT,
@@ -68,10 +61,3 @@ def load_data():
     
     return conversation_qa_chain
 
-
-if __name__ == '__main__':
-    # qa_database = load_data()
-    # query = "Richart 利上加利是什麼" #"同意申請卡號速取是什麼" "Richart 利上加利是什麼"
-    # result = qa_database(query)
-    # print(result)
-    pass
