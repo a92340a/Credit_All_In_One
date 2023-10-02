@@ -35,7 +35,11 @@ def _get_pgsql():
         user=os.getenv('PGSQL_USER'),
         password=os.getenv('PGSQL_PASSWD'),
         host=os.getenv('PGSQL_HOST'),
-        port=os.getenv('PGSQL_PORT')
+        port=os.getenv('PGSQL_PORT'),
+        sslmode='verify-ca', 
+        sslcert=os.getenv('SSLCERT'), 
+        sslkey=os.getenv('SSLKEY'), 
+        sslrootcert=os.getenv('SSLROOTCERT')
         )
     return pg_client
 
