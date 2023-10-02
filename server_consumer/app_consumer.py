@@ -11,7 +11,6 @@ from google.pubsub_v1 import PubsubMessage
 from google.cloud.pubsublite.cloudpubsub import SubscriberClient
 from google.cloud.pubsublite.types import (CloudRegion, CloudZone,
                                            MessageMetadata, SubscriptionPath, FlowControlSettings)
-from langchain.memory import PostgresChatMessageHistory
 from langchain.memory import MongoDBChatMessageHistory
 from lang_openai import load_data
 
@@ -55,41 +54,13 @@ def _get_pgsql():
         user=os.getenv('PGSQL_USER'),
         password=os.getenv('PGSQL_PASSWD'),
         host=os.getenv('PGSQL_HOST'),
-        port=os.getenv('PGSQL_PORT')
+        port=os.getenv('PGSQL_PORT'),
+        sslmode='verify-ca', 
+        sslcert=os.getenv('SSLCERT'), 
+        sslkey=os.getenv('SSLKEY'), 
+        sslrootcert=os.getenv('SSLROOTCERT')
         )
     return pg_client
-
-# def language_calculation(message_data):
-#     """ 
-#     1. load ChromaDB
-#     2. Build a Neo4j query
-#     3. Tuning prompt to complete a conversation with query result and openai API
-#     """
-#     message_sid = json.loads(message_data)
-#     qa_database = load_data()
-#     query = message_sid['message']
-#     answer = qa_database(query)
-#     message_sid['message'] = answer['result']
-#     dev_logger.info('Finish query on LangChain QAbot: {}'.format(message_sid['message']))
-#     return message_sid
-
-def _fetch_history_from_pgsql(sid):
-    """
-    sid: user's sid from sockectio connection
-    """
-    pg_db = _get_pgsql()
-    cursor = pg_db.cursor()
-    try:
-        cursor.execute('SELECT question, answer FROM question_answer WHERE sid = %s ORDER BY q_id;', (sid,))
-        history = cursor.fetchall()
-        print(history)
-        pg_db.commit()
-        cursor.close()
-        return history
-    except Exception as e:
-        dev_logger.warning(f'Fetching history from pgsql error: {e}')
-        cursor.close()
-        return list()
     
 
 def _insert_into_pgsql(sid, question, answer):
@@ -110,7 +81,7 @@ def _insert_into_pgsql(sid, question, answer):
         dev_logger.warning(f'Inserting into pgsql error: {e}')
     else:
         cursor.close()
-#   
+
 
 def language_calculation(message_data):
     """ 
@@ -123,12 +94,7 @@ def language_calculation(message_data):
     sid = message_sid['sid']
 
     # fetch chatting history
-    # chat_history = _fetch_history_from_pgsql(sid)
-    # history = PostgresChatMessageHistory(connection_string=f"postgresql://{os.getenv('PGSQL_USER')}:{os.getenv('PGSQL_PASSWD')}@{os.getenv('PGSQL_HOST')}:{os.getenv('PGSQL_PORT')}/{os.getenv('PGSQL_DB')}", session_id=sid)
-    # Provide the connection string to connect to the MongoDB database
-    # connection_string = f"mongodb://{os.getenv('MONGO_USERNAME')}:{os.getenv('MONGO_PASSWORD')}@{os.getenv('MONGO_HOST')}:{os.getenv('MONGO_PORT')}"
     connection_string = f"mongodb://{os.getenv('MONGO_USERNAME')}:{os.getenv('MONGO_PASSWORD')}@{os.getenv('MONGO_HOST')}:{os.getenv('MONGO_PORT')}/credit?authMechanism={os.getenv('MONGO_AUTHMECHANISM')}"
-
     history = MongoDBChatMessageHistory(
         connection_string=connection_string, 
         session_id=sid,
@@ -136,17 +102,15 @@ def language_calculation(message_data):
         collection_name='chat_history'    
     )
 
-    print(f'history: {history.messages}')
-
     # QA chain
-    qa_database = load_data()
+    qa_database = load_data(history)
     answer = qa_database({"question": query, "chat_history":history.messages})
-    print(answer) # {'question': '你好，可以詢問你信用卡相關問題嗎', 'chat_history': [HumanMessage(content='你好，可以詢問你信用卡相關問題嗎', additional_kwargs={}, example=False), AIMessage(content='當然可以！請問你有什麼信用卡相關的問題需要幫忙解答呢？', additional_kwargs={}, example=False)], 'answer': '當然可以！請問你有什麼信用卡相關的問題需要幫忙解答呢？'}
     message_sid['message'] = answer['answer']
     dev_logger.info('Finish query on LangChain QAbot: {}'.format(message_sid['message']))
     
-    history.add_user_message(query)  ###
-    history.add_ai_message(answer['answer'])  ###
+    history.add_user_message(query)  
+    history.add_ai_message(answer['answer'])  
+    
     # Insert QA data into PostgreSQL
     _insert_into_pgsql(sid, query, answer)
     return message_sid
