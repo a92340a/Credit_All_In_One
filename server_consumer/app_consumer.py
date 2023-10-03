@@ -19,7 +19,7 @@ load_dotenv()
 
 sys.path.append('../Credit_All_In_One/')
 import my_logger
-
+from my_configuration import _get_mongodb, _get_pgsql
 
 # datetime
 now = datetime.now()
@@ -39,6 +39,8 @@ zone_id = os.getenv('ZONE_ID')
 subscription_id = os.getenv('SUB_ID')
 location = CloudZone(CloudRegion(cloud_region), zone_id)
 
+mongo_db = _get_mongodb()
+mongo_collection = mongo_db["official_website"]
 
 subscription_path = SubscriptionPath(project_number, location, subscription_id)
 per_partition_flow_control_settings = FlowControlSettings(
@@ -48,20 +50,7 @@ per_partition_flow_control_settings = FlowControlSettings(
     bytes_outstanding=10 * 1024 * 1024,
 )
 
-def _get_pgsql():
-    pg_client = psycopg2.connect(
-        database=os.getenv('PGSQL_DB'),
-        user=os.getenv('PGSQL_USER'),
-        password=os.getenv('PGSQL_PASSWD'),
-        host=os.getenv('PGSQL_HOST'),
-        port=os.getenv('PGSQL_PORT'),
-        sslmode='verify-ca', 
-        sslcert=os.getenv('SSLCERT'), 
-        sslkey=os.getenv('SSLKEY'), 
-        sslrootcert=os.getenv('SSLROOTCERT')
-        )
-    return pg_client
-    
+
 
 def _insert_into_pgsql(sid, question, answer):
     """
@@ -81,6 +70,29 @@ def _insert_into_pgsql(sid, question, answer):
         dev_logger.warning(f'Inserting into pgsql error: {e}')
     else:
         cursor.close()
+
+
+def _get_distinct_source_and_cards():
+    """
+    Getting distinct source and link
+    """
+    pipeline = [{"$group": {"_id": {"source": "$source", "card_name": "$card_name"}}}]
+    result = mongo_collection.aggregate(pipeline)
+    
+    source_dict = {}
+    for doc in result:
+        source = doc['_id']['source']
+        card_name = doc['_id']['card_name']
+        
+        if source in source_dict:
+            source_dict[source].append(card_name)
+        else:
+            source_dict[source] = [card_name]
+    
+    source_list = []
+    for i in source_dict:
+        source_list.append({'銀行名稱':i, '卡片名稱':source_dict[i]})
+    return source_list
 
 
 def language_calculation(message_data):
@@ -103,7 +115,7 @@ def language_calculation(message_data):
     )
 
     # QA chain
-    qa_database = load_data(history)
+    qa_database = load_data(mongo_history=history)
     answer = qa_database({"question": query, "chat_history":history.messages})
     message_sid['message'] = answer['answer']
     dev_logger.info('Finish query on LangChain QAbot: {}'.format(message_sid['message']))

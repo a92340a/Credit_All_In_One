@@ -13,6 +13,7 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 
 load_dotenv()
+os.environ["OPENAI_API_KEY"] = os.getenv('OPEN_KEY')
 
 sys.path.append('../Credit_All_In_One/')
 import my_logger
@@ -193,7 +194,7 @@ def get_chroma_schema():
     vectordb = Chroma(persist_directory=persist_directory)
     # dev_logger.info(f'keys: {vectordb.get().keys()}')
     dev_logger.info(f'num of split contents:{len(vectordb.get()["ids"])}') 
-    # print(vectordb.get(include=["embeddings","documents", "metadatas"])) 
+    print(vectordb.get(include=["embeddings","documents", "metadatas"])) 
 
 
 def truncate_chroma():
@@ -204,3 +205,5 @@ def truncate_chroma():
     dev_logger.info('Truncate chromaDB collection.')
     
 
+if __name__ == '__main__':
+    get_chroma_schema()
