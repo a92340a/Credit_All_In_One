@@ -32,7 +32,7 @@ function sendMessage() {
     socket.emit('message', message);
 
     // add client message bubble
-    addClientMessage(message);
+    addClientMessage(message, selectedIcon);
     // make publisher sticked in the bottom
     keepPublisherAtBottom();
     // scroll down
@@ -75,7 +75,7 @@ function addClientMessage(messageText, icon) {
     mediaBody.classList.add("media-body");
 
     var paragraph = document.createElement("p");
-    paragraph.textContent = messageText;
+    paragraph.textContent = messageText[0];
 
     mediaBody.appendChild(paragraph);
     newMessage.appendChild(avatar);

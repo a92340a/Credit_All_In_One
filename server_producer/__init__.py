@@ -66,7 +66,6 @@ def index():
     
     # === part 5: recent chats: create_dt, question, answer ===
     plot_5 = fetch_latest_chats()
-    print(plot_5)
     
     # pie_color = go.Figure(go.Pie(labels=distinct_color_name, values=distinct_color_freq,
     #                              showlegend=True, marker=dict(colors=colors)))
