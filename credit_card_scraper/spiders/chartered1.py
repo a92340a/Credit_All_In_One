@@ -17,12 +17,10 @@ class Chartered1Spider(scrapy.Spider):
     handle_httpstatus_list = [302] 
 
     def parse(self, response):
-        # soup = bs(response.text, 'lxml')
-        # pagepath = [element['href'] for element in soup.select('.sc-inline-buttons__item > a')]        print(urls)
         boxes = response.css('div.sc-product-action-cvp__wrapper')
         for box in boxes:
             source = 'crawling_chartered'
-            bank_name = ['渣打', '渣打銀行', 'Chartered', 'chartered']
+            bank_name = '渣打, 渣打銀行, Chartered, chartered'
             card_image = box.css('div.sc-product-action-cvp__image img::attr(src)').get()
             card_name = box.css('div.sc-product-action-cvp__image img::attr(alt)').get()
             content = box.css('div.sc-product-action-cvp__content.sc-product-action-cvp__info ul.sc-product-action-cvp__list ::text').getall()

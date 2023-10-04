@@ -19,7 +19,7 @@ load_dotenv()
 
 sys.path.append('../Credit_All_In_One/')
 import my_logger
-
+from my_configuration import _get_mongodb, _get_pgsql
 
 # datetime
 now = datetime.now()
@@ -39,6 +39,8 @@ zone_id = os.getenv('ZONE_ID')
 subscription_id = os.getenv('SUB_ID')
 location = CloudZone(CloudRegion(cloud_region), zone_id)
 
+mongo_db = _get_mongodb()
+mongo_collection = mongo_db["official_website"]
 
 subscription_path = SubscriptionPath(project_number, location, subscription_id)
 per_partition_flow_control_settings = FlowControlSettings(
@@ -48,33 +50,20 @@ per_partition_flow_control_settings = FlowControlSettings(
     bytes_outstanding=10 * 1024 * 1024,
 )
 
-def _get_pgsql():
-    pg_client = psycopg2.connect(
-        database=os.getenv('PGSQL_DB'),
-        user=os.getenv('PGSQL_USER'),
-        password=os.getenv('PGSQL_PASSWD'),
-        host=os.getenv('PGSQL_HOST'),
-        port=os.getenv('PGSQL_PORT'),
-        sslmode='verify-ca', 
-        sslcert=os.getenv('SSLCERT'), 
-        sslkey=os.getenv('SSLKEY'), 
-        sslrootcert=os.getenv('SSLROOTCERT')
-        )
-    return pg_client
-    
 
-def _insert_into_pgsql(sid, question, answer):
+
+def _insert_into_pgsql(sid, question, answer, user_icon):
     """
-    sid: user's sockect sid
-    question: user's question 
-    answer: answer from QA model
+    :param:sid: user's sockect sid
+    :param:question: user's question 
+    :param:answer: answer from QA model
     """
     pg_db = _get_pgsql()
     cursor = pg_db.cursor()
     try:
-        cursor.execute("""INSERT INTO question_answer(sid,create_dt,create_timestamp,question,answer) 
-                       VALUES (%s, %s, %s, %s, %s);""", 
-                       (sid, today, int(time.time()), question, answer['answer']))
+        cursor.execute("""INSERT INTO question_answer(sid,create_dt,create_timestamp,question,answer,user_icon) 
+                       VALUES (%s, %s, %s, %s, %s, %s);""", 
+                       (sid, today, int(time.time()), question, answer, user_icon))
         pg_db.commit()
         dev_logger.info('Successfully insert into PostgreSQL')
     except Exception as e:
@@ -83,15 +72,40 @@ def _insert_into_pgsql(sid, question, answer):
         cursor.close()
 
 
+def _get_distinct_source_and_cards():
+    """
+    Getting distinct source and link
+    """
+    pipeline = [{"$group": {"_id": {"source": "$source", "card_name": "$card_name"}}}]
+    result = mongo_collection.aggregate(pipeline)
+    
+    source_dict = {}
+    for doc in result:
+        source = doc['_id']['source']
+        card_name = doc['_id']['card_name']
+        
+        if source in source_dict:
+            source_dict[source].append(card_name)
+        else:
+            source_dict[source] = [card_name]
+    
+    source_list = []
+    for i in source_dict:
+        source_list.append({'銀行名稱':i, '卡片名稱':source_dict[i]})
+    return source_list
+
+
 def language_calculation(message_data):
     """ 
     1. Fetching chatting history for specific sid 
     2. Loading Conversational Retrieval Chain with vector ChromaDB
     3. Inserting the question and answer info to PostgreSQL from chatting history
+    :param:message_data: chatting related message from web server
     """
     message_sid = json.loads(message_data)
     query = message_sid['message']
     sid = message_sid['sid']
+    user_icon = message_sid['user_icon']
 
     # fetch chatting history
     connection_string = f"mongodb://{os.getenv('MONGO_USERNAME')}:{os.getenv('MONGO_PASSWORD')}@{os.getenv('MONGO_HOST')}:{os.getenv('MONGO_PORT')}/credit?authMechanism={os.getenv('MONGO_AUTHMECHANISM')}"
@@ -103,7 +117,7 @@ def language_calculation(message_data):
     )
 
     # QA chain
-    qa_database = load_data(history)
+    qa_database = load_data(mongo_history=history)
     answer = qa_database({"question": query, "chat_history":history.messages})
     message_sid['message'] = answer['answer']
     dev_logger.info('Finish query on LangChain QAbot: {}'.format(message_sid['message']))
@@ -112,7 +126,7 @@ def language_calculation(message_data):
     history.add_ai_message(answer['answer'])  
     
     # Insert QA data into PostgreSQL
-    _insert_into_pgsql(sid, query, answer)
+    _insert_into_pgsql(sid, query, answer['answer'], user_icon)
     return message_sid
 
 

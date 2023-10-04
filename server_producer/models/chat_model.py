@@ -1,14 +1,14 @@
 import os
+import sys
 import json
 from datetime import datetime
 from dotenv import load_dotenv
 
-from flask import Flask, request, render_template
-import psycopg2
 
-import my_logger 
 load_dotenv()
-
+sys.path.append('../Credit_All_In_One/')
+import my_logger
+from my_configuration import _get_pgsql
 
 # datetime
 now = datetime.now()
@@ -21,30 +21,16 @@ dev_logger = my_logger.MyLogger('producer')
 dev_logger.console_handler()
 dev_logger.file_handler(today)
 
-    
-def _get_pgsql():
-    pg_client = psycopg2.connect(
-        database=os.getenv('PGSQL_DB'),
-        user=os.getenv('PGSQL_USER'),
-        password=os.getenv('PGSQL_PASSWD'),
-        host=os.getenv('PGSQL_HOST'),
-        port=os.getenv('PGSQL_PORT'),
-        sslmode='verify-ca', 
-        sslcert=os.getenv('SSLCERT'), 
-        sslkey=os.getenv('SSLKEY'), 
-        sslrootcert=os.getenv('SSLROOTCERT')
-        )
-    return pg_client
 
 
 def fetch_latest_chats():
     pgsql_db = _get_pgsql()
     cursor = pgsql_db.cursor()
     sql = """
-    SELECT to_char(create_dt,'yyyy-mm-dd') AS create_dt, question, answer
+    SELECT to_char(create_dt,'yyyy-mm-dd') AS create_dt, to_timestamp(create_timestamp)::time AS create_timestamp, user_icon, question, answer
     FROM question_answer
     WHERE length(answer) > 100
-    ORDER BY create_timestamp DESC
+    ORDER BY create_dt DESC, create_timestamp DESC
     LIMIT 5; 
     """
     cursor.execute(sql)

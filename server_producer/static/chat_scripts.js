@@ -26,17 +26,13 @@ window.addEventListener('load', getRandomIcon);
 // send messages to server
 function sendMessage() {
     const input = document.getElementById('message_input');
-    const message = input.value;
-    
-    if (message.trim() === "") {
-        return;
-    }
+    const message = [input.value, selectedIcon];
 
     input.value = '';
     socket.emit('message', message);
 
     // add client message bubble
-    addClientMessage(message, selectedIcon);
+    addClientMessage(message);
     // make publisher sticked in the bottom
     keepPublisherAtBottom();
     // scroll down

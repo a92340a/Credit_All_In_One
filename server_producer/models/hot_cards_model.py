@@ -1,10 +1,12 @@
 import os
+import sys
 from datetime import datetime
 from dotenv import load_dotenv
 import psycopg2
-
-import my_logger 
 load_dotenv()
+sys.path.append('../Credit_All_In_One/')
+import my_logger
+from my_configuration import _get_pgsql
 
 
 # datetime
@@ -17,21 +19,6 @@ today = now.strftime('%Y-%m-%d')
 dev_logger = my_logger.MyLogger('producer')
 dev_logger.console_handler()
 dev_logger.file_handler(today)
-
-    
-def _get_pgsql():
-    pg_client = psycopg2.connect(
-        database=os.getenv('PGSQL_DB'),
-        user=os.getenv('PGSQL_USER'),
-        password=os.getenv('PGSQL_PASSWD'),
-        host=os.getenv('PGSQL_HOST'),
-        port=os.getenv('PGSQL_PORT'),
-        sslmode='verify-ca', 
-        sslcert=os.getenv('SSLCERT'), 
-        sslkey=os.getenv('SSLKEY'), 
-        sslrootcert=os.getenv('SSLROOTCERT')
-        )
-    return pg_client
 
 
 def fetch_cards_ranking(top_k):
@@ -77,7 +64,7 @@ def fetch_latest_cards():
         FROM credit_info
         group by bank_name, url
     )
-    SELECT bank_name, url
+    SELECT first_date, bank_name, url
     FROM fst 
     WHERE first_date BETWEEN current_date - 7 AND current_date
     ORDER BY first_date DESC
