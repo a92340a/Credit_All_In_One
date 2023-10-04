@@ -27,7 +27,9 @@ def fetch_latest_chats():
     pgsql_db = _get_pgsql()
     cursor = pgsql_db.cursor()
     sql = """
-    SELECT to_char(create_dt,'yyyy-mm-dd') AS create_dt, to_timestamp(create_timestamp)::time AS create_timestamp, user_icon, question, answer
+    SELECT to_char(create_dt,'yyyy-mm-dd') AS create_dt, 
+        (to_timestamp(create_timestamp) AT TIME ZONE 'Asia/Shanghai')::time AS create_timestamp, 
+        user_icon, question, answer
     FROM question_answer
     WHERE length(answer) > 100
     ORDER BY create_dt DESC, create_timestamp DESC
