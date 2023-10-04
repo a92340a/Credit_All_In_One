@@ -52,18 +52,18 @@ per_partition_flow_control_settings = FlowControlSettings(
 
 
 
-def _insert_into_pgsql(sid, question, answer):
+def _insert_into_pgsql(sid, question, answer, user_icon):
     """
-    sid: user's sockect sid
-    question: user's question 
-    answer: answer from QA model
+    :param:sid: user's sockect sid
+    :param:question: user's question 
+    :param:answer: answer from QA model
     """
     pg_db = _get_pgsql()
     cursor = pg_db.cursor()
     try:
-        cursor.execute("""INSERT INTO question_answer(sid,create_dt,create_timestamp,question,answer) 
-                       VALUES (%s, %s, %s, %s, %s);""", 
-                       (sid, today, int(time.time()), question, answer['answer']))
+        cursor.execute("""INSERT INTO question_answer(sid,create_dt,create_timestamp,question,answer,user_icon) 
+                       VALUES (%s, %s, %s, %s, %s, %s);""", 
+                       (sid, today, int(time.time()), question, answer, user_icon))
         pg_db.commit()
         dev_logger.info('Successfully insert into PostgreSQL')
     except Exception as e:
@@ -100,10 +100,12 @@ def language_calculation(message_data):
     1. Fetching chatting history for specific sid 
     2. Loading Conversational Retrieval Chain with vector ChromaDB
     3. Inserting the question and answer info to PostgreSQL from chatting history
+    :param:message_data: chatting related message from web server
     """
     message_sid = json.loads(message_data)
     query = message_sid['message']
     sid = message_sid['sid']
+    user_icon = message_sid['user_icon']
 
     # fetch chatting history
     connection_string = f"mongodb://{os.getenv('MONGO_USERNAME')}:{os.getenv('MONGO_PASSWORD')}@{os.getenv('MONGO_HOST')}:{os.getenv('MONGO_PORT')}/credit?authMechanism={os.getenv('MONGO_AUTHMECHANISM')}"
@@ -124,7 +126,7 @@ def language_calculation(message_data):
     history.add_ai_message(answer['answer'])  
     
     # Insert QA data into PostgreSQL
-    _insert_into_pgsql(sid, query, answer)
+    _insert_into_pgsql(sid, query, answer['answer'], user_icon)
     return message_sid
 
 
