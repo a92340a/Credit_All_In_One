@@ -1,0 +1,14 @@
+Content-Length: 336
+Accept-Ranges: bytes
+Content-Type: text/plain
+Last-Modified: Fri, 07 Jul 2023 05:57:44 GMT
+Vary: Accept-Encoding
+Content-Encoding: gzip
+Cache-Control: max-age=604800
+Expires: Mon, 09 Oct 2023 15:38:46 GMT
+Date: Mon, 02 Oct 2023 15:38:46 GMT
+Set-Cookie: AKA_A2=A; expires=Mon, 02-Oct-2023 16:38:46 GMT; path=/; domain=sc.com; secure; HttpOnly
+Set-Cookie: ak_bmsc=0F86B4AFD8781285C45DC692F7E38B45~000000000000000000000000000000~YAAQNH8auOamv+6KAQAA1boK8RXbx47KCDYql6oJXjg+sZFGXnmubstuNn9c4+gklyN5w61dRUqiRU7xQR7HyivPpaVc+9100NmoVJkFPcDnv0x54jYK8IKDhAV1AShsmYkPLBfaEZr0kqiGcf8negEZVHbvbaZVwOCS29nYDUt+TyO7JxDXuAl1rYO5p9hucbleIFgD0MspJBZuOnCrtxNxHEgQ4noS2779baGiA+LSftu2VWkhQ9SNpEEfddHBUJmPJD3TW7qmZ/URutouN2FEHl6ljrljbv1enhlA+JuoMJP0TyOBFIeFQ8JLN3x0m2r3UIML+lWDMyDm++2diO5r/ZotVPgeAnkrHEbc79iGdcWjXerF; Domain=.sc.com; Path=/; Expires=Mon, 02 Oct 2023 17:38:46 GMT; Max-Age=7200; HttpOnly
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+Content-Security-Policy: frame-ancestors 'self' *.sc.com *.standardchartered.com *.standardchartered.co.in *.standardchartered.co.th *.standardchartered.com.hk *.standardchartered.com.my *.standardchartered.com.sg *.standardchartered.co.id *.standardchartered.com.tw standchartbank.experiencecloud.adobe.com experience.adobe.com
+Server-Timing: ak_p; desc="1696261126767_3088744244_87341476_7290_9872_15_18_-";dur=1
