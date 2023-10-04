@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 # sys.path.append('../Credit_All_In_One/')
 from server_producer import socketio
-from flask import Blueprint, request
+from flask import request
 from google.cloud.pubsublite.cloudpubsub import PublisherClient
 from google.cloud.pubsublite.types import MessageMetadata
 
@@ -32,7 +32,7 @@ def get_and_produce_message(message):
     """
     First response with waiting message and publish message, sid to PubSub Lite
     """
-    message_sid = {'message': message, 'sid':request.sid}
+    message_sid = {'message': message[0], 'user_icon': message[1], 'sid':request.sid}
     with PublisherClient() as publisher_client:
         api_future = publisher_client.publish(os.getenv('TOPIC'), json.dumps(message_sid).encode("utf-8"))
         # result() blocks. To resolve API futures asynchronously, use add_done_callback().
