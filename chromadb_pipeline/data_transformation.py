@@ -127,4 +127,6 @@ if __name__ == '__main__':
             print('-----')
 
             new_docs = data_comparing_and_rebuilding(data_comparision)
-            insert_into_chroma(bank, link, new_docs)
+            if new_docs:
+                insert_into_chroma(bank, link, new_docs)
+                print('-----')
