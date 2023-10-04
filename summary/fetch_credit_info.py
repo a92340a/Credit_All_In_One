@@ -5,10 +5,12 @@ from dotenv import load_dotenv
 import psycopg2
 import pymongo
 
-sys.path.append('../Credit_All_In_One/')
-import my_logger
 
 load_dotenv()
+sys.path.append('../Credit_All_In_One/')
+import my_logger
+from my_configuration import _get_mongodb, _get_pgsql
+
 
 # datetime
 now = datetime.now()
@@ -21,34 +23,6 @@ dev_logger = my_logger.MyLogger('summary')
 dev_logger.console_handler()
 dev_logger.file_handler(today)
 
-
-def _get_mongodb():
-    """ connect to mongodb database: credit """
-    MONGO_CONFIG = f"mongodb://{os.getenv('MONGO_USERNAME')}:{os.getenv('MONGO_PASSWORD')}@{os.getenv('MONGO_HOST')}:{os.getenv('MONGO_PORT')}/credit?authMechanism={os.getenv('MONGO_AUTHMECHANISM')}"
-    client = pymongo.MongoClient(MONGO_CONFIG) 
-    return client['credit']
-
-
-def _get_pgsql():
-    pg_client = psycopg2.connect(
-        database=os.getenv('PGSQL_DB'),
-        user=os.getenv('PGSQL_USER'),
-        password=os.getenv('PGSQL_PASSWD'),
-        host=os.getenv('PGSQL_HOST'),
-        port=os.getenv('PGSQL_PORT'),
-        sslmode='verify-ca', 
-        sslcert=os.getenv('SSLCERT'), 
-        sslkey=os.getenv('SSLKEY'), 
-        sslrootcert=os.getenv('SSLROOTCERT')
-        )
-    return pg_client
-
-
-# 'source':bank, 
-# 'url': url,
-# 'content':jsonable_encoder(text),
-# 'create_date':today,
-# 'create_timestamp':int(time.time())
 
 pipeline = [
         {'$group': 
