@@ -32,7 +32,7 @@
     <!-- Header -->
     <!-- Dashboard -->
     <section id="hot-cards" class="padding container">
-        <h3>Hot Cards</h3>
+        <h2 class="text-center">Hot Cards</h2>
         <div class="container">
             <div class="row">
                 <div class="col text-center cube">
@@ -41,52 +41,79 @@
                 </div>
                 <div class="col text-center cube">
                     <h5>New Release</h5>
-                    <div id="new_release">
+                    <div id="new_release" class="carousel slide" data-bs-ride="carousel">
                         {% if plot_2 is string %}
-                            <div>No new release in these 7 days!</div>
+                        <div>No new release in these 7 days!</div>
                         {% else %}
-                            {% for card in plot_2 %}
-                            <div class="bank-name">{{ card[0] }}</div>
-                            <img class="card-image" src="../static/images/credit_card_image.png" alt="card-image" height="100"><br>
-                            <a class="url" href="{{card[1]}}">{{ card[1] }}</a>
-                            <br>
-                            {% endfor %}
+                        <div class="carousel-inner">
+                        {% for card in plot_2 %}
+                            <div class="carousel-item {% if loop.index == 1 %}active{% endif %}">
+                                <div class="release-date">{{ card[0] }}</div>
+                                <div class="bank-name">{{ card[1] }}</div>
+                                <div class="card-name">XXX信用卡</div>
+                                <img class="card-image d-block rounded mx-auto" src="../static/images/credit_card_image.png" alt="../static/images/credit_card_image.png" height="100"><br>
+                                <a class="url" href="{{card[1]}}">{{ card[2] }}</a>
+                                <br>
+                            </div>
+                        {% endfor %}
+                        </div>
                         {% endif %}
+                        <button class="carousel-control-prev" type="button" data-bs-target="#new_release" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#new_release" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
                     </div>
                 </div>
             </div>
             <br>
             <div class="row">
                 <div class="col text-center cube">
-                    <h5>熱門話題</h5>
+                    <h5>Trending Topics</h5>
                     <div id="word_cloud"></div>
+                    <img class="card-image d-block rounded mx-auto" src="../static/images/wordcloud.jpeg" alt="../static/images/wordcloud.jpeg" height="280"><br>
                 </div>
                 <div class="col text-center cube">
-                    <h5>權益好康</h5>
+                    <h5>Benefits and Offers</h5>
                     <div id="benefits"></div>
                 </div>
             </div>
         </div>
     </section>
     <section id="chill-questions" class="padding container">   
-        <h3>Chill Questions</h3>
+        <h2 class="text-center">Chill Questions</h2>
         <div class="container">
             <div id="recent_qa" class="card">
                 {% for chat in plot_5 %}
                 <div class="qa-box card-body">
-                    <h5 class="qa-Question card-title"><span>Q:</span>{{ chat[1] }}</h5>
-                    <h6 class="qa-date card-subtitle mb-2 text-muted">{{ chat[0] }}</h6>
-                    <span>A: </span>
-                    {% if '\n' in chat[2] %}
-                        <ul class="qa-answer card-text collapse" id="qa-answer-{{plot_5.index(chat)}}">
-                            {% for item in chat[2].split('\n') %}
+                    <div class="qa-date card-subtitle mb-2 text-muted">
+                        <span>{{ chat[0] }}</span>
+                        <span>{{ chat[1] }}</span>
+                    </div>
+                    <div class="container">
+                        <div class="d-flex align-items-center">
+                            <img class="avater user-icon" width="40" height="40" src="{{ chat[2] }}" alt="user-icon"/>
+                            <h5 class="qa-question card-title">{{ chat[3] }}</h5>
+                        </div>
+                    </div>
+                    <div class="container">
+                        <div class="d-flex align-items-center">
+                            <img class="avatar" width="48" height="48" src="https://img.icons8.com/color/48/finn--v1.png" alt="finn--v1"/>
+                            {% if '\n' in chat[4] %}
+                            <ul class="qa-answer card-text collapse" id="qa-answer-{{plot_5.index(chat)}}">
+                                {% for item in chat[4].split('\n') %}
                                 <li>{{ item }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="qa-answer card-text collapse" id="qa-answer-{{plot_5.index(chat)}}">{{ chat[2] }}</p>
-                    {% endif %}
-                    <a class="collapsed" data-bs-toggle="collapse" href="#qa-answer-{{plot_5.index(chat)}}" role="button" aria-expanded="false" aria-controls="#qa-answer-{{plot_5.index(chat)}}"></a>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <p class="qa-answer card-text collapse" id="qa-answer-{{plot_5.index(chat)}}">{{ chat[4] }}</p>
+                            {% endif %}
+                            <a class="collapsed" data-bs-toggle="collapse" href="#qa-answer-{{plot_5.index(chat)}}" role="button" aria-expanded="false" aria-controls="#qa-answer-{{plot_5.index(chat)}}"></a>
+                        </div>
+                    </div>
                 </div>
                 {% endfor %}
             </div>
@@ -94,32 +121,35 @@
     </section>
     <!-- Dashboard -->
     <!-- Chat -->
-    <div class="page-content page-container" id="chat-box">
-        <div class="padding">
-            <div class="row container d-flex justify-content-center">
-                <div class="col-md-10">
-                <div class="card card-bordered">
-                    <div class="card-header">
-                        <h5 class="card-title"><strong>Chat</strong></h5>
-                    </div>                    
-                    <div class="ps-container ps-theme-default ps-active-y" id="chat-content" style="overflow-y: scroll !important; height:400px !important;">
-                        <div class="media media-chat">
-                            <img class="avatar" width="48" height="48" src="https://img.icons8.com/color/48/finn--v1.png" alt="finn--v1"/>
-                            <div class="media-body">
-                                <p>Hi! 我是 Finn Bot，有什麼我可以幫助你的嗎?</p>
+    <section>
+        <div class="page-content page-container padding" id="chat-box">
+            <div class="padding">
+                <div class="row container d-flex justify-content-center">
+                    <h2 class="text-center">Chat with Finn Bot</h2>
+                    <div class="col-md-12">
+                    <div class="card card-bordered">
+                        <div class="card-header">
+                            <h5 class="card-title"><strong>Chat</strong></h5>
+                        </div>                    
+                        <div class="ps-container ps-theme-default ps-active-y" id="chat-content" style="overflow-y: scroll !important; height:400px !important;">
+                            <div class="media media-chat">
+                                <img class="avatar" width="48" height="48" src="https://img.icons8.com/color/48/finn--v1.png" alt="finn--v1"/>
+                                <div class="media-body">
+                                    <p>Hi! 我是 Finn Bot，有什麼我可以幫助你的嗎?</p>
+                                </div>
                             </div>
                         </div>
+                        <div class="publisher bt-1 border-light">
+                            <img class="avatar avatar-xs" id="selected-icon" src="" alt="client">
+                            <input class="publisher-input" type="text" placeholder="Ask something about credit card..." id="message_input" autocomplete="off" />
+                            <button class="btn btn-light" onclick="sendMessage()">Send</button>
+                        </div>
                     </div>
-                    <div class="publisher bt-1 border-light">
-                        <img class="avatar avatar-xs" id="selected-icon" src="" alt="client">
-                        <input class="publisher-input" type="text" placeholder="Ask something about credit card..." id="message_input" autocomplete="off" />
-                        <button class="btn btn-light" onclick="sendMessage()">Send</button>
                     </div>
-                </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
     <footer>
         <div class="container">
             <div class="row">
