@@ -36,23 +36,24 @@
         <div class="container">
             <div class="row">
                 <div class="col text-center cube">
-                    <h5>Total Active Cards: {{card_1}}</h5>
+                    <h4>Total Active Cards: {{card_1}}</h4>
                     <div id="cards_counts_ranking"></div>
                 </div>
                 <div class="col text-center cube">
-                    <h5>New Release</h5>
+                    <h4>New Release</h4>
                     <div id="new_release" class="carousel slide" data-bs-ride="carousel">
                         {% if plot_2 is string %}
-                        <div>No new release in these 7 days!</div>
+                        <div class="display-6">No new release</div>
+                        <h5 class="cube">in these 7 days!</h5>
                         {% else %}
-                        <div class="carousel-inner">
+                        <div class="carousel-inner cube">
                         {% for card in plot_2 %}
                             <div class="carousel-item {% if loop.index == 1 %}active{% endif %}">
-                                <div class="release-date">{{ card[0] }}</div>
-                                <div class="bank-name">{{ card[1] }}</div>
-                                <div class="card-name">XXX信用卡</div>
-                                <img class="card-image d-block rounded mx-auto" src="../static/images/credit_card_image.png" alt="../static/images/credit_card_image.png" height="100"><br>
-                                <a class="url" href="{{card[1]}}">{{ card[2] }}</a>
+                                <h6 class="release-date cube font-weight-light">{{ card[0] }}</h6>
+                                <h5 class="bank-name cube text-secondary">{{ card[1] }}</h5>
+                                <div class="card-namecube display-6 text-info font-weight-bold">XXX信用卡</div>
+                                <img class="card-image d-block rounded mx-auto cube" src="../static/images/credit_card_image.png" alt="../static/images/credit_card_image.png" height="100"><br>
+                                <a class="url cube" href="{{card[1]}}">{{ card[2] }}</a>
                                 <br>
                             </div>
                         {% endfor %}
@@ -72,12 +73,12 @@
             <br>
             <div class="row">
                 <div class="col text-center cube">
-                    <h5>Trending Topics</h5>
+                    <h4>Trending Topics</h4>
                     <div id="word_cloud"></div>
                     <img class="card-image d-block rounded mx-auto" src="../static/images/wordcloud.jpeg" alt="../static/images/wordcloud.jpeg" height="280"><br>
                 </div>
                 <div class="col text-center cube">
-                    <h5>Benefits and Offers</h5>
+                    <h4>Benefits and Offers</h4>
                     <div id="benefits"></div>
                 </div>
             </div>
@@ -103,16 +104,16 @@
                         <div class="d-flex align-items-center">
                             <img class="avatar" width="48" height="48" src="https://img.icons8.com/color/48/finn--v1.png" alt="finn--v1"/>
                             {% if '\n' in chat[4] %}
-                            <ul class="qa-answer card-text collapse" id="qa-answer-{{plot_5.index(chat)}}">
+                            <ul class="qa-answer card-text collapse cube cube-margin" id="qa-answer-{{plot_5.index(chat)}}">
                                 {% for item in chat[4].split('\n') %}
                                 <li>{{ item }}</li>
                                 {% endfor %}
                             </ul>
                             {% else %}
-                            <p class="qa-answer card-text collapse" id="qa-answer-{{plot_5.index(chat)}}">{{ chat[4] }}</p>
+                            <p class="qa-answer card-text collapse cube" id="qa-answer-{{plot_5.index(chat)}}">{{ chat[4] }}</p>
                             {% endif %}
-                            <a class="collapsed" data-bs-toggle="collapse" href="#qa-answer-{{plot_5.index(chat)}}" role="button" aria-expanded="false" aria-controls="#qa-answer-{{plot_5.index(chat)}}"></a>
                         </div>
+                        <a class="collapsed" data-bs-toggle="collapse" href="#qa-answer-{{plot_5.index(chat)}}" role="button" aria-expanded="false" aria-controls="#qa-answer-{{plot_5.index(chat)}}"></a>
                     </div>
                 </div>
                 {% endfor %}
@@ -122,30 +123,28 @@
     <!-- Dashboard -->
     <!-- Chat -->
     <section>
-        <div class="page-content page-container padding" id="chat-box">
-            <div class="padding">
-                <div class="row container d-flex justify-content-center">
-                    <h2 class="text-center">Chat with Finn Bot</h2>
-                    <div class="col-md-12">
-                    <div class="card card-bordered">
-                        <div class="card-header">
-                            <h5 class="card-title"><strong>Chat</strong></h5>
-                        </div>                    
-                        <div class="ps-container ps-theme-default ps-active-y" id="chat-content" style="overflow-y: scroll !important; height:400px !important;">
-                            <div class="media media-chat">
-                                <img class="avatar" width="48" height="48" src="https://img.icons8.com/color/48/finn--v1.png" alt="finn--v1"/>
-                                <div class="media-body">
-                                    <p>Hi! 我是 Finn Bot，有什麼我可以幫助你的嗎?</p>
-                                </div>
+        <div class="padding container" id="chat-box">
+            <div class="row container d-flex justify-content-center">
+                <h2 class="text-center">Chat with Finn Bot</h2>
+                <div class="col-md-12">
+                <div class="card card-bordered">
+                    <div class="card-header">
+                        <h5 class="card-title"><strong>Chat</strong></h5>
+                    </div>                    
+                    <div class="ps-container ps-theme-default ps-active-y" id="chat-content" style="overflow-y: scroll !important; height:400px !important;">
+                        <div class="media media-chat">
+                            <img class="avatar" width="48" height="48" src="https://img.icons8.com/color/48/finn--v1.png" alt="finn--v1"/>
+                            <div class="media-body">
+                                <p>Hi! 我是 Finn Bot，有什麼我可以幫助你的嗎?</p>
                             </div>
                         </div>
-                        <div class="publisher bt-1 border-light">
-                            <img class="avatar avatar-xs" id="selected-icon" src="" alt="client">
-                            <input class="publisher-input" type="text" placeholder="Ask something about credit card..." id="message_input" autocomplete="off" />
-                            <button class="btn btn-light" onclick="sendMessage()">Send</button>
-                        </div>
                     </div>
+                    <div class="publisher bt-1 border-light">
+                        <img class="avatar avatar-xs" id="selected-icon" src="" alt="client">
+                        <input class="publisher-input" type="text" placeholder="Ask something about credit card..." id="message_input" autocomplete="off" />
+                        <button class="btn btn-light" onclick="sendMessage()">Send</button>
                     </div>
+                </div>
                 </div>
             </div>
         </div>
@@ -180,6 +179,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 <script src="https://cdn.plot.ly/plotly-latest.js" charset="utf-8"></script>
 <script type="text/javascript" src="static/chat_scripts.js"></script>
+<script type="text/javascript" src="static/dashboard_scripts.js"></script>
 <script type="text/javascript">
     let plot_1 = {{ plot_1 | safe }};
     Plotly.plot("cards_counts_ranking", plot_1, {});

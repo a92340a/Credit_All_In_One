@@ -14,6 +14,10 @@ h3,h4,h5,h6 {
     padding: 1rem;
 }
 
+.cube-margin {
+    margin: 1rem;
+}
+
 .carousel-control-prev-icon {
     background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23808080' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E") !important;
 }
@@ -24,21 +28,16 @@ h3,h4,h5,h6 {
 
 .qa-box p.collapse[aria-expanded="false"] {
     display: block;
-    height: 50px;
+    max-height: 50px;
     overflow: hidden;
 }
 
-/* .qa-box p.collapsing[aria-expanded="false"] { */
-    /* height: 100%; */
-    /* max-height: none !important; Override Bootstrap's max-height */
-    /* max-height: none !important; Override Bootstrap's max-height */
-    /* transition: max-height 0.3s ease; Add a transition effect */
-/* } */
-
 .qa-box a.collapsed:after  {
     content: '+ Read More';
+    padding-left: 48px;
 }
 
 .qa-box a:not(.collapsed):after {
     content: '- Read Less';
+    padding-left: 48px;
 }
