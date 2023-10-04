@@ -59,27 +59,28 @@ def get_distinct_source_and_link():
 def data_comparing_and_rebuilding(data):
     """
     Compare the difference in card_content between yesterday and today.
-    :param:data: The data formatted by create_dt and card_content. For example: {'2023-10-03': card_content_1, {'2023-10-02': card_content_2}
+    :param:data: The data between these 2 days. For example: [{'_id': ObjectId('651bd25a646a02fa2d4205b1'), 'source': ..., 'create_dt': '2023-10-03'}, ...]
     """
     if data: 
         # fetch card_content between yesterday and today
         compare = dict()
         for i in range(len(data)):
+            # For example: {'2023-10-03': card_content_1, {'2023-10-02': card_content_2}
             compare[data[i]['create_dt']] = data[i]['card_content']
 
         # build the Document when data is newest information today, or do nothing
         if len(compare) == 2:
             if compare[today] != compare[yesterday]:
-                for index, i in enumerate(data):
-                    if i['create_dt'] == today:
+                for index, content in enumerate(data):
+                    if content['create_dt'] == today:
                         docs = [Document(
-                            page_content=i['card_content'],
-                            metadata={'bank': i['bank_name'], 'card_name': i['card_name'], 'url': i['card_link']},
+                            page_content=content['card_content'],
+                            metadata={'bank': content['bank_name'], 'card_name': content['card_name'], 'url': content['card_link']},
                         )]
-                        dev_logger.info('Build a new Document and ready for ChromaDB: {}'.format(i['card_name']))
+                        dev_logger.info('Build a new Document and ready for ChromaDB: {}'.format(content['card_name']))
                         return docs
             else:
-                dev_logger.info('The card_content is the same. Do nothing!: {}'.format(i['card_name']))
+                dev_logger.info('The card_content is the same. Do nothing!: {}'.format(data[0]['card_name']))
         elif len(compare) == 1:
             if data[0]['create_dt'] == today:
                 docs = [Document(
