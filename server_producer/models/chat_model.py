@@ -31,7 +31,7 @@ def fetch_latest_chats():
         (to_timestamp(create_timestamp) AT TIME ZONE 'Asia/Shanghai')::time AS create_timestamp, 
         user_icon, question, answer
     FROM question_answer
-    WHERE length(answer) > 100
+    WHERE length(answer) > 150
     ORDER BY create_dt DESC, create_timestamp DESC
     LIMIT 5; 
     """

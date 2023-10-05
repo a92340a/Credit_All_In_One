@@ -72,27 +72,27 @@ def _insert_into_pgsql(sid, question, answer, user_icon):
         cursor.close()
 
 
-def _get_distinct_source_and_cards():
-    """
-    Getting distinct source and link
-    """
-    pipeline = [{"$group": {"_id": {"source": "$source", "card_name": "$card_name"}}}]
-    result = mongo_collection.aggregate(pipeline)
+# def _get_distinct_source_and_cards():
+#     """
+#     Getting distinct source and link
+#     """
+#     pipeline = [{"$group": {"_id": {"source": "$source", "card_name": "$card_name"}}}]
+#     result = mongo_collection.aggregate(pipeline)
     
-    source_dict = {}
-    for doc in result:
-        source = doc['_id']['source']
-        card_name = doc['_id']['card_name']
+#     source_dict = {}
+#     for doc in result:
+#         source = doc['_id']['source']
+#         card_name = doc['_id']['card_name']
         
-        if source in source_dict:
-            source_dict[source].append(card_name)
-        else:
-            source_dict[source] = [card_name]
+#         if source in source_dict:
+#             source_dict[source].append(card_name)
+#         else:
+#             source_dict[source] = [card_name]
     
-    source_list = []
-    for i in source_dict:
-        source_list.append({'銀行名稱':i, '卡片名稱':source_dict[i]})
-    return source_list
+#     source_list = []
+#     for i in source_dict:
+#         source_list.append({'銀行名稱':i, '卡片名稱':source_dict[i]})
+#     return source_list
 
 
 def language_calculation(message_data):
