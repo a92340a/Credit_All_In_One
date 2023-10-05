@@ -24,10 +24,12 @@ class Chartered1Spider(scrapy.Spider):
             card_image = box.css('div.sc-product-action-cvp__image img::attr(src)').get()
             card_name = box.css('div.sc-product-action-cvp__image img::attr(alt)').get()
             content = box.css('div.sc-product-action-cvp__content.sc-product-action-cvp__info ul.sc-product-action-cvp__list ::text').getall()
-            content = ''.join(content).replace('\n', '').replace('\t', '').replace('\r', '').replace('\xa0', '')
+            content = self.cleaning_content(content)
+            content = ','.join(content)
             content1 = box.css('div.sc-product-action-cvp__content.sc-product-action-cvp__info div.sc-product-action-cvp__remarks.sc-rte ::text').getall()
-            content1 = ''.join(content1).replace('\n', '').replace('\t', '').replace('\r', '').replace('\xa0', '')
-            card_content = content + '，' + content1
+            content1 = self.cleaning_content(content1)
+            content1 = ','.join(content1)
+            card_content = content + ',' + content1
             card_link = box.css('div.sc-product-action-cvp__content.sc-product-action-cvp__info ul.sc-inline-buttons li:nth-child(2) a::attr(href)').get()
             create_dt = today
             create_timestamp = int(time.time())
@@ -44,6 +46,15 @@ class Chartered1Spider(scrapy.Spider):
             chartered_item['create_dt'] = create_dt
             chartered_item['create_timestamp'] = create_timestamp
             yield chartered_item
+        
+
+    def cleaning_content(self, content):
+        content_cleaned = []
+        for i in content:
+                if i.replace('\n', '').replace('\t', '').replace('\r', '').replace('\xa0', '') not in content_cleaned:
+                    content_cleaned.append(i.replace('\n', '').replace('\t', '').replace('\r', '').replace('\xa0', ''))
+        return content_cleaned
+
             
     
   
