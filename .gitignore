@@ -9,3 +9,7 @@ playground/
 log/
 webdriver/
 chroma_db/
+
+# sh
+consumer.sh
+application.sh
