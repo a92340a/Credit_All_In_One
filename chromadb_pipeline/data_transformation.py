@@ -74,8 +74,8 @@ def data_comparing_and_rebuilding(data):
                 for index, content in enumerate(data):
                     if content['create_dt'] == today:
                         docs = [Document(
-                            page_content=content['card_content'],
-                            metadata={'bank': content['bank_name'], 'card_name': content['card_name'], 'url': content['card_link']},
+                            page_content=content['card_name']+':'+content['card_content']+'。'+content['card_link'],
+                            metadata={'bank': content['bank_name'], 'card_name': content['card_name'], 'topic': content['topic']},
                         )]
                         dev_logger.info('Build a new Document and ready for ChromaDB: {}'.format(content['card_name']))
                         return docs
@@ -84,8 +84,8 @@ def data_comparing_and_rebuilding(data):
         elif len(compare) == 1:
             if data[0]['create_dt'] == today:
                 docs = [Document(
-                    page_content=data[0]['card_content'],
-                    metadata={'bank': data[0]['bank_name'], 'card_name': data[0]['card_name'], 'url': data[0]['card_link']},
+                    page_content=data[0]['card_name']+':'+data[0]['card_content']+'。'+data[0]['card_link'],
+                    metadata={'bank': data[0]['bank_name'], 'card_name': data[0]['card_name'], 'topic': data[0]['topic']},
                 )]
                 dev_logger.info('Build a new Document and ready for ChromaDB: {}'.format(data[0]['card_name']))
                 return docs
