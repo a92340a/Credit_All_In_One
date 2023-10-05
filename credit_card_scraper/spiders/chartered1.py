@@ -19,8 +19,8 @@ class Chartered1Spider(scrapy.Spider):
     def parse(self, response):
         boxes = response.css('div.sc-product-action-cvp__wrapper')
         for box in boxes:
-            source = 'crawling_chartered'
-            bank_name = '渣打, 渣打銀行, Chartered, chartered'
+            source = '渣打'
+            bank_name = '渣打, 渣打銀行, Chartered, standard chartered'
             card_image = box.css('div.sc-product-action-cvp__image img::attr(src)').get()
             card_name = box.css('div.sc-product-action-cvp__image img::attr(alt)').get()
             content = box.css('div.sc-product-action-cvp__content.sc-product-action-cvp__info ul.sc-product-action-cvp__list ::text').getall()
@@ -34,7 +34,7 @@ class Chartered1Spider(scrapy.Spider):
             create_dt = today
             create_timestamp = int(time.time())
             if 'https://' not in card_link:
-                card_link = 'https://www.sc.com/' + card_link
+                card_link = 'https://www.sc.com' + card_link
     
             chartered_item = CreditCardScraperItem()
             chartered_item['source'] = source
@@ -51,8 +51,8 @@ class Chartered1Spider(scrapy.Spider):
     def cleaning_content(self, content):
         content_cleaned = []
         for i in content:
-                if i.replace('\n', '').replace('\t', '').replace('\r', '').replace('\xa0', '') not in content_cleaned:
-                    content_cleaned.append(i.replace('\n', '').replace('\t', '').replace('\r', '').replace('\xa0', ''))
+            if i.replace('\n', '').replace('\t', '').replace('\r', '').replace('\xa0', '') not in content_cleaned:
+                content_cleaned.append(i.replace('\n', '').replace('\t', '').replace('\r', '').replace('\xa0', ''))
         return content_cleaned
 
             
