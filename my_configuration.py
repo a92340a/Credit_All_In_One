@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 import pymongo
 import psycopg2
+import redis
 
 
 load_dotenv()
@@ -27,3 +28,8 @@ def _get_pgsql():
         )
     return pg_client
 
+def _get_redis():
+    redis_pool = redis.ConnectionPool(host=os.getenv("REDIS_HOST"),
+                                  port=os.getenv("REDIS_PORT"))
+    redis_conn = redis.StrictRedis(connection_pool=redis_pool, decode_responses=True)
+    return redis_conn 
