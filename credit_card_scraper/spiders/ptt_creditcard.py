@@ -25,10 +25,10 @@ class PttCreditcardSpider(scrapy.Spider):
     def parse(self, response):
         # find the latest page
         last_page = response.css('div.btn-group.btn-group-paging a:nth-child(2)::attr(href)').get()
-        last_page_number = int(re.search(r'index([0-9]+)\.html', last_page).group(1))
+        last_page_number = int(re.search(r'index([0-9]+)\.html', last_page).group(1)) + 1
         
         # crawling n pages
-        for i in range(1):
+        for i in range(30):
             time.sleep(1)
             url = "https://www.ptt.cc/bbs/creditcard/index" + str(last_page_number - i) + ".html"
             yield scrapy.Request(url, cookies={'over18': '1'}, callback=self.parse_ptt_titles)

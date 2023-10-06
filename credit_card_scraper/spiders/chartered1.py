@@ -14,7 +14,12 @@ class Chartered1Spider(scrapy.Spider):
     name = "chartered1"
     allowed_domains = ["www.sc.com"]
     start_urls = ["https://www.sc.com/tw/credit-cards/"]
-    handle_httpstatus_list = [302] 
+    handle_httpstatus_list = [302]
+    custom_settings = {
+        'ITEM_PIPELINES': {
+            "credit_card_scraper.pipelines.CreditCardScraperPipeline": 300,
+        }
+    }
 
     def parse(self, response):
         boxes = response.css('div.sc-product-action-cvp__wrapper')
@@ -23,6 +28,8 @@ class Chartered1Spider(scrapy.Spider):
             bank_name = '渣打, 渣打銀行, Chartered, standard chartered'
             card_image = box.css('div.sc-product-action-cvp__image img::attr(src)').get()
             card_name = box.css('div.sc-product-action-cvp__image img::attr(alt)').get()
+            if '渣打' not in card_name:
+                card_name = '渣打' + card_name
             content = box.css('div.sc-product-action-cvp__content.sc-product-action-cvp__info ul.sc-product-action-cvp__list ::text').getall()
             content = self.cleaning_content(content)
             content = ','.join(content)
@@ -36,24 +43,25 @@ class Chartered1Spider(scrapy.Spider):
             if 'https://' not in card_link:
                 card_link = 'https://www.sc.com' + card_link
     
-            chartered_item = CreditCardScraperItem()
-            chartered_item['source'] = source
-            chartered_item['bank_name'] = bank_name
-            chartered_item['card_image'] = card_image
-            chartered_item['card_name'] = card_name
-            chartered_item['card_content'] = card_content
-            chartered_item['card_link'] = card_link
-            chartered_item['create_dt'] = create_dt
-            chartered_item['create_timestamp'] = create_timestamp
-            yield chartered_item
+            item = CreditCardScraperItem()
+            item['source'] = source
+            item['bank_name'] = bank_name
+            item['card_image'] = card_image
+            item['card_name'] = card_name
+            item['card_content'] = card_content
+            item['card_link'] = card_link
+            item['create_dt'] = create_dt
+            item['create_timestamp'] = create_timestamp
+            yield item
         
 
     def cleaning_content(self, content):
         content_cleaned = []
         for i in content:
-            if i.replace('\n', '').replace('\t', '').replace('\r', '').replace('\xa0', '') not in content_cleaned:
-                content_cleaned.append(i.replace('\n', '').replace('\t', '').replace('\r', '').replace('\xa0', ''))
+            if i.replace('\n', '').replace('\t', '').replace('\r', '').replace('\xa0', '').replace('  ','') not in content_cleaned:
+                content_cleaned.append(i.replace('\n', '').replace('\t', '').replace('\r', '').replace('\xa0', '').replace('  ',''))
         return content_cleaned
+
 
             
     

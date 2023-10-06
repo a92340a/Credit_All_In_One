@@ -68,10 +68,10 @@ DOWNLOADER_MIDDLEWARES = {
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-ITEM_PIPELINES = {
-   "credit_card_scraper.pipelines.CreditCardScraperPipeline": 300,
-   "credit_card_scraper.pipelines.PttScraperPipeline": 300,
-}
+# ITEM_PIPELINES = {
+#    "credit_card_scraper.pipelines.CreditCardScraperPipeline": 300,
+#    "credit_card_scraper.pipelines.PttScraperPipeline": 300,
+# }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html

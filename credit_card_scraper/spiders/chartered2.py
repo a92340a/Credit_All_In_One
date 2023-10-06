@@ -15,8 +15,12 @@ class Chartered2Spider(scrapy.Spider):
     name = "chartered2"
     allowed_domains = ["www.sc.com"]
     start_urls = ["https://www.sc.com/tw/credit-cards/"]
-
-    handle_httpstatus_list = [302] 
+    handle_httpstatus_list = [302]
+    custom_settings = {
+        'ITEM_PIPELINES': {
+            "credit_card_scraper.pipelines.CreditCardScraperPipeline": 300,
+        }
+    } 
 
     def parse(self, response):
         boxes = response.css('ul.sc-produt-tile__grid li')
@@ -26,6 +30,8 @@ class Chartered2Spider(scrapy.Spider):
                 bank_name = '渣打, 渣打銀行, Chartered, standard chartered' 
                 card_image = box.css('a div div img::attr(src)').get() 
                 card_name = box.css('a::attr(title)').get()
+                if '渣打' not in card_name:
+                    card_name = '渣打' + card_name
                 content = box.css('a div div p::text').get()
                 card_content = self.cleaning_content(content)
                 card_link = box.css('a::attr(href)').get() 
@@ -50,28 +56,29 @@ class Chartered2Spider(scrapy.Spider):
                     )
     
     def parse_charter2_details(self, response):
-            content1 = response.css('div#sc-lb-module-product-benefits ::text').getall()
-            content1 = self.cleaning_content(content1)
-            content1 = ','.join(content1)
-            
-            chartered_item = CreditCardScraperItem()
-            chartered_item['source'] = response.meta.get('source')
-            chartered_item['bank_name'] = response.meta.get('bank_name')
-            chartered_item['card_image'] = response.meta.get('card_image')
-            chartered_item['card_name'] = response.meta.get('card_name')
-            chartered_item['card_content'] = response.meta.get('card_content')[0]+ ',' + content1
-            chartered_item['card_link'] = response.meta.get('card_link')
-            chartered_item['create_dt'] = response.meta.get('create_dt')
-            chartered_item['create_timestamp'] = response.meta.get('create_timestamp')
-            yield chartered_item
+        content1 = response.css('div#sc-lb-module-product-benefits ::text').getall()
+        content1 = self.cleaning_content(content1)
+        content1 = ','.join(content1)
+        
+        item = CreditCardScraperItem()
+        item['source'] = response.meta.get('source')
+        item['bank_name'] = response.meta.get('bank_name')
+        item['card_image'] = response.meta.get('card_image')
+        item['card_name'] = response.meta.get('card_name')
+        item['card_content'] = response.meta.get('card_content')[0]+ ',' + content1
+        item['card_link'] = response.meta.get('card_link')
+        item['create_dt'] = response.meta.get('create_dt')
+        item['create_timestamp'] = response.meta.get('create_timestamp')
+        yield item
         
 
     def cleaning_content(self, content):
         content_cleaned = []
         for i in content:
-            if i.replace('\n', '').replace('\t', '').replace('\r', '').replace('\xa0', '') not in content_cleaned:
-                content_cleaned.append(i.replace('\n', '').replace('\t', '').replace('\r', '').replace('\xa0', ''))
+            if i.replace('\n', '').replace('\t', '').replace('\r', '').replace('\xa0', '').replace('  ','') not in content_cleaned:
+                content_cleaned.append(i.replace('\n', '').replace('\t', '').replace('\r', '').replace('\xa0', '').replace('  ',''))
         return content_cleaned
+
 
             
     
