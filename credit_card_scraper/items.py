@@ -23,5 +23,6 @@ class PttScraperItem(scrapy.Item):
     post_dt = scrapy.Field()
     push = scrapy.Field()
     post_link = scrapy.Field()
+    article = scrapy.Field()
     create_dt = scrapy.Field()
     create_timestamp = scrapy.Field() 
