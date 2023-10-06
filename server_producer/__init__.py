@@ -15,7 +15,7 @@ from io import BytesIO
 from base64 import b64encode
 from urllib.parse import quote
 
-from server_producer.models.hot_cards_model import fetch_cards_ranking, fetch_total_cards, fetch_latest_cards, fetch_ptt_title_splitted
+from server_producer.models.hot_cards_model import fetch_cards_ranking, fetch_total_banks_and_cards, fetch_latest_cards, fetch_ptt_title_splitted
 from server_producer.models.chat_model import fetch_latest_chats
 import my_logger 
 load_dotenv()
@@ -42,7 +42,8 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 @app.route('/')
 def index():
     # === part 1: card ===
-    card_1 = fetch_total_cards()[0][0]
+    card_banks = fetch_total_banks_and_cards()[0][0]
+    card_cards = fetch_total_banks_and_cards()[0][1]
     # === part 1: bar ===
     top_k = 5
     cards = fetch_cards_ranking(top_k)
@@ -82,7 +83,7 @@ def index():
     #                         xaxis_title='', yaxis_title='Quantity')
     # plot_2 = json.dumps(pie_color, cls=py.utils.PlotlyJSONEncoder)
     
-    return render_template('index.html', card_1=card_1, plot_1=plot_1, plot_2=plot_2, plot_3=image_url ,plot_5=plot_5)
+    return render_template('index.html', card_banks=card_banks ,card_cards=card_cards, plot_1=plot_1, plot_2=plot_2, plot_3=image_url ,plot_5=plot_5)
 
 
 from server_producer.views import socketio_view

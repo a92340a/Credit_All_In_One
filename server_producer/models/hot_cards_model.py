@@ -42,11 +42,11 @@ def fetch_cards_ranking(top_k):
     return data
     
 
-def fetch_total_cards():
+def fetch_total_banks_and_cards():
     pgsql_db = _get_pgsql()
     cursor = pgsql_db.cursor()
     sql = """
-    SELECT count(DISTINCT url) AS cnt 
+    SELECT count(DISTINCT bank_name) AS ttl_banks, count(DISTINCT url) AS ttl_cards 
     FROM credit_info 
     WHERE lst_update_dt = (SELECT max(lst_update_dt) FROM credit_info);
     """
