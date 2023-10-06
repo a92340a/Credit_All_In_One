@@ -1,13 +1,16 @@
 import os
 import sys
+import json
 from datetime import datetime
 from dotenv import load_dotenv
-import psycopg2
+from wordcloud import WordCloud
+
 load_dotenv()
 sys.path.append('../Credit_All_In_One/')
 import my_logger
-from my_configuration import _get_pgsql
+from my_configuration import _get_pgsql, _get_redis
 
+TC_FONT_PATH = "server_producer/models/NotoSerifTC-Regular.otf"
 
 # datetime
 now = datetime.now()
@@ -76,3 +79,21 @@ def fetch_latest_cards():
     pgsql_db.close()
     return data
 
+
+def fetch_ptt_title_splitted():
+    """
+    retrieve the total number of comments of mongodb from Redis
+    """
+    redis_conn = _get_redis()
+    data = json.loads(redis_conn.get("ptt_title").decode("utf-8"))
+    wc = WordCloud(
+                font_path=TC_FONT_PATH,
+                margin=2,
+                background_color="rgba(255, 255, 255, 0)", mode="RGBA",
+                max_font_size=150,
+                width=800,
+                height=600,
+            ).generate(" ".join(data))
+    return wc.to_image() 
+
+    

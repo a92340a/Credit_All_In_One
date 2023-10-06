@@ -11,8 +11,11 @@ from google.cloud.pubsublite.types import MessageMetadata
 
 import plotly as py
 import plotly.graph_objects as go
+from io import BytesIO
+from base64 import b64encode
+from urllib.parse import quote
 
-from server_producer.models.hot_cards_model import fetch_cards_ranking, fetch_total_cards, fetch_latest_cards
+from server_producer.models.hot_cards_model import fetch_cards_ranking, fetch_total_cards, fetch_latest_cards, fetch_ptt_title_splitted
 from server_producer.models.chat_model import fetch_latest_chats
 import my_logger 
 load_dotenv()
@@ -64,6 +67,12 @@ def index():
     else:
         plot_2 = 'No new release in these 7 days!'
     
+    # === part 3: wordclouds from ptt titles ===
+    plot_3 = fetch_ptt_title_splitted()
+    image_io = BytesIO()
+    plot_3.save(image_io, 'PNG')
+    image_url = 'data:image/png;base64,' + b64encode(image_io.getvalue()).decode()
+
     # === part 5: recent chats: create_dt, question, answer ===
     plot_5 = fetch_latest_chats()
     
@@ -73,7 +82,7 @@ def index():
     #                         xaxis_title='', yaxis_title='Quantity')
     # plot_2 = json.dumps(pie_color, cls=py.utils.PlotlyJSONEncoder)
     
-    return render_template('index.html', card_1=card_1, plot_1=plot_1, plot_2=plot_2, plot_5=plot_5)
+    return render_template('index.html', card_1=card_1, plot_1=plot_1, plot_2=plot_2, plot_3=image_url ,plot_5=plot_5)
 
 
 from server_producer.views import socketio_view
