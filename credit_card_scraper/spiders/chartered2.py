@@ -27,7 +27,7 @@ class Chartered2Spider(scrapy.Spider):
         for box in boxes:
             if '停止受理申辦' not in box.css('a div div p::text').get():
                 source = '渣打' 
-                bank_name = '渣打, 渣打銀行, Chartered, standard chartered' 
+                bank_name = '渣打, 渣打銀行, 052, Chartered, standard chartered' 
                 card_image = box.css('a div div img::attr(src)').get() 
                 card_name = box.css('a::attr(title)').get()
                 if '渣打' not in card_name:

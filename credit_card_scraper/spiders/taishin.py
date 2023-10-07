@@ -34,7 +34,7 @@ class TaishinSpider(scrapy.Spider):
         boxes = response.css("div.ts-comp-29 ")
         for box in boxes:
             source = '台新'
-            bank_name = '台新, 台新銀行, 狗狗, taishin, taishin international bank'
+            bank_name = '台新, 台新銀行, 狗狗, 812, taishin, taishin international bank'
             card_image = 'https://www.taishinbank.com.tw' + box.css('div.left div.pic a img::attr(src)').get()
             card_name = box.css('div.right div.itemscont div.itemstitle a p::text').get()
             if '台新' not in card_name:

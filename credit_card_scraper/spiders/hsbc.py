@@ -26,7 +26,7 @@ class HsbcSpider(scrapy.Spider):
         boxes = response.css("div.advancedProductModule")
         for box in boxes:
             source = '滙豐'
-            bank_name = '匯豐, 滙豐, 台灣滙豐, hsbc'
+            bank_name = '匯豐, 滙豐, 台灣滙豐, 081, hsbc'
             card_image = box.css('div div div.smart-image figure picture img::attr(src)').get()
             card_name = box.css('div div .A-LNKND38L-RW-ALL.text-container.text::text').get().strip()
             if '不接受新卡申請' not in card_name:

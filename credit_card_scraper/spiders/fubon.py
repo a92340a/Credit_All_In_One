@@ -27,16 +27,24 @@ class FubonSpider(scrapy.Spider):
         boxes = response.css("li.credit-card")
         for box in boxes:
             source = '富邦'
-            bank_name = '富邦, 富邦銀行, 台北富邦銀行, 勇士, 蔡家, fubon, cathay united bank'
+            bank_name = '富邦, 富邦銀行, 台北富邦銀行, 勇士, 蔡家, 012, fubon'
             verify = box.css('a.btn-blueDark.pv10.w180Max.block.center::text').get()
-            if verify and ('不開放申請' not in verify or '已停止申辦' not in verify):
-                card_image = 'https://www.fubon.com' + box.css('div.pic img::attr(src)').get()
-                card_name = box.css('div.title::text').get()
-                if '富邦' not in card_name:
-                    card_name = '富邦' + card_name
-                mobile_paymenet = ['apple', 'google', 'samsung', 'fitbit', 'hce', 'wali', 'garmin'] 
-                for mb_name in mobile_paymenet:
-                    if mb_name not in card_name: 
+            if verify:
+                if '不開放申請' in verify or '已停止申辦' in verify:
+                    print('停止申辦')
+                else:
+                    card_image = 'https://www.fubon.com' + box.css('div.pic img::attr(src)').get()
+                    card_name = box.css('div.title::text').get()
+                    if '富邦' not in card_name:
+                        card_name = '富邦' + card_name
+                    
+                    mobile_paymenet = ['Apple', 'Google', 'Samsung', 'Fitbit', 'HCE', 'Wali', 'Garmin'] 
+                    mb_flg = 0
+                    for mb_name in mobile_paymenet:
+                        if mb_name in card_name: 
+                            mb_flg += 1
+                        
+                    if mb_flg == 0:    
                         content = box.css('div.descript ::text').getall()
                         content = self.cleaning_content(content)
                         card_content = ','.join(content)
@@ -56,7 +64,7 @@ class FubonSpider(scrapy.Spider):
                         item['create_dt'] = create_dt
                         item['create_timestamp'] = create_timestamp
                         yield item
-                
+                    
 
     def cleaning_content(self, content):
         content_cleaned = []

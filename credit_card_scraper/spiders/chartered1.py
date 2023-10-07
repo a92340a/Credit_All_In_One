@@ -25,7 +25,7 @@ class Chartered1Spider(scrapy.Spider):
         boxes = response.css('div.sc-product-action-cvp__wrapper')
         for box in boxes:
             source = '渣打'
-            bank_name = '渣打, 渣打銀行, Chartered, standard chartered'
+            bank_name = '渣打, 渣打銀行, 052, Chartered, standard chartered'
             card_image = box.css('div.sc-product-action-cvp__image img::attr(src)').get()
             card_name = box.css('div.sc-product-action-cvp__image img::attr(alt)').get()
             if '渣打' not in card_name:
