@@ -27,7 +27,7 @@ class CathaySpider(scrapy.Spider):
         boxes = response.css("div.cubre-m-compareCard.-credit")
         for box in boxes:
             source = '國泰'
-            bank_name = '國泰, 國泰銀行, 國泰世華銀行, cathay, cathay united bank'
+            bank_name = '國泰, 國泰銀行, 國泰世華銀行, 大樹, 蔡家, cathay, cathay united bank'
             card_image = 'https://www.cathaybk.com.tw' + box.css('div.cubre-m-compareCard__pic img::attr(src)').get()
             card_name = box.css('div.cubre-m-compareCard__title::text').get()
             if '停發' not in card_name:
