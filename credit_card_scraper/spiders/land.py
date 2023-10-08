@@ -43,7 +43,7 @@ class LandSpider(scrapy.Spider):
                 item['bank_name'] = bank_name
                 item['card_image'] = card_image
                 item['card_name'] = card_name
-                item['card_content'] = ''
+                item['card_content'] = card_name #
                 item['card_link'] = card_link
                 item['create_dt'] = create_dt
                 item['create_timestamp'] = create_timestamp

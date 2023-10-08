@@ -27,7 +27,7 @@ class TaishinSpider(scrapy.Spider):
         for i in range(2, 5):
             time.sleep(1)
             url = "https://www.taishinbank.com.tw/TSB/personal/credit/intro/overview/index.html?type=type" + str(i)
-            yield scrapy.Request(url, cookies={'over18': '1'}, callback=self.parse_taishin)
+            yield scrapy.Request(url, callback=self.parse_taishin)
 
 
     def parse_taishin(self, response):
