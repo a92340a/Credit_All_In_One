@@ -27,7 +27,7 @@ class LandSpider(scrapy.Spider):
     def parse(self, response):
         boxes = response.css("div.contect_contect div.row div.col-md-6")
         for box in boxes:
-            source = '土地'
+            source = '土銀'
             bank_name = '土地, 土地銀行, 土銀, 005, land, land bank of taiwan'
             card_image = '/static/images/land_bank' + box.css('div p a img::attr(src)').get()
             card_name = box.css('div p a strong span::text').get().split('■ ')[1]
