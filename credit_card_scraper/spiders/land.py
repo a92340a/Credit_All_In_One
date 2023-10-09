@@ -32,8 +32,8 @@ class LandSpider(scrapy.Spider):
             card_image = '/static/images/land_bank' + box.css('div p a img::attr(src)').get()
             card_name = box.css('div p a strong span::text').get().split('■ ')[1]
             if '停止' not in card_name:
-                if '土地' not in card_name:
-                    card_name = '土地' + card_name
+                if '土銀' not in card_name:
+                    card_name = '土銀' + card_name
                 card_link = box.css('div p a::attr(href)').get()
                 create_dt = today
                 create_timestamp = int(time.time())

@@ -24,13 +24,13 @@ class TaichungSpider(scrapy.Spider):
     def parse(self, response):
         boxes = response.css("div.col-12.col-md-3.left.no_pad div.img_btn")
         for box in boxes:
-            source = '台中'
+            source = '台中銀'
             bank_name = '台中, 台中銀行, 053, tcb, taichung, taichung bank'
             card_image = 'https://www.tcbbank.com.tw' + box.css('img.img::attr(src)').get().split('..')[1]
             card_name = box.css('div.admin-btn div.word_block p::text').get()
             if '暫停' not in card_name:
                 if '台中' not in card_name:
-                    card_name = '台中銀行' + card_name
+                    card_name = '台中銀' + card_name
                 card_link = box.css('div.admin-btn a::attr(href)').get()
                 if 'https://' not in card_link:
                     card_link = 'https://www.tcbbank.com.tw/CreditCard/' + card_link

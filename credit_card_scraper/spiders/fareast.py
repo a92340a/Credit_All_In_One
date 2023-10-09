@@ -24,15 +24,15 @@ class FareastSpider(scrapy.Spider):
     def parse(self, response):
         boxes = response.css("div.carousel.slide.-cards div div.carousel-item")
         for box in boxes:
-            source = '遠東'
-            bank_name = "遠東, 遠東商銀, 805, fareast, Far Eastern Int'l Bank"
+            source = '遠銀'
+            bank_name = "遠銀, 遠東, 遠東商銀, 805, fareast, Far Eastern Int'l Bank"
             card_image = 'https://www.feib.com.tw' + box.css('div.image.-center img::attr(src)').get()
             card_name = box.css('h2.-fs-2 ::text').getall()
             card_name = ''.join(card_name)
             if '終止' not in card_name:
                 if '行動支付' not in card_name:
-                    if '遠東' not in card_name:
-                        card_name = '遠東' + card_name                
+                    if '遠銀' not in card_name:
+                        card_name = '遠銀' + card_name                
                     card_link = box.css('a::attr(href)').get()
                     if 'https://' not in card_link:
                         card_link = 'https://www.feib.com.tw' + card_link
