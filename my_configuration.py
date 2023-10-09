@@ -28,6 +28,7 @@ def _get_pgsql():
         )
     return pg_client
 
+
 def _get_redis():
     redis_pool = redis.ConnectionPool(host=os.getenv("REDIS_HOST"),
                                   port=os.getenv("REDIS_PORT"))
