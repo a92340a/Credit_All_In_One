@@ -27,7 +27,7 @@ class FubonSpider(scrapy.Spider):
         boxes = response.css("li.credit-card")
         for box in boxes:
             source = '富邦'
-            bank_name = '富邦, 富邦銀行, 台北富邦銀行, 勇士, 蔡家, 012, fubon'
+            bank_name = '富邦, 北富銀, 富邦銀行, 台北富邦銀行, 勇士, 蔡家, 012, fubon'
             verify = box.css('a.btn-blueDark.pv10.w180Max.block.center::text').get()
             if verify:
                 if '不開放申請' in verify or '已停止申辦' in verify:

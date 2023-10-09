@@ -25,7 +25,7 @@ class ShanghaiSpider(scrapy.Spider):
         boxes = response.css("div.row.ctcard-list")
         for box in boxes:
             source = '上海商銀'
-            bank_name = '上海, 上海商銀, 上海商業儲蓄銀行, 053, shanghai, shanghai commercial & savings bank ltd'
+            bank_name = '上海, 上海商銀, 上海商業儲蓄銀行, 011, shanghai, shanghai commercial & savings bank ltd'
             card_image = 'https://www.scsb.com.tw/content/card/' + box.css('div.col-lg-auto img::attr(style)').get().split('(')[1].split(')')[0]
             card_name = box.css('div.col-lg h3::text').get()
             if '暫停' not in card_name:
