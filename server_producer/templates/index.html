@@ -34,6 +34,14 @@
     <section id="hot-cards" class="padding container">
         <h2 class="text-center">Cards Dashboard</h2>
         <div class="container">
+            <div class="row my-5">
+                <h3 class="text-center">Banks available ib Credit All-In-One</h3>
+                {% for bank in banks %}
+                    <div class="d-inline col-md-1 p-2 m-2 text-center bg-secondary rounded text-white">{{bank[0]}}</div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="container">
             <div class="row">
                 <div class="col text-center cube">
                     <h3>Overview</h3>
@@ -42,21 +50,20 @@
                     <div id="cards_counts_ranking"></div>
                 </div>
                 <div class="col text-center cube">
-                    <h3>New Release</h3>
-                    <div id="new_release" class="carousel slide" data-bs-ride="carousel">
+                    <h3>New Updates</h3>
+                    <div id="new_updates" class="carousel slide" data-bs-ride="carousel">
                         {% if plot_2 is string %}
-                        <div class="display-6">No new release</div>
-                        <h5 class="cube">in these 7 days!</h5>
+                        <div class="display-6">No new updates</div>
+                        <h5 class="cube">in these {{plot_2}} days!</h5>
+                        <img class="card-image d-block rounded mx-auto cube" src="/static/images/credit_card_image.png" alt="/static/images/credit_card_image.png" height="100"><br>
                         {% else %}
                         <div class="carousel-inner cube">
                         {% for card in plot_2 %}
                             <div class="carousel-item {% if loop.index == 1 %}active{% endif %}">
                                 <h6 class="release-date cube font-weight-light">{{ card[0] }}</h6>
                                 <h5 class="bank-name cube text-secondary">{{ card[1] }}</h5>
-                                <div class="card-namecube display-6 text-info font-weight-bold">XXX信用卡</div>
-                                <img class="card-image d-block rounded mx-auto cube" src="../static/images/credit_card_image.png" alt="../static/images/credit_card_image.png" height="100"><br>
-                                <a class="url cube" href="{{card[1]}}">{{ card[2] }}</a>
-                                <br>
+                                <div class="card-name cube display-6 text-info font-weight-bold">{{ card[2] }}</div>
+                                <a class="url cube" href="{{card[4]}}" target="_blank"><img class="card-image cube d-block rounded mx-auto" src="{{ card[3] }}" alt="/static/images/credit_card_image.png" height="200"></a>
                             </div>
                         {% endfor %}
                         </div>
@@ -75,13 +82,14 @@
             <br>
             <div class="row">
                 <div class="col text-center cube">
-                    <h3>Trending Topics</h3>
+                    <h3>Trending Words</h3>
                     <h5 id="word_cloud">words in recent 3 months in PTT community 'creditcards'</h5>
                     <img class="card-image d-block rounded mx-auto" src="{{ plot_3 }}" alt="../static/images/wordcloud.jpeg" height="400"><br>
                 </div>
                 <div class="col text-center cube">
-                    <h3>Hot Cards</h3>
-                    <div id="benefits"></div>
+                    <h3>Buzzworthy Cards</h3>
+                    <div id="score_of_cards"></div>
+                    <p>* Scores based on the number of appearance and push in PTT community 'creditcards'</p>
                 </div>
             </div>
         </div>
@@ -185,5 +193,7 @@
 <script type="text/javascript">
     let plot_1 = {{ plot_1 | safe }};
     Plotly.plot("cards_counts_ranking", plot_1, {});
+    let plot_4 = {{ plot_4 | safe }};
+    Plotly.plot("score_of_cards", plot_4, {});
 </script>
 </html>
