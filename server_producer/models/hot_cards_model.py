@@ -1,28 +1,17 @@
-import os
 import sys
-import json
 from datetime import datetime
 from dotenv import load_dotenv
-from wordcloud import WordCloud
 
 
 load_dotenv()
 sys.path.append('../Credit_All_In_One/')
-import my_logger
 from my_configuration import _get_pgsql, _get_redis
 
-TC_FONT_PATH = "server_producer/models/NotoSerifTC-Regular.otf"
 
 # datetime
 now = datetime.now()
 today_date = now.date()
 today = now.strftime('%Y-%m-%d')
-
-
-# create a logger
-dev_logger = my_logger.MyLogger('producer')
-dev_logger.console_handler()
-dev_logger.file_handler(today)
 
 
 def fetch_all_banks():
@@ -62,7 +51,7 @@ def fetch_total_banks_and_cards():
     pgsql_db = _get_pgsql()
     cursor = pgsql_db.cursor()
     sql = """
-    SELECT count(DISTINCT bank_name) AS ttl_banks, count(DISTINCT card_link) AS ttl_cards 
+    SELECT count(DISTINCT bank_name) AS ttl_banks, count(DISTINCT card_name) AS ttl_cards 
     FROM credit_info 
     WHERE lst_update_dt = (SELECT max(lst_update_dt) FROM credit_info);
     """
@@ -95,32 +84,3 @@ def fetch_latest_cards(days=30):
     return data
 
 
-def fetch_ptt_title_splitted():
-    """
-    retrieve the splitted ptt_titles from Redis
-    """
-    redis_conn = _get_redis()
-    data = json.loads(redis_conn.get("ptt_title").decode("utf-8"))
-    wc = WordCloud(
-                font_path=TC_FONT_PATH,
-                margin=2,
-                background_color="rgba(255, 255, 255, 0)", mode="RGBA",
-                max_font_size=100,
-                width=700,
-                height=500,
-            ).generate(" ".join(data))
-    return wc.to_image() 
-
-
-def fetch_ptt_article_scores():
-    """
-    retrieve the scores of cards from Redis
-    """
-    redis_conn = _get_redis()
-    data = json.loads(redis_conn.get("ptt_article").decode("utf-8"))
-    return data
-
-
-if __name__ == '__main__':
-    fetch_ptt_article_scores()
-    
