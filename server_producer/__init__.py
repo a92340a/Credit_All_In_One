@@ -70,8 +70,8 @@ def index():
     plot_1 = json.dumps(fig1, cls=py.utils.PlotlyJSONEncoder)
 
     # === part 3: bank name, card name, card_link and image ===
-    release_intervals = 30
-    latest = fetch_latest_cards(release_intervals)
+    release_intervals = 30 #######
+    latest = fetch_latest_cards()
     # first_date, bank_name, card_name, card_image, card_link
     if latest:
         plot_2 = latest

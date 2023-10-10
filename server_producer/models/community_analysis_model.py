@@ -51,7 +51,7 @@ def fetch_ptt_popular_articles():
     redis_conn = _get_redis()
     data = json.loads(redis_conn.get("ptt_popular_articles").decode("utf-8"))
     for i in data[:5]:
-        i['article'] = i['article'][:100] + '...'
+        i['article'] = i['article'][:100] + ' ...'
     return data[:5]
 
 

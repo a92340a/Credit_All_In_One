@@ -62,22 +62,16 @@ def fetch_total_banks_and_cards():
     return data
 
 
-def fetch_latest_cards(days=30):
+def fetch_latest_cards():
     pgsql_db = _get_pgsql()
     cursor = pgsql_db.cursor()
     sql = """
-    WITH fst AS (
-        SELECT 
-            bank_name, card_name, card_image, card_link, min(lst_update_dt) AS first_date
-        FROM credit_info
-        group by bank_name, card_name, card_image, card_link
-    )
-    SELECT first_date, bank_name, card_name, card_image, card_link
-    FROM fst 
-    WHERE first_date BETWEEN current_date - %s AND current_date
-    ORDER BY first_date DESC, bank_name ASC, card_name ASC;
+    SELECT 
+        bank_name, card_name, card_image, card_link, lst_update_dt
+    FROM credit_info
+    WHERE lst_update_dt = (SELECT MAX(lst_update_dt) FROM credit_info)
     """
-    cursor.execute(sql, (days,))
+    cursor.execute(sql)
     data = cursor.fetchall()
     cursor.close()
     pgsql_db.close()
