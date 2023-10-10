@@ -7,5 +7,5 @@ CREATE TABLE IF NOT EXISTS credit_info(
     card_link text, 
     topic text,
     lst_update_dt date,
-    PRIMARY KEY (bank_name, card_name)
+    PRIMARY KEY (bank_name, card_name, lst_update_dt)
 );

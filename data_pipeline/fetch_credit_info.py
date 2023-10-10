@@ -2,7 +2,7 @@ import os
 import sys
 from datetime import datetime
 from dotenv import load_dotenv
-import psycopg2
+import pymongo
 
 load_dotenv()
 sys.path.append('../Credit_All_In_One/')
@@ -22,35 +22,28 @@ dev_logger.console_handler()
 dev_logger.file_handler(today)
 
 
-pipeline = [
-        {'$group': 
-            {
-                '_id': ['$source', '$bank_name', '$card_name', '$card_image', '$card_link'],
-                'lst_update_dt': {'$max': '$create_dt'}
-            }
-        }
-    ]
-
-
 def fetch_from_mongodb():
     """
     fetch the latest credit info from MongoDB
     """
     mongo_db = _get_mongodb()
     mongo_collection = mongo_db["official_website"]
-    fetch_latest_info = list(mongo_collection.aggregate(pipeline))
+    max_create_dt = mongo_collection.find_one(sort=[('create_dt', pymongo.DESCENDING)])['create_dt']
+
+    projection = {'source': 1, 'bank_name':1 , 'card_name':1, 'card_image':1, 'card_link': 1, 'create_dt':1, '_id': 0}
+    fetch_latest_info = list(mongo_collection.find({'create_dt': max_create_dt}, projection))
 
     credit_latest_info = []
     for i in fetch_latest_info:
-        bank_name = i['_id'][0]
-        bank_alias_name = i['_id'][1]
-        card_name = i['_id'][2]
-        card_image = i['_id'][3]
-        card_link = i['_id'][4]
-        lst_update_dt = i['lst_update_dt']
+        bank_name = i['source']
+        bank_alias_name = i['bank_name']
+        card_name = i['card_name']
+        card_image = i['card_image']
+        card_link = i['card_link']
+        lst_update_dt = i['create_dt']
         credit_latest_info.append(tuple([bank_name, bank_alias_name, card_name, card_image, card_link, lst_update_dt]))
-    dev_logger.info('Update for {}'.format(fetch_latest_info[0]['lst_update_dt']))
-    dev_logger.info(f'Numbers of latest MongoDB data: {len(credit_latest_info)}')
+    dev_logger.info('Update for {}'.format(credit_latest_info[0][5]))
+    dev_logger.info(f'Numbers of latest data in MongoDB: {len(credit_latest_info)}')
     return credit_latest_info
 
 
@@ -63,8 +56,8 @@ def insert_into_pgsql(credit_latest_info):
     cursor = pg_db.cursor()
     try:
         cursor.executemany("""INSERT INTO credit_info(bank_name, bank_alias_name, card_name, card_image, card_link, lst_update_dt) VALUES (%s, %s, %s, %s, %s, %s) \
-                           ON CONFLICT (bank_name, card_name) DO UPDATE \
-                           SET (bank_alias_name, card_image, card_link, lst_update_dt) = (EXCLUDED.bank_alias_name, EXCLUDED.card_image, EXCLUDED.card_link, EXCLUDED.lst_update_dt);""", 
+                           ON CONFLICT (bank_name, card_name, lst_update_dt) DO UPDATE \
+                           SET (bank_alias_name, card_image, card_link) = (EXCLUDED.bank_alias_name, EXCLUDED.card_image, EXCLUDED.card_link);""", 
                            credit_latest_info)
         pg_db.commit()
         dev_logger.info('Successfully insert into PostgreSQL')
