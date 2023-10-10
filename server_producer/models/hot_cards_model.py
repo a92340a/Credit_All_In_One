@@ -67,7 +67,7 @@ def fetch_latest_cards():
     cursor = pgsql_db.cursor()
     sql = """
     SELECT 
-        bank_name, card_name, card_image, card_link, lst_update_dt
+        lst_update_dt, bank_name, card_name, card_image, card_link
     FROM credit_info
     WHERE lst_update_dt = (SELECT MAX(lst_update_dt) FROM credit_info)
     """
