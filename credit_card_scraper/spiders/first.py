@@ -28,7 +28,7 @@ class FirstSpider(scrapy.Spider):
         for box in boxes:
             source = '一銀'
             bank_name = '一銀, 第一, 第一銀行, 龐德, 007, first bank'
-            card_image = '/static/images/first_bank' + box.css('div.card-single-face div.card-single-img::attr(style)').get().split("'")[1].split('/File/Get/')[1].replace('?verifyType=Type1','') + '.jpg'
+            card_image = '/static/images/first_bank/' + box.css('div.card-single-face div.card-single-img::attr(style)').get().split("'")[1].split('/sites/card/image/')[1].replace('?verifyType=Type1','') + '.jpg'
             card_name = box.css('div.card-single-features strong::text').get()
             
             mobile_paymenet = ['Apple', 'Google', 'Samsung', 'Fitbit', 'HCE', 'Wali', 'Garmin', '行動支付', '支付綁定', '台灣Pay'] 

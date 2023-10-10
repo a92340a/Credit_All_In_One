@@ -1,5 +1,3 @@
-import os
-import pytz
 import sys
 import time
 from datetime import datetime
@@ -50,23 +48,24 @@ def split_ptt_title(max_retries: int = 5, delay: int = 2):
         # title_text_wo_stops = jieba.analyse.extract_tags(title_text,20)
         title_splits = jieba.cut(title_text[-1], cut_all=True)
         ptt_title_cleaned.extend(list(title_splits))
-    dev_logger.info(f'Finsish splits titles, number of splits: {len(ptt_title_cleaned)}')
+    dev_logger.info(f'Finish splits ptt_titles, number of splits: {len(ptt_title_cleaned)}')
     
     for trying in range(1, max_retries + 1):
         try:
             redis_conn.set("ptt_title", json.dumps(ptt_title_cleaned))
+            dev_logger.info('Finish inserting ptt_titles into Redis')
             break
         except Exception as e:
             dev_logger.warning(
-                f"Failed to set value of comments counts sum in Redis: {e}"
+                f"Failed to set value of ptt_titles in Redis: {e}"
                 f"Attempt {trying + 1} of {max_retries}. Retrying in {delay} seconds."
             )
             if trying == max_retries:
-                dev_logger.warning(f"Failed to set value of comments counts sum in {max_retries} attempts")
+                dev_logger.warning(f"Failed to set value of ptt_titles in {max_retries} attempts")
             time.sleep(delay)
 
 
-def score_ptt_article():
+def score_ptt_article(max_retries: int = 5, delay: int = 2):
     """
     fetch all banks and cards info and calculate the appearance/push on ptt
     """
@@ -111,13 +110,30 @@ def score_ptt_article():
         for card in card_names:
             if key.replace(' ','').upper() in card[0] or key.replace(' ','').upper()+'卡' in card[0]:
                 new_counting[card[0][0]] += value
-    return new_counting
+    
+    # insert into redis
+    for trying in range(1, max_retries + 1):
+        try:
+            redis_conn.set("ptt_article", json.dumps(new_counting))
+            dev_logger.info(f'Finish inserting score_ptt_articles into Redis')
+            break
+        except Exception as e:
+            dev_logger.warning(
+                f"Failed to set value of score_ptt_articles in Redis: {e}"
+                f"Attempt {trying + 1} of {max_retries}. Retrying in {delay} seconds."
+            )
+            if trying == max_retries:
+                dev_logger.warning(f"Failed to set value of score_ptt_articles in {max_retries} attempts")
+            time.sleep(delay)
+
+
 
 
 if __name__ == '__main__':
     split_ptt_title()
-    n = score_ptt_article()
-    print(n)
+    score_ptt_article()
+
+    
 
     
     
