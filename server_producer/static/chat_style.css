@@ -3,12 +3,14 @@
 }
 
 .must-read-head {
-    background-color: #ffc107;
+    background-color: #2859a2;
     font-weight: 700;
+    color: #ffffff;
 }
 
 .must-read-title {
-    background-color: #f7e4aa;
+    background-color: #97baf0;
+    color: rgb(47, 45, 45);
 }
 
 .card-bordered {
