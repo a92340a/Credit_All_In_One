@@ -3,17 +3,17 @@ import sys
 from dotenv import load_dotenv
 
 from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import Chroma
+from langchain.vectorstores.chroma import Chroma
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
-from langchain.llms import OpenAI
+from langchain.llms.openai import OpenAI
 from langchain.retrievers.self_query.base import SelfQueryRetriever
 from langchain.chains.query_constructor.base import AttributeInfo
-from langchain.schema import Document
-from langchain.callbacks.manager import AsyncCallbackManagerForRetrieverRun
-from typing import List
+# from langchain.schema import Document
+# from langchain.callbacks.manager import AsyncCallbackManagerForRetrieverRun
+# from typing import List, cast
 # from langchain.chains.query_constructor.ir import StructuredQuery
 
 load_dotenv()
@@ -59,7 +59,9 @@ def load_data(mongo_history):
     # retriever = vectordb.as_retriever() 
     # retriever = vectordb.as_retriever(search_type="similarity", search_kwargs={"k": 2}) 
     # retriever = vectordb.as_retriever(search_type="similarity_score_threshold", search_kwargs={"score_threshold": .5})
-    retriever = _build_self_query_retriever(vectordb, _get_distinct_cards())
+    # retriever = _build_self_query_retriever(vectordb, _get_distinct_cards())
+    retriever = _build_self_query_retriever(vectordb)
+
     memory = ConversationBufferMemory(memory_key="chat_history", chat_memory=mongo_history, return_messages=True)
     conversation_qa_chain = ConversationalRetrievalChain.from_llm(
         llm=llm, 
@@ -72,11 +74,11 @@ def load_data(mongo_history):
     return conversation_qa_chain
 
 
-def _build_self_query_retriever(vectorstore, cards_list):
+def _build_self_query_retriever(vectorstore): #cards_list
     metadata_field_info = [
         AttributeInfo(
             name="card_name",
-            description=f"The name of the credit card, including: {cards_list}",
+            description=f"The name of the credit card", #, including: {cards_list}
             type="string",
         )
     ]
@@ -93,47 +95,6 @@ def _get_distinct_cards():
     return list(cards)
 
 
-# class AsyncSelfQueryRetriever(SelfQueryRetriever):
-#     async def _aget_relevant_documents(
-#         self, query: str, *, run_manager: AsyncCallbackManagerForRetrieverRun
-#     ) -> List[Document]:
-#         """Asynchronously get documents relevant to a query.
-#         Args:
-#             query: String to find relevant documents for
-#             run_manager: The callbacks handler to use
-#         Returns:
-#             List of relevant documents
-#         """
-#         inputs = self.llm_chain.prep_inputs({"query": query})
-
-#         structured_query = cast(
-#             StructuredQuery,
-#             # Instead of calling 'self.llm_chain.predict_and_parse' here, 
-#             # I changed it to leveraging 'self.llm_chain.prompt.output_parser.parse' 
-#             # and 'self.llm_chain.apredict'
-#             # ↓↓↓↓↓↓↓
-#             self.llm_chain.prompt.output_parser.parse(
-#                 await self.llm_chain.apredict(
-#                     callbacks=run_manager.get_child(), **inputs
-#                 )
-#             ),
-#         )
-#         if self.verbose:
-#             print(structured_query)
-#         new_query, new_kwargs = self.structured_query_translator.visit_structured_query(
-#             structured_query
-#         )
-#         if structured_query.limit is not None:
-#             new_kwargs["k"] = structured_query.limit
-
-#         if self.use_original_query:
-#             new_query = query
-
-#         search_kwargs = {**self.search_kwargs, **new_kwargs}
-#         docs = await self.vectorstore.asearch(
-#             new_query, self.search_type, **search_kwargs
-#         )
-#         return docs
 
 if __name__ == '__main__':
     cd_li = ['渣打LINE Bank聯名卡','渣打現金回饋御璽卡','TheShoppingCard 分期卡','渣打優先理財無限卡']
@@ -141,5 +102,5 @@ if __name__ == '__main__':
     vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding)
     # result = _build_self_query_retriever(vectordb, _get_distinct_cards()).get_relevant_documents('渣打現金回饋御璽卡的內容有什麼？')
     # print(result)
-    result = _build_self_query_retriever(vectordb, _get_distinct_cards()).get_relevant_documents('海外消費有什麼現金回饋比較多的信用卡？')
+    result = _build_self_query_retriever(vectordb).get_relevant_documents('海外消費有什麼現金回饋比較多的信用卡？')
     print(result)

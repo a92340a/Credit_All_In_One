@@ -115,7 +115,8 @@ def language_calculation(message_data):
         database_name='credit',
         collection_name='chat_history'    
     )
-
+    dev_logger.info('Successfully load the chatting history')
+    
     # QA chain
     qa_database = load_data(mongo_history=history)
     answer = qa_database({"question": query, "chat_history":history.messages})
