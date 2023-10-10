@@ -37,7 +37,7 @@ def get_and_produce_message(message):
         api_future = publisher_client.publish(os.getenv('TOPIC'), json.dumps(message_sid).encode("utf-8"))
         # result() blocks. To resolve API futures asynchronously, use add_done_callback().
         message_id = api_future.result()
-        calculating = 'Please wait for calculating... {}'.format(message_sid['message'])
+        calculating = 'Please wait for Finn Bot... {}'.format(message_sid['message'])
         socketio.emit('calculating', calculating, to=request.sid)
 
         message_metadata = MessageMetadata.decode(message_id)

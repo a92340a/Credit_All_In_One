@@ -1,3 +1,16 @@
+.available-bank {
+    background-color: #2859a2;
+}
+
+.must-read-head {
+    background-color: #ffc107;
+    font-weight: 700;
+}
+
+.must-read-title {
+    background-color: #f7e4aa;
+}
+
 .card-bordered {
     border: 1px solid #ebebeb;
 }
@@ -70,8 +83,6 @@ h4.card-title {
 .btn-xs:hover{
     color:#fff !important;
 }
-
-
 
 
 .card-title {

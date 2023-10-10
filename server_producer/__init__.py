@@ -14,10 +14,11 @@ import plotly as py
 import plotly.graph_objects as go
 from io import BytesIO
 from base64 import b64encode
-from urllib.parse import quote
 
 from server_producer.models.hot_cards_model import fetch_all_banks, fetch_cards_ranking, \
-    fetch_total_banks_and_cards, fetch_latest_cards, fetch_ptt_title_splitted, fetch_ptt_article_scores
+    fetch_total_banks_and_cards, fetch_latest_cards
+from server_producer.models.community_analysis_model import fetch_ptt_title_splitted, \
+    fetch_ptt_article_scores, fetch_ptt_popular_articles
 from server_producer.models.chat_model import fetch_latest_chats
 import my_logger 
 load_dotenv()
@@ -44,14 +45,14 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 @app.route('/')
 def index():
     ##### Cards Dashboard #####
-    # === scope of available banks ===
+    # === part 1: scope of available banks ===
     banks = fetch_all_banks()
 
-    # === part 1: card ===
+    # === part 2: card ===
     card_banks = fetch_total_banks_and_cards()[0][0]
     card_cards = fetch_total_banks_and_cards()[0][1]
 
-    # === part 1: bar ===
+    # === part 2: bar ===
     top_k_banks = 5
     cards = fetch_cards_ranking(top_k_banks)
 
@@ -68,7 +69,7 @@ def index():
                       plot_bgcolor='rgba(0,0,0,0)')
     plot_1 = json.dumps(fig1, cls=py.utils.PlotlyJSONEncoder)
 
-    # === part 2: bank name, card name, card_link and image ===
+    # === part 3: bank name, card name, card_link and image ===
     release_intervals = 30
     latest = fetch_latest_cards(release_intervals)
     # first_date, bank_name, card_name, card_image, card_link
@@ -77,13 +78,14 @@ def index():
     else:
         plot_2 = release_intervals
     
-    # === part 3: wordclouds from ptt titles ===
+    ##### Community Analysis #####
+    # === part 1: wordclouds from ptt titles ===
     plot_3 = fetch_ptt_title_splitted()
     image_io = BytesIO()
     plot_3.save(image_io, 'PNG')
     image_url = 'data:image/png;base64,' + b64encode(image_io.getvalue()).decode()
 
-    # === part 3: card scores from ptt articles ===
+    # === part 2: card scores from ptt articles ===
     scores = fetch_ptt_article_scores()
     sorted_scores = Counter(scores).most_common(7)
 
@@ -95,22 +97,19 @@ def index():
     fig4.update_layout(autosize=True, title_x=0.5,
                       title_text="What's the Most Highly-Regarded Credit Cards?",
                       xaxis_title='Scores of cards in PTT community', 
-                      yaxis_title='Cards',
                       paper_bgcolor='rgba(0,0,0,0)',
                       plot_bgcolor='rgba(0,0,0,0)')
     fig4.update_layout(xaxis={'categoryorder':'total descending'})
     plot_4 = json.dumps(fig4, cls=py.utils.PlotlyJSONEncoder)
 
+    # === part 3: popular ptt articles ===
+    articles = fetch_ptt_popular_articles()
+
+    ##### Recent chats #####
     # === part 5: recent chats: create_dt, question, answer ===
     plot_5 = fetch_latest_chats()
-    
-    # pie_color = go.Figure(go.Pie(labels=distinct_color_name, values=distinct_color_freq,
-    #                              showlegend=True, marker=dict(colors=colors)))
-    # pie_color.update_layout(title_text='Product sold percentage in different colors',
-    #                         xaxis_title='', yaxis_title='Quantity')
-    # plot_2 = json.dumps(pie_color, cls=py.utils.PlotlyJSONEncoder)
-    
-    return render_template('index.html', banks=banks, card_banks=card_banks ,card_cards=card_cards, plot_1=plot_1, plot_2=plot_2, plot_4=plot_4, plot_3=image_url ,plot_5=plot_5)
+        
+    return render_template('index.html', banks=banks, card_banks=card_banks ,card_cards=card_cards, plot_1=plot_1, plot_2=plot_2, plot_4=plot_4, plot_3=image_url, articles=articles, plot_5=plot_5)
 
 
 from server_producer.views import socketio_view
