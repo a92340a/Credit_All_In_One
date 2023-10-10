@@ -29,7 +29,7 @@ class LandSpider(scrapy.Spider):
         for box in boxes:
             source = '土銀'
             bank_name = '土地, 土地銀行, 土銀, 005, land, land bank of taiwan'
-            card_image = '/static/images/land_bank' + box.css('div p a img::attr(src)').get().split('/sites/card/image/')[1] + '.jpg'
+            card_image = '/static/images/land_bank/' + box.css('div p a img::attr(src)').get().split('/File/Get/')[1].replace('?verifyType=Type1','') + '.jpg'
             card_name = box.css('div p a strong span::text').get().split('■ ')[1]
             if '停止' not in card_name:
                 if '土銀' not in card_name:
