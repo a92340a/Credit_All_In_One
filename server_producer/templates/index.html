@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Credit All-In-One</title>
-    <!-- without icon -->
-    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+    <link rel="icon" type="image/x-icon" href="https://img.icons8.com/color/48/finn--v1.png">
+    <!-- import CDN -->
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
@@ -13,7 +13,7 @@
     <link href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400&family=Onest:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Onest:wght@200;400;700&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/14a40a5bb1.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="/static/dashboard_style.css">
     <link rel="stylesheet" href="/static/chat_style.css">
@@ -24,67 +24,112 @@
         <div class="col-md-10 p-lg-5 mx-auto my-3">
             <h1 class="display-8 font-weight-normal">Credit All-In-One</h1>
             <p class="lead font-weight-normal">台灣各家銀行信用卡資訊總覽</p> 
-            <a class="btn btn-outline-secondary" href="#hot-cards">Hot Cards</a>
-            <a class="btn btn-outline-secondary" href="#chill-questions">Chill Questions</a>
-            <a class="btn btn-outline-secondary" href="#chat-box">Chat with Bot</a>
+            <a class="btn btn-outline-secondary btn-lg font-weight-bold" href="#hot-cards">Cards Dashboard</a>
+            <a class="btn btn-outline-secondary btn-lg font-weight-bold" href="#community-analysis">Community Analysis</a>
+            <a class="btn btn-outline-secondary btn-lg font-weight-bold" href="#chill-questions">Chill Questions</a>
+            <a class="btn btn-outline-secondary btn-lg font-weight-bold" href="#chat-box">Chat with Bot</a>
         </div>
     </section>
     <!-- Header -->
     <!-- Dashboard -->
     <section id="hot-cards" class="padding container">
-        <h2 class="text-center">Hot Cards</h2>
+        <h2 class="text-center">CARDS DASHBOARD</h2>
+        <div class="container">
+            <div class="row my-5">
+                <h3 class="text-center">Available Banks in Credit All-In-One</h3>
+                {% for bank in banks %}
+                    <div class="available-bank d-inline col-md-1 p-2 m-2 text-center rounded text-white">{{bank[0]}}</div>
+                {% endfor %}
+            </div>
+        </div>
         <div class="container">
             <div class="row">
-                <div class="col text-center cube">
-                    <h5>Total Active Cards: {{card_1}}</h5>
+                <div class="col-md-6 text-center cube">
+                    <h3>Overview</h3>
+                    <h5>Total Banks: {{card_banks}}</h5>
+                    <h5>Total Active Cards: {{card_cards}}</h5>
                     <div id="cards_counts_ranking"></div>
                 </div>
-                <div class="col text-center cube">
-                    <h5>New Release</h5>
-                    <div id="new_release" class="carousel slide" data-bs-ride="carousel">
+                <div class="col-md-6 text-center cube">
+                    <h3>New Updates</h3>
+                    <div id="new_updates" class="carousel slide" data-bs-ride="carousel">
                         {% if plot_2 is string %}
-                        <div>No new release in these 7 days!</div>
+                        <div class="display-6">No new updates</div>
+                        <h5 class="cube">in these {{plot_2}} days!</h5>
+                        <img class="card-image d-block rounded mx-auto cube" src="/static/images/credit_card_image.png" alt="/static/images/credit_card_image.png" height="100"><br>
                         {% else %}
-                        <div class="carousel-inner">
+                        <div class="carousel-inner cube">
                         {% for card in plot_2 %}
                             <div class="carousel-item {% if loop.index == 1 %}active{% endif %}">
-                                <div class="release-date">{{ card[0] }}</div>
-                                <div class="bank-name">{{ card[1] }}</div>
-                                <div class="card-name">XXX信用卡</div>
-                                <img class="card-image d-block rounded mx-auto" src="../static/images/credit_card_image.png" alt="../static/images/credit_card_image.png" height="100"><br>
-                                <a class="url" href="{{card[1]}}">{{ card[2] }}</a>
-                                <br>
+                                <h6 class="release-date cube font-weight-light">{{ card[0] }}</h6>
+                                <h5 class="bank-name cube text-secondary">{{ card[1] }}</h5>
+                                <div class="card-name cube display-6 text-info font-weight-bold">{{ card[2] }}</div>
+                                <a class="url cube" href="{{card[4]}}" target="_blank"><img class="card-image cube d-block rounded mx-auto" src="{{ card[3] }}" alt="/static/images/credit_card_image.png" height="200"></a>
                             </div>
                         {% endfor %}
                         </div>
                         {% endif %}
-                        <button class="carousel-control-prev" type="button" data-bs-target="#new_release" data-bs-slide="prev">
+                        <button class="carousel-control-prev" type="button" data-bs-target="#new_updates" data-bs-slide="prev">
                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                             <span class="visually-hidden">Previous</span>
                         </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#new_release" data-bs-slide="next">
+                        <button class="carousel-control-next" type="button" data-bs-target="#new_updates" data-bs-slide="next">
                             <span class="carousel-control-next-icon" aria-hidden="true"></span>
                             <span class="visually-hidden">Next</span>
                         </button>
                     </div>
                 </div>
             </div>
-            <br>
+    </section>
+    <!-- Dashboard -->
+    <div class="hr"></div>
+    <!-- Community -->
+    <section id="community-analysis" class="padding container">
+        <h2 class="text-center">COMMUNITY ANALYSIS</h2>
+        <div class="container">
             <div class="row">
-                <div class="col text-center cube">
-                    <h5>Trending Topics</h5>
-                    <div id="word_cloud"></div>
-                    <img class="card-image d-block rounded mx-auto" src="../static/images/wordcloud.jpeg" alt="../static/images/wordcloud.jpeg" height="280"><br>
+                <div class="col-md-6 text-center cube">
+                    <h3>Trending Words</h3>
+                    <div class="my-5">
+                        <h5 id="word_cloud">words in recent 3 months in PTT community 'creditcards'</h5>
+                    </div>
+                    <img class="card-image d-block rounded mx-auto" src="{{ plot_3 }}" alt="../static/images/wordcloud.jpeg" height="400"><br>
                 </div>
-                <div class="col text-center cube">
-                    <h5>Benefits and Offers</h5>
-                    <div id="benefits"></div>
+                <div class="col-md-6 text-center cube">
+                    <h3>Buzzworthy Cards</h3>
+                    <div id="score_of_cards"></div>
+                    <p>* Scores based on the number of appearance and push in PTT community 'creditcards'</p>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 cube">
+                    <h3 class="text-center">Must Read</h3>
+                    {% for article in articles %}
+                    <div class="container my-3">
+                        <div class="row rounded my-1 py-1 must-read-head d-flex align-items-center">
+                            <h5 class="col-md-1 my-1"><strong>爆</strong></h5>
+                            <h5 class="col-md-2 post-date my-1">{{ article['post_dt'] }}</h5>
+                            <h5 class="col-md-2 post-author my-1">{{ article['post_author'] }}</h5>
+                            <h5 class="col-md-7"></h5>
+                        </div>
+                        <div class="row rounded my-2 py-2 must-read-title d-flex align-items-center">
+                            <h4 class="post-title font-weight-bold">{{ article['post_title'] }}</h4>
+                        </div>
+                        <p class="article py-1">{{ article['article'] }}</p>
+                        <a class="post-link text-secondary" href="{{ article['post_link'] }}" targer="_blank">前往文章</a>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
     </section>
+    <!-- Community -->
+    <div class="hr"></div>
+    <!-- Recent QA -->
     <section id="chill-questions" class="padding container">   
-        <h2 class="text-center">Chill Questions</h2>
+        <h2 class="text-center">CHILL QUESTIONS</h2>
         <div class="container">
             <div id="recent_qa" class="card">
                 {% for chat in plot_5 %}
@@ -103,49 +148,47 @@
                         <div class="d-flex align-items-center">
                             <img class="avatar" width="48" height="48" src="https://img.icons8.com/color/48/finn--v1.png" alt="finn--v1"/>
                             {% if '\n' in chat[4] %}
-                            <ul class="qa-answer card-text collapse" id="qa-answer-{{plot_5.index(chat)}}">
+                            <ul class="qa-answer card-text collapse cube cube-margin" id="qa-answer-{{plot_5.index(chat)}}">
                                 {% for item in chat[4].split('\n') %}
                                 <li>{{ item }}</li>
                                 {% endfor %}
                             </ul>
                             {% else %}
-                            <p class="qa-answer card-text collapse" id="qa-answer-{{plot_5.index(chat)}}">{{ chat[4] }}</p>
+                            <p class="qa-answer card-text collapse cube" id="qa-answer-{{plot_5.index(chat)}}">{{ chat[4] }}</p>
                             {% endif %}
-                            <a class="collapsed" data-bs-toggle="collapse" href="#qa-answer-{{plot_5.index(chat)}}" role="button" aria-expanded="false" aria-controls="#qa-answer-{{plot_5.index(chat)}}"></a>
                         </div>
+                        <a class="collapsed" data-bs-toggle="collapse" href="#qa-answer-{{plot_5.index(chat)}}" role="button" aria-expanded="false" aria-controls="#qa-answer-{{plot_5.index(chat)}}"></a>
                     </div>
                 </div>
                 {% endfor %}
             </div>
         </div>
     </section>
-    <!-- Dashboard -->
+    <!-- Recent QA -->
     <!-- Chat -->
     <section>
-        <div class="page-content page-container padding" id="chat-box">
-            <div class="padding">
-                <div class="row container d-flex justify-content-center">
-                    <h2 class="text-center">Chat with Finn Bot</h2>
-                    <div class="col-md-12">
-                    <div class="card card-bordered">
-                        <div class="card-header">
-                            <h5 class="card-title"><strong>Chat</strong></h5>
-                        </div>                    
-                        <div class="ps-container ps-theme-default ps-active-y" id="chat-content" style="overflow-y: scroll !important; height:400px !important;">
-                            <div class="media media-chat">
-                                <img class="avatar" width="48" height="48" src="https://img.icons8.com/color/48/finn--v1.png" alt="finn--v1"/>
-                                <div class="media-body">
-                                    <p>Hi! 我是 Finn Bot，有什麼我可以幫助你的嗎?</p>
-                                </div>
+        <div class="padding container" id="chat-box">
+            <div class="row container d-flex justify-content-center">
+                <h2 class="text-center">CHAT WITH BOT</h2>
+                <div class="col-md-12">
+                <div class="card card-bordered">
+                    <div class="card-header">
+                        <h5 class="card-title"><strong>Chat</strong></h5>
+                    </div>                    
+                    <div class="ps-container ps-theme-default ps-active-y" id="chat-content" style="overflow-y: scroll !important; height:400px !important;">
+                        <div class="media media-chat">
+                            <img class="avatar" width="48" height="48" src="https://img.icons8.com/color/48/finn--v1.png" alt="finn--v1"/>
+                            <div class="media-body">
+                                <p>Hi! 我是 Finn Bot，有什麼我可以幫助你的嗎?</p>
                             </div>
                         </div>
-                        <div class="publisher bt-1 border-light">
-                            <img class="avatar avatar-xs" id="selected-icon" src="" alt="client">
-                            <input class="publisher-input" type="text" placeholder="Ask something about credit card..." id="message_input" autocomplete="off" />
-                            <button class="btn btn-light" onclick="sendMessage()">Send</button>
-                        </div>
                     </div>
+                    <div class="publisher bt-1 border-light">
+                        <img class="avatar avatar-xs" id="selected-icon" src="" alt="client">
+                        <input class="publisher-input" type="text" placeholder="Ask something about credit card..." id="message_input" autocomplete="off" />
+                        <button class="btn btn-light" onclick="sendMessage()">Send</button>
                     </div>
+                </div>
                 </div>
             </div>
         </div>
@@ -160,9 +203,10 @@
                 </div>
                 <div class="col-md-4">
                     <h5>Links</h5>
-                    <div><i class="fa-solid fa-credit-card"></i><a class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#hot-cards"> Hot Cards</a></div>
-                    <div><i class="fa-solid fa-question"></i><a class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#chill-questions">    Chill Questions</a></div>
-                    <div><i class="fa-brands fa-rocketchat"></i><a class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#chat-box"> Chat with Bot</a></div>
+                    <div><i class="fa-solid fa-credit-card"></i><a class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#hot-cards"> Cards Dashboard</a></div>
+                    <div><i class="fa-solid fa-address-card"></i><a class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#community-analysis"> Community Analysis</a></div>
+                    <div><i class="fa-solid fa-comment-dots"></i><a class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#chill-questions"> Chill Questions</a></div>
+                    <div><i class="fa-solid fa-robot"></i><a class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#chat-box"> Chat with Bot</a></div>
                 </div>
                 <div class="col-md-4">
                     <h5>Contact Me</h5>
@@ -183,5 +227,7 @@
 <script type="text/javascript">
     let plot_1 = {{ plot_1 | safe }};
     Plotly.plot("cards_counts_ranking", plot_1, {});
+    let plot_4 = {{ plot_4 | safe }};
+    Plotly.plot("score_of_cards", plot_4, {});
 </script>
 </html>

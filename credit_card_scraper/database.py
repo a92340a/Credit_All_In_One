@@ -12,11 +12,11 @@ import pymongo
 load_dotenv()
 
 class DatabaseMongo:
-    def __init__(self):
+    def __init__(self, collection):
         MONGO_CONFIG = f"mongodb://{os.getenv('MONGO_USERNAME')}:{os.getenv('MONGO_PASSWORD')}@{os.getenv('MONGO_HOST')}:{os.getenv('MONGO_PORT')}/credit?authMechanism={os.getenv('MONGO_AUTHMECHANISM')}"
         try:
             self.client = pymongo.MongoClient(MONGO_CONFIG)['credit']
-            self.collection = self.client["official_website"]
+            self.collection = self.client[collection]
         except Exception as e:
             print("Connection fail:", e)
 

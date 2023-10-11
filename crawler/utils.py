@@ -206,4 +206,4 @@ def truncate_chroma():
     
 
 if __name__ == '__main__':
-    get_chroma_schema()
+    truncate_chroma()

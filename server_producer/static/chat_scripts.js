@@ -72,7 +72,7 @@ function addClientMessage(messageText, icon) {
     avatar.alt = "client";
     
     var mediaBody = document.createElement("div");
-    mediaBody.classList.add("media-body");
+    mediaBody.classList.add("media-body", "d-flex", "align-items-center");
 
     var paragraph = document.createElement("p");
     paragraph.textContent = messageText[0];

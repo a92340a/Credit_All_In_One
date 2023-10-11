@@ -1,12 +1,11 @@
-import os
 import sys
 from datetime import datetime
 from dotenv import load_dotenv
-import psycopg2
+
+
 load_dotenv()
 sys.path.append('../Credit_All_In_One/')
-import my_logger
-from my_configuration import _get_pgsql
+from my_configuration import _get_pgsql, _get_redis
 
 
 # datetime
@@ -15,17 +14,26 @@ today_date = now.date()
 today = now.strftime('%Y-%m-%d')
 
 
-# create a logger
-dev_logger = my_logger.MyLogger('producer')
-dev_logger.console_handler()
-dev_logger.file_handler(today)
-
-
-def fetch_cards_ranking(top_k):
+def fetch_all_banks():
     pgsql_db = _get_pgsql()
     cursor = pgsql_db.cursor()
     sql = """
-    SELECT bank_name, count(DISTINCT url) AS cnt 
+    SELECT DISTINCT bank_name 
+    FROM credit_info 
+    ORDER BY bank_name;
+    """
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    cursor.close()
+    pgsql_db.close()
+    return data
+
+
+def fetch_cards_ranking(top_k=5):
+    pgsql_db = _get_pgsql()
+    cursor = pgsql_db.cursor()
+    sql = """
+    SELECT bank_name, count(DISTINCT card_link) AS cnt 
     FROM credit_info 
     WHERE lst_update_dt = (SELECT max(lst_update_dt) FROM credit_info)
     GROUP BY bank_name
@@ -39,11 +47,11 @@ def fetch_cards_ranking(top_k):
     return data
     
 
-def fetch_total_cards():
+def fetch_total_banks_and_cards():
     pgsql_db = _get_pgsql()
     cursor = pgsql_db.cursor()
     sql = """
-    SELECT count(DISTINCT url) AS cnt 
+    SELECT count(DISTINCT bank_name) AS ttl_banks, count(DISTINCT card_name) AS ttl_cards 
     FROM credit_info 
     WHERE lst_update_dt = (SELECT max(lst_update_dt) FROM credit_info);
     """
@@ -58,21 +66,15 @@ def fetch_latest_cards():
     pgsql_db = _get_pgsql()
     cursor = pgsql_db.cursor()
     sql = """
-    WITH fst AS (
-        SELECT 
-            bank_name, url, min(lst_update_dt) AS first_date
-        FROM credit_info
-        group by bank_name, url
-    )
-    SELECT first_date, bank_name, url
-    FROM fst 
-    WHERE first_date BETWEEN current_date - 7 AND current_date
-    ORDER BY first_date DESC
-    LIMIT 5;
+    SELECT 
+        lst_update_dt, bank_name, card_name, card_image, card_link
+    FROM credit_info
+    WHERE lst_update_dt = (SELECT MAX(lst_update_dt) FROM credit_info)
     """
     cursor.execute(sql)
     data = cursor.fetchall()
     cursor.close()
     pgsql_db.close()
     return data
+
 

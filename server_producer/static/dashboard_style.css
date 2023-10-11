@@ -1,17 +1,26 @@
 h1,h2 {
     font-family: 'Onest', sans-serif;
+    font-weight: 700;
 }
 
 h3,h4,h5,h6 {
-    font-family: 'Noto Sans TC', sans-serif;
+    font-family: 'Onest', sans-serif;
+    font-weight: 400;
 }
 
+/* h5,h6 {
+    font-family: 'Onest', sans-serif;
+} */
 .header {
-    background-image: url('../static/images/Grayscale_left.svg');
+    background-image: url('../static/images/Grayscale_ori.svg');
 }
 
 .cube {
     padding: 1rem;
+}
+
+.cube-margin {
+    margin: 1rem;
 }
 
 .carousel-control-prev-icon {
@@ -24,21 +33,16 @@ h3,h4,h5,h6 {
 
 .qa-box p.collapse[aria-expanded="false"] {
     display: block;
-    height: 50px;
+    max-height: 50px;
     overflow: hidden;
 }
 
-/* .qa-box p.collapsing[aria-expanded="false"] { */
-    /* height: 100%; */
-    /* max-height: none !important; Override Bootstrap's max-height */
-    /* max-height: none !important; Override Bootstrap's max-height */
-    /* transition: max-height 0.3s ease; Add a transition effect */
-/* } */
-
 .qa-box a.collapsed:after  {
     content: '+ Read More';
+    padding-left: 48px;
 }
 
 .qa-box a:not(.collapsed):after {
     content: '- Read Less';
+    padding-left: 48px;
 }
