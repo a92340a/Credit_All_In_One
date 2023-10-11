@@ -15,7 +15,7 @@ load_dotenv()
 
 BOT_NAME = "credit_card_scraper"
 
-SCRAPEOPS_API_KEY = os.getenv('SCRAPEROPS_KEY')
+SCRAPEOPS_API_KEY = 'e7366c96-d300-4c7a-92bd-bba14ed7679a'
 
 SPIDER_MODULES = ["credit_card_scraper.spiders"]
 NEWSPIDER_MODULE = "credit_card_scraper.spiders"
