@@ -182,7 +182,6 @@ psycopg2-binary==2.9.7
 ptyprocess==0.7.0
 pulsar-client==3.3.0
 pure-eval==0.2.2
-py2neo==2021.2.3
 pyasn1==0.5.0
 pyasn1-modules==0.3.0
 pycparser==2.21
