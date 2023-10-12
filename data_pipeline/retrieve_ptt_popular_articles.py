@@ -27,26 +27,30 @@ mongo_collection = mongo_db["ptt"]
 redis_conn = _get_redis()
 
 
-def retrieve_popular_articles(max_retries: int = 5, delay: int = 2):
+def retrieve_popular_articles(push_num = 50, max_retries: int = 5, delay: int = 2):
     max_create_dt = mongo_collection.find_one(sort=[('create_dt', pymongo.DESCENDING)])['create_dt']
 
     projection = {'post_title': 1, 'post_author':1 , 'post_dt':1, 'post_link':1, 'article': 1, '_id': 0}
-    cursor = mongo_collection.find({'push': 100, 'create_dt':max_create_dt}, projection).sort('post_dt', pymongo.DESCENDING)
+    cursor = mongo_collection.find({'push': push_num, 'create_dt':max_create_dt}, projection).sort('post_dt', pymongo.DESCENDING)
     popular_articles = list(cursor)
 
-    for trying in range(1, max_retries + 1):
-        try:
-            redis_conn.set("ptt_popular_articles", json.dumps(popular_articles))
-            dev_logger.info('Finish inserting ptt_popular_articles into Redis')
-            break
-        except Exception as e:
-            dev_logger.warning(
-                f"Failed to set value of ptt_popular_articles in Redis: {e}"
-                f"Attempt {trying + 1} of {max_retries}. Retrying in {delay} seconds."
-            )
-            if trying == max_retries:
-                dev_logger.warning(f"Failed to set value of ptt_popular_articles in {max_retries} attempts")
-            time.sleep(delay)
+    if popular_articles:
+        dev_logger.info(f'Finish retrieving ptt popular articles on {max_create_dt} updated documents.')
+        for trying in range(1, max_retries + 1):
+            try:
+                redis_conn.set("ptt_popular_articles", json.dumps(popular_articles))
+                dev_logger.info('Finish inserting ptt_popular_articles into Redis')
+                break
+            except Exception as e:
+                dev_logger.warning(
+                    f"Failed to set value of ptt_popular_articles in Redis: {e}"
+                    f"Attempt {trying + 1} of {max_retries}. Retrying in {delay} seconds."
+                )
+                if trying == max_retries:
+                    dev_logger.warning(f"Failed to set value of ptt_popular_articles in {max_retries} attempts.")
+                time.sleep(delay)
+    else:
+        dev_logger.warning('Fail to retrieve ptt popular articles!')
 
 
 

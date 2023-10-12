@@ -1,6 +1,9 @@
+import os
+from dotenv import load_dotenv
 from fake_useragent import UserAgent
-ua = UserAgent()
 
+ua = UserAgent()
+load_dotenv()
 # Scrapy settings for credit_card_scraper project
 #
 # For simplicity, this file contains only settings considered important or
@@ -11,6 +14,8 @@ ua = UserAgent()
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
 BOT_NAME = "credit_card_scraper"
+
+SCRAPEOPS_API_KEY = os.getenv('SCRAPEROPS_KEY')
 
 SPIDER_MODULES = ["credit_card_scraper.spiders"]
 NEWSPIDER_MODULE = "credit_card_scraper.spiders"
@@ -54,17 +59,17 @@ SPIDER_MIDDLEWARES = {
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-    # "scrapeops_scrapy.middleware.retry.RetryMiddleware": 550,
-    # "scrapy.downloadermiddlewares.retry.RetryMiddleware": None,
-   "credit_card_scraper.middlewares.CreditCardScraperDownloaderMiddleware": 543,
+   "scrapeops_scrapy.middleware.retry.RetryMiddleware": 550,
+   "scrapy.downloadermiddlewares.retry.RetryMiddleware": None,
+   # "credit_card_scraper.middlewares.CreditCardScraperDownloaderMiddleware": 543,
 }
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
-# EXTENSIONS = {
-#     "scrapeops_scrapy.extension.ScrapeOpsMonitor": 500,
-#    "scrapy.extensions.telnet.TelnetConsole": None,
-# }
+EXTENSIONS = {
+   "scrapeops_scrapy.extension.ScrapeOpsMonitor": 500,
+   # "scrapy.extensions.telnet.TelnetConsole": None,
+}
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
