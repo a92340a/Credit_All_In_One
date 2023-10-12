@@ -4,6 +4,7 @@ from fake_useragent import UserAgent
 
 ua = UserAgent()
 load_dotenv()
+
 # Scrapy settings for credit_card_scraper project
 #
 # For simplicity, this file contains only settings considered important or
@@ -15,7 +16,7 @@ load_dotenv()
 
 BOT_NAME = "credit_card_scraper"
 
-SCRAPEOPS_API_KEY = 'e7366c96-d300-4c7a-92bd-bba14ed7679a'
+SCRAPEOPS_API_KEY = os.getenv('SCRAPEROPS_KEY')
 
 SPIDER_MODULES = ["credit_card_scraper.spiders"]
 NEWSPIDER_MODULE = "credit_card_scraper.spiders"
