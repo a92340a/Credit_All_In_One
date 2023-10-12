@@ -1,11 +1,13 @@
 import time
+import pytz
 import random
 from datetime import datetime
 import scrapy
 from credit_card_scraper.items import CreditCardScraperItem
 
 # datetime
-now = datetime.now()
+taiwanTz = pytz.timezone("Asia/Taipei") 
+now = datetime.now(taiwanTz)
 today_date = now.date()
 today = now.strftime('%Y-%m-%d')
 
@@ -56,4 +58,3 @@ class CtbcSpider(scrapy.Spider):
             item['create_timestamp'] = create_timestamp
             yield item
          
-

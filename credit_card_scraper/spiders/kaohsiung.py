@@ -1,11 +1,13 @@
 import time
+import pytz
 from datetime import datetime
 import scrapy
 from credit_card_scraper.items import CreditCardScraperItem
 
 
 # datetime
-now = datetime.now()
+taiwanTz = pytz.timezone("Asia/Taipei") 
+now = datetime.now(taiwanTz)
 today_date = now.date()
 today = now.strftime('%Y-%m-%d')
 
@@ -24,8 +26,8 @@ class KaohsiungSpider(scrapy.Spider):
     def parse(self, response):
         boxes = response.css("div.card-intro-box")
         for box in boxes:
-            source = '高雄'
-            bank_name = '高雄, 高雄銀行, 016, bok, bank of kaohsiung'
+            source = '高雄銀'
+            bank_name = '高雄銀, 高雄銀行, 016, bok, bank of kaohsiung'
             card_image = 'https://www.bok.com.tw' + box.css('span.img-wrap img::attr(src)').get()
             card_name = box.css('h3.intro-title::text').get()
             if '停發' not in card_name:

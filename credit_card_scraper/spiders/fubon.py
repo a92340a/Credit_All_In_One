@@ -1,13 +1,13 @@
-import re
 import time
+import pytz
 from datetime import datetime
 import scrapy
-from bs4 import BeautifulSoup as bs
 from credit_card_scraper.items import CreditCardScraperItem
 
 
 # datetime
-now = datetime.now()
+taiwanTz = pytz.timezone("Asia/Taipei") 
+now = datetime.now(taiwanTz)
 today_date = now.date()
 today = now.strftime('%Y-%m-%d')
 
@@ -72,4 +72,3 @@ class FubonSpider(scrapy.Spider):
             if i.replace('\n', '').replace('\t', '').replace('\r', '').replace('\xa0', '').replace('  ','') not in content_cleaned:
                 content_cleaned.append(i.replace('\n', '').replace('\t', '').replace('\r', '').replace('\xa0', '').replace('  ',''))
         return content_cleaned
-

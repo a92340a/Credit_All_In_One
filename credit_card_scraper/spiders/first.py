@@ -1,13 +1,13 @@
-import re
 import time
+import pytz
 from datetime import datetime
 import scrapy
-from bs4 import BeautifulSoup as bs
 from credit_card_scraper.items import CreditCardScraperItem
 
 
 # datetime
-now = datetime.now()
+taiwanTz = pytz.timezone("Asia/Taipei") 
+now = datetime.now(taiwanTz)
 today_date = now.date()
 today = now.strftime('%Y-%m-%d')
 
@@ -27,7 +27,7 @@ class FirstSpider(scrapy.Spider):
         boxes = response.css("div.card-single")
         for box in boxes:
             source = '一銀'
-            bank_name = '一銀, 第一, 第一銀行, 龐德, 007, first bank'
+            bank_name = '一銀, 第一銀行, 龐德, 007, first bank'
             card_image = '/static/images/first_bank/' + box.css('div.card-single-face div.card-single-img::attr(style)').get().split("'")[1].split('/sites/card/image/')[1].replace('?verifyType=Type1','') + '.jpg'
             card_name = box.css('div.card-single-features strong::text').get()
             

@@ -1,13 +1,13 @@
-import re
 import time
+import pytz
 from datetime import datetime
 import scrapy
-from bs4 import BeautifulSoup as bs
 from credit_card_scraper.items import CreditCardScraperItem
 
 
 # datetime
-now = datetime.now()
+taiwanTz = pytz.timezone("Asia/Taipei") 
+now = datetime.now(taiwanTz)
 today_date = now.date()
 today = now.strftime('%Y-%m-%d')
 
@@ -48,4 +48,3 @@ class LandSpider(scrapy.Spider):
                 item['create_dt'] = create_dt
                 item['create_timestamp'] = create_timestamp
                 yield item
-

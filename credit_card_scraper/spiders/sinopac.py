@@ -1,13 +1,13 @@
-import re
 import time
+import pytz
 from datetime import datetime
 import scrapy
-from bs4 import BeautifulSoup as bs
 from credit_card_scraper.items import CreditCardScraperItem
 
 
 # datetime
-now = datetime.now()
+taiwanTz = pytz.timezone("Asia/Taipei") 
+now = datetime.now(taiwanTz)
 today_date = now.date()
 today = now.strftime('%Y-%m-%d')
 
@@ -51,7 +51,7 @@ class SinopacSpider(scrapy.Spider):
                     
                     yield scrapy.Request(
                         card_link,
-                        callback=self.parse_charter2_details,
+                        callback=self.parse_sinopac_details,
                         meta={
                             'source': source,
                             'bank_name': bank_name,
@@ -66,7 +66,7 @@ class SinopacSpider(scrapy.Spider):
             else:
                 print('停止申辦')
     
-    def parse_charter2_details(self, response):
+    def parse_sinopac_details(self, response):
         content1 = response.css('div.info h2 + p').get().replace('<p>','').replace('<br>','').replace('</p>','')
 
         item = CreditCardScraperItem()

@@ -1,11 +1,13 @@
 import time
+import pytz
 import random
 from datetime import datetime
 import scrapy
 from credit_card_scraper.items import CreditCardScraperItem
 
 # datetime
-now = datetime.now()
+taiwanTz = pytz.timezone("Asia/Taipei") 
+now = datetime.now(taiwanTz)
 today_date = now.date()
 today = now.strftime('%Y-%m-%d')
 
@@ -24,10 +26,10 @@ class EsunSpider(scrapy.Spider):
     def parse(self, response):
         time.sleep(random.randint(3, 5))
         url = 'https://www.money101.com.tw/%E4%BF%A1%E7%94%A8%E5%8D%A1/%E5%85%A8%E9%83%A8?providers=%E7%8E%89%E5%B1%B1%E9%8A%80%E8%A1%8C'
-        yield scrapy.Request(url, callback=self.parse_ctbc, dont_filter=True)
+        yield scrapy.Request(url, callback=self.parse_esun, dont_filter=True)
 
 
-    def parse_ctbc(self,response):
+    def parse_esun(self,response):
         boxes = response.css('article.block.rounded.bg-white.shadow')
         for box in boxes:
             source = '玉山'
@@ -56,4 +58,3 @@ class EsunSpider(scrapy.Spider):
             item['create_timestamp'] = create_timestamp
             yield item
          
-
