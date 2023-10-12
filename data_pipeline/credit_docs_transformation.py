@@ -78,7 +78,7 @@ def _docs_refactoring(data):
         dev_logger.info('No data.')
         
 
-def _insert_into_chroma(card_name, docs):
+def _insert_into_chroma(card_name, docs, persist_directory=persist_directory):
     """
     Docs embedding and convert to vectors into ChromaDB
     :param card_name: data source of the card name, 
@@ -95,6 +95,8 @@ def docs_comparing_and_embedding(*manual):
     distinct_card_names = sorted(mongo_collection.distinct('card_name'))
     
     if manual:
+        manual_persist_directory = '/home/finnou/Credit_All_In_One/airflow/dags/chroma_db'
+
         max_create_dt = mongo_collection.find_one(sort=[('create_dt', pymongo.DESCENDING)])['create_dt']
         dev_logger.info(f'Manually fetch docs at {max_create_dt}...')
         # print(max_create_dt) 
@@ -118,7 +120,7 @@ def docs_comparing_and_embedding(*manual):
                 # print(new_docs)
                 # print('-----')
                 if new_docs:
-                    _insert_into_chroma(card, new_docs)
+                    _insert_into_chroma(card, new_docs, persist_directory=manual_persist_directory)
                     # print('-----')
 
     else:
