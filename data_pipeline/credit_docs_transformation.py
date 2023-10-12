@@ -1,12 +1,14 @@
 import os
 import sys
 import time
+import pytz
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+import pymongo
 
 from langchain.schema import Document
 from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import Chroma
+from langchain.vectorstores.chroma import Chroma
 
 
 load_dotenv()
@@ -24,42 +26,23 @@ embedding = OpenAIEmbeddings() # default: "text-davinci-003", try to find replac
 
 
 # datetime
-now = datetime.now()
+taiwanTz = pytz.timezone("Asia/Taipei") 
+now = datetime.now(taiwanTz)
 today_date = now.date()
 today = now.strftime('%Y-%m-%d')
 yesterday = (today_date-timedelta(days=1)).strftime('%Y-%m-%d')
 
 
 # create a logger
-dev_logger = my_logger.MyLogger('data_transforamtion')
+dev_logger = my_logger.MyLogger('data_pipeline:embedding')
 dev_logger.console_handler()
 dev_logger.file_handler(today)
 
 
-
-def get_distinct_source_and_link():
-    """
-    Getting distinct source and link
-    """
-    pipeline = [{"$group": {"_id": {"source": "$source", "card_link": "$card_link"}}}]
-    result = mongo_collection.aggregate(pipeline)
-    
-    source_list = {}
-    for doc in result:
-        source = doc['_id']['source']
-        card_link = doc['_id']['card_link']
-        
-        if source in source_list:
-            source_list[source].append(card_link)
-        else:
-            source_list[source] = [card_link]
-    return source_list
-
-
-def data_comparing_and_rebuilding(data):
+def _docs_refactoring(data):
     """
     Compare the difference in card_content between yesterday and today.
-    :param:data: The data between these 2 days. For example: [{'_id': ObjectId('651bd25a646a02fa2d4205b1'), 'source': ..., 'create_dt': '2023-10-03'}, ...]
+    :param data: The data between these 2 days. For example: [{'_id': ObjectId('651bd25a646a02fa2d4205b1'), 'source': ..., 'create_dt': '2023-10-03'}, ...]
     """
     if data: 
         # fetch card_content between yesterday and today
@@ -75,7 +58,7 @@ def data_comparing_and_rebuilding(data):
                     if content['create_dt'] == today:
                         docs = [Document(
                             page_content=content['card_name']+':'+content['card_content']+'。'+content['card_link'],
-                            metadata={'bank': content['bank_name'], 'card_name': content['card_name'], 'topic': content['topic']},
+                            metadata={'bank': content['bank_name'], 'card_name': content['card_name']},
                         )]
                         dev_logger.info('Build a new Document and ready for ChromaDB: {}'.format(content['card_name']))
                         return docs
@@ -85,7 +68,7 @@ def data_comparing_and_rebuilding(data):
             if data[0]['create_dt'] == today:
                 docs = [Document(
                     page_content=data[0]['card_name']+':'+data[0]['card_content']+'。'+data[0]['card_link'],
-                    metadata={'bank': data[0]['bank_name'], 'card_name': data[0]['card_name'], 'topic': data[0]['topic']},
+                    metadata={'bank': data[0]['bank_name'], 'card_name': data[0]['card_name']},
                 )]
                 dev_logger.info('Build a new Document and ready for ChromaDB: {}'.format(data[0]['card_name']))
                 return docs
@@ -95,38 +78,69 @@ def data_comparing_and_rebuilding(data):
         dev_logger.info('No data.')
         
 
-def insert_into_chroma(bank_name, card_link, text):
+def _insert_into_chroma(card_name, docs, persist_directory=persist_directory):
     """
-    Split text and convert to vectors into ChromaDB
-    :param:bank_name: data source of the bank crawled,
-    :param:card_link: data source of the bank's url, 
-    :param:text: card content
+    Docs embedding and convert to vectors into ChromaDB
+    :param card_name: data source of the card name, 
+    :param docs: card content
     """
-    vectordb = Chroma.from_documents(documents=text, embedding=embedding, 
+    vectordb = Chroma.from_documents(documents=docs, embedding=embedding, 
                                      persist_directory=persist_directory) 
     vectordb.persist()
     vectordb = None
-    dev_logger.info(f'Finish inserting into ChromaDB {bank_name}, \n {card_link}.')
+    dev_logger.info(f'Finish inserting into ChromaDB {card_name}.')
 
 
-if __name__ == '__main__':
-    # fetch distinct data from MongoDB
-    src_list = get_distinct_source_and_link()
+def docs_comparing_and_embedding(*manual):
+    distinct_card_names = sorted(mongo_collection.distinct('card_name'))
+    
+    if manual:
+        manual_persist_directory = '/home/finnou/Credit_All_In_One/airflow/dags/chroma_db'
 
-    # loop for comparision and insert into ChromaDB
-    for bank, links in src_list.items():
-        for link in links:
+        max_create_dt = mongo_collection.find_one(sort=[('create_dt', pymongo.DESCENDING)])['create_dt']
+        dev_logger.info(f'Manually fetch docs at {max_create_dt}...')
+        # print(max_create_dt) 
+        
+        for card in distinct_card_names:
             cursor = mongo_collection.find({
                 "$and": [
-                    {'card_link': link}, 
+                    {'card_name': card}, 
+                    {'create_dt':max_create_dt}
+                ]
+            })
+            data_latest = list(cursor)
+            # print(data_latest) 
+
+            for index, content in enumerate(data_latest):
+                new_docs = [Document(
+                    page_content=content['card_name']+':'+content['card_content']+'。'+content['card_link'],
+                    metadata={'bank': content['bank_name'], 'card_name': content['card_name']},
+                )]
+                dev_logger.info('Build a new Document and ready for ChromaDB: {}'.format(content['card_name']))
+                # print(new_docs)
+                # print('-----')
+                if new_docs:
+                    _insert_into_chroma(card, new_docs, persist_directory=manual_persist_directory)
+                    # print('-----')
+
+    else:
+        dev_logger.info('Schedulely fetch docs...')
+        for card in distinct_card_names:
+            cursor = mongo_collection.find({
+                "$and": [
+                    {'card_name': card}, 
                     {'create_dt': {'$gte': yesterday, '$lte': today}}
                 ]
             })
             data_comparision = list(cursor) 
-            print(data_comparision)
-            print('-----')
+            # print(data_comparision)
+            # print('-----')
 
-            new_docs = data_comparing_and_rebuilding(data_comparision)
+            new_docs = _docs_refactoring(data_comparision)
             if new_docs:
-                insert_into_chroma(bank, link, new_docs)
-                print('-----')
+                _insert_into_chroma(card, new_docs)
+                # print('-----')
+
+
+if __name__ == '__main__':
+    docs_comparing_and_embedding('y')
