@@ -22,13 +22,26 @@ function getRandomIcon() {
 }
 window.addEventListener('load', getRandomIcon); 
 
+// disable the send_button as the input is empty
+document.getElementById('message_input').addEventListener('input', function() {
+    const sendButton = document.getElementById('send_button');
+    const input = this;
+
+    if (input.value.trim() === "") {
+        sendButton.disabled = true;
+    } else {
+        sendButton.disabled = false;
+    }
+});
 
 // send messages to server
 function sendMessage() {
     const input = document.getElementById('message_input');
+    const sendButton = document.getElementById('send_button');
     const message = [input.value, selectedIcon];
-
+    
     input.value = '';
+    sendButton.disabled = true;
     socket.emit('message', message);
 
     // add client message bubble
