@@ -109,7 +109,7 @@ def docs_comparing_and_embedding(*manual):
         dev_logger.info(json.dumps({'msg':'Manually fetch docs at {}...'.format(max_create_dt)}))
         # print(max_create_dt) 
         
-        for card in distinct_card_names:
+        for card in distinct_card_names[:2]:
             cursor = mongo_collection.find({
                 "$and": [
                     {'card_name': card}, 

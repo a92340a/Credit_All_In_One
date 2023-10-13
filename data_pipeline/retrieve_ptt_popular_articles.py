@@ -1,6 +1,7 @@
 import sys
 import json
 import time
+import pytz
 from datetime import datetime
 from dotenv import load_dotenv
 import pymongo
@@ -11,7 +12,8 @@ import my_logger
 from my_configuration import _get_mongodb, _get_redis
 
 # datetime
-now = datetime.now()
+taiwanTz = pytz.timezone("Asia/Taipei") 
+now = datetime.now(taiwanTz)
 today_date = now.date()
 today = now.strftime('%Y-%m-%d')
 
