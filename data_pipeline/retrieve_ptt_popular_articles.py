@@ -1,14 +1,19 @@
+import os
 import sys
 import json
 import time
 import pytz
+import logging
 from datetime import datetime
 from dotenv import load_dotenv
 import pymongo
+from apscheduler.schedulers.background import BackgroundScheduler
+
+import google.cloud.logging
+from google.oauth2.service_account import Credentials
 
 load_dotenv()
 sys.path.append('../Credit_All_In_One/')
-import my_logger
 from my_configuration import _get_mongodb, _get_redis
 
 # datetime
@@ -18,10 +23,18 @@ today_date = now.date()
 today = now.strftime('%Y-%m-%d')
 
 
+# Advanced Python Scheduler
+scheduler = BackgroundScheduler()
+scheduler.start()
+
+# GCP logging
+gcp_key = json.load(open(os.getenv("KEY")))
+credentials = Credentials.from_service_account_info(gcp_key)
+client = google.cloud.logging.Client(credentials=credentials)
+client.setup_logging()
+
 # create a logger
-dev_logger = my_logger.MyLogger('data_pipeline:ptt_words_split')
-dev_logger.console_handler()
-dev_logger.file_handler(today)
+dev_logger = logging.getLogger("data_pipeline:ptt_populat_articles")
 
 
 mongo_db = _get_mongodb()
@@ -41,20 +54,28 @@ def retrieve_popular_articles(push_num = 50, max_retries: int = 5, delay: int = 
         for trying in range(1, max_retries + 1):
             try:
                 redis_conn.set("ptt_popular_articles", json.dumps(popular_articles))
-                dev_logger.info('Finish inserting ptt_popular_articles into Redis')
+                dev_logger.info(json.dumps({'msg':'Finish inserting ptt_popular_articles into Redis'}))
                 break
             except Exception as e:
                 dev_logger.warning(
-                    f"Failed to set value of ptt_popular_articles in Redis: {e}"
-                    f"Attempt {trying + 1} of {max_retries}. Retrying in {delay} seconds."
+                    json.dumps({'msg':
+                        f"Failed to set value of ptt_popular_articles in Redis: {e}"
+                        f"Attempt {trying + 1} of {max_retries}. Retrying in {delay} seconds."})
                 )
                 if trying == max_retries:
-                    dev_logger.warning(f"Failed to set value of ptt_popular_articles in {max_retries} attempts.")
+                    dev_logger.warning(json.dumps({'msg':f"Failed to set value of ptt_popular_articles in {max_retries} attempts."}))
                 time.sleep(delay)
     else:
-        dev_logger.warning('Fail to retrieve ptt popular articles!')
+        dev_logger.warning(json.dumps({'msg':'Fail to retrieve ptt popular articles!'}))
 
 
+scheduler.add_job(
+    retrieve_popular_articles,
+    trigger="cron",
+    hour="8",
+    minute=5,
+    timezone=pytz.timezone("Asia/Taipei"),
+)
 
 
 if __name__ == '__main__':
