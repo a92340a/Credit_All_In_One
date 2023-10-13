@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import pytz
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -19,7 +20,8 @@ embedding = OpenAIEmbeddings() # default: "text-davinci-003", try to find replac
 
 
 # datetime
-now = datetime.now()
+taiwanTz = pytz.timezone("Asia/Taipei") 
+now = datetime.now(taiwanTz)
 today_date = now.date()
 today = now.strftime('%Y-%m-%d')
 
@@ -39,7 +41,7 @@ def get_chroma_content():
     vectordb = Chroma(persist_directory=persist_directory)
     # dev_logger.info(f'keys: {vectordb.get().keys()}')
     dev_logger.info(f'num of split contents:{len(vectordb.get()["ids"])}') 
-    print(vectordb.get(include=["embeddings","documents", "metadatas"])) 
+    # print(vectordb.get(include=["embeddings","documents", "metadatas"])) 
 
 
 def truncate_chroma():
@@ -48,3 +50,7 @@ def truncate_chroma():
     vectordb.persist()
     vectordb = None
     dev_logger.info('Truncate chromaDB collection.')
+
+
+if __name__ == '__main__':
+    get_chroma_content()
