@@ -28,9 +28,9 @@ dev_logger.console_handler()
 dev_logger.file_handler(today)
 
 
-jieba.set_dictionary('data_pipeline/dict.txt.big') # simpified to tranditional chinese
-jieba.load_userdict('data_pipeline/custom_words.txt') # custom words
-jieba.analyse.set_stop_words('data_pipeline/stop_words.txt')
+jieba.set_dictionary('data_pipeline/text_jieba/dict.txt.big') # simpified to tranditional chinese
+jieba.load_userdict('data_pipeline/text_jieba/custom_words.txt') # custom words
+jieba.analyse.set_stop_words('data_pipeline/text_jieba/stop_words.txt')
 mongo_db = _get_mongodb()
 mongo_collection = mongo_db["ptt"]
 redis_conn = _get_redis()
