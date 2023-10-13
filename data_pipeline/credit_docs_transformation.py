@@ -109,7 +109,7 @@ def docs_comparing_and_embedding(*manual):
         dev_logger.info(json.dumps({'msg':'Manually fetch docs at {}...'.format(max_create_dt)}))
         # print(max_create_dt) 
         
-        for card in distinct_card_names[:2]:
+        for card in distinct_card_names:
             cursor = mongo_collection.find({
                 "$and": [
                     {'card_name': card}, 
@@ -149,7 +149,7 @@ def docs_comparing_and_embedding(*manual):
                 _insert_into_chroma(card, new_docs)
                 # print('-----')
 
-
+# scheduler.add_job(docs_comparing_and_embedding, "interval", seconds=60)
 scheduler.add_job(
     docs_comparing_and_embedding,
     trigger="cron",
@@ -159,4 +159,4 @@ scheduler.add_job(
 )
 
 if __name__ == '__main__':
-    docs_comparing_and_embedding('y')
+    docs_comparing_and_embedding()
