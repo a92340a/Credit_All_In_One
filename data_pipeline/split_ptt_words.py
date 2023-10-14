@@ -163,7 +163,7 @@ def score_ptt_article(max_retries: int = 5, delay: int = 2):
 scheduler.add_job(
     split_ptt_title,
     trigger="cron",
-    hour="8",
+    hour=8,
     minute=6,
     timezone=pytz.timezone("Asia/Taipei"),
 )
@@ -171,15 +171,18 @@ scheduler.add_job(
 scheduler.add_job(
     split_ptt_title,
     trigger="cron",
-    hour="8",
+    hour=8,
     minute=7,
     timezone=pytz.timezone("Asia/Taipei"),
 )
 
-if __name__ == '__main__':
-    split_ptt_title()
-    score_ptt_article()
+scheduler.start()
+dev_titles_logger.info(json.dumps({'msg':'Scheduler started ...'}))
+dev_articles_logger.info(json.dumps({'msg':'Scheduler started ...'}))
 
+
+while True:
+    pass
     
 
     

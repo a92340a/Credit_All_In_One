@@ -72,11 +72,14 @@ def retrieve_popular_articles(push_num = 50, max_retries: int = 5, delay: int = 
 scheduler.add_job(
     retrieve_popular_articles,
     trigger="cron",
-    hour="8",
+    hour=8,
     minute=5,
     timezone=pytz.timezone("Asia/Taipei"),
 )
 
+scheduler.start()
+dev_logger.info(json.dumps({'msg':'Scheduler started ...'}))
 
-if __name__ == '__main__':
-    retrieve_popular_articles()
+
+while True:
+    pass
