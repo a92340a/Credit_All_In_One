@@ -22,36 +22,40 @@
     <!-- Header -->
     <section class="header position-relative overflow-hidden p-3 p-md-5 m-md-3 text-center bg-light">
         <div class="col-md-10 p-lg-5 mx-auto my-3">
-            <h1 class="display-8 font-weight-normal">Credit All-In-One</h1>
-            <p class="lead font-weight-normal">台灣各家銀行信用卡資訊總覽</p> 
-            <a class="btn btn-outline-secondary btn-lg font-weight-bold" href="#hot-cards">Cards Dashboard</a>
-            <a class="btn btn-outline-secondary btn-lg font-weight-bold" href="#community-analysis">Community Analysis</a>
-            <a class="btn btn-outline-secondary btn-lg font-weight-bold" href="#chill-questions">Chill Questions</a>
-            <a class="btn btn-outline-secondary btn-lg font-weight-bold" href="#chat-box">Chat with Bot</a>
+            <div class="mb-5">
+                <h1 class="display-8 font-weight-normal">Credit All-In-One</h1>
+            </div>
+            <p class="lead font-weight-normal">彙整台灣各家銀行信用卡資訊總覽與問答機器人的一站式平台</p> 
+            <a class="btn btn-outline-secondary btn-lg font-weight-bold" href="#hot-cards">信用卡資訊總覽</a>
+            <a class="btn btn-outline-secondary btn-lg font-weight-bold" href="#community-analysis">社群話題分析</a>
+            <a class="btn btn-outline-secondary btn-lg font-weight-bold" href="#chill-questions">近期熱烈問答</a>
+            <a class="btn btn-outline-secondary btn-lg font-weight-bold" href="#chat-box">和 Finn Bot 聊聊</a>
         </div>
     </section>
     <!-- Header -->
     <!-- Dashboard -->
     <section id="hot-cards" class="padding container">
-        <h2 class="text-center">CARDS DASHBOARD</h2>
+        <h2 class="text-center">信 用 卡 資 訊 總 覽</h2>
+        <div class="d-flex justify-content-center mt-5" style="height: 100px;">
+            <div class="vr"></div>
+        </div>
         <div class="container">
-            <div class="row my-5">
-                <h3 class="text-center">Available Banks in Credit All-In-One</h3>
+            <div class="row my-5 text-center">
+                <h3>銀行總數 <span class="number-hightlight">{{card_banks}}</span></h3>
                 {% for bank in banks %}
-                    <div class="available-bank d-inline col-md-1 p-2 m-2 text-center rounded text-white">{{bank[0]}}</div>
+                    <div class="available-bank d-inline col-md-1 p-2 m-2 text-center align-self-center rounded">{{bank[0]}}</div>
                 {% endfor %}
             </div>
         </div>
         <div class="container">
             <div class="row">
                 <div class="col-md-6 text-center cube">
-                    <h3>Overview</h3>
-                    <h5>Total Banks: {{card_banks}}</h5>
-                    <h5>Total Active Cards: {{card_cards}}</h5>
+                    <h3>流通信用卡總數 <span class="number-hightlight">{{card_cards}}</span></h3>
                     <div id="cards_counts_ranking"></div>
+                    <p class="text-start">*此處所提及之「銀行總數」及「流通信用卡總數」係基於 Credit All-In-One 平台所能提供的資訊數量計算。</p>
                 </div>
                 <div class="col-md-6 text-center cube">
-                    <h3>New Updates</h3>
+                    <h3>最新信用卡資訊</h3>
                     <div id="new_updates" class="carousel slide" data-bs-ride="carousel">
                         {% if plot_2 is string %}
                         <div class="display-6">No new updates</div>
@@ -61,10 +65,10 @@
                         <div class="carousel-inner cube">
                         {% for card in plot_2 %}
                             <div class="carousel-item {% if loop.index == 1 %}active{% endif %}">
-                                <h6 class="release-date cube font-weight-light">{{ card[0] }}</h6>
-                                <h5 class="bank-name cube text-secondary">{{ card[1] }}</h5>
-                                <div class="card-name cube display-6 text-info font-weight-bold">{{ card[2] }}</div>
+                                <h4 class="bank-name cube text-secondary">{{ card[1] }}</h4>
+                                <div class="card-name cube display-6 font-weight-bold">{{ card[2] }}</div>
                                 <a class="url cube" href="{{card[4]}}" target="_blank"><img class="card-image cube d-block rounded mx-auto" src="{{ card[3] }}" alt="/static/images/credit_card_image.png" height="200"></a>
+                                <h6 class="release-date cube font-weight-light">更新於 {{ card[0] }}</h6>
                             </div>
                         {% endfor %}
                         </div>
@@ -85,34 +89,43 @@
     <div class="hr"></div>
     <!-- Community -->
     <section id="community-analysis" class="padding container">
-        <h2 class="text-center">COMMUNITY ANALYSIS</h2>
+        <h2 class="text-center">社 群 話 題 分 析</h2>
+        <div class="d-flex justify-content-center mt-5" style="height: 100px;">
+            <div class="vr"></div>
+        </div>
         <div class="container">
             <div class="row">
                 <div class="col-md-6 text-center cube">
-                    <h3>Trending Words</h3>
+                    <h3>趨勢關鍵字</h3>
                     <div class="my-5">
-                        <h5 id="word_cloud">words in recent 3 months in PTT community 'creditcards'</h5>
+                        <h5 id="word_cloud">近三個月 PTT 社群「creditcards」版關鍵字</h5>
                     </div>
-                    <img class="card-image d-block rounded mx-auto" src="{{ plot_3 }}" alt="../static/images/wordcloud.jpeg" height="400"><br>
+                    <!-- <img class="card-image d-block rounded mx-auto" src="{{ plot_3 }}" alt="../static/images/wordcloud.jpeg" height="400"><br> -->
+                    <img class="graph-container mx-auto" src="{{ plot_3 }}" alt="../static/images/wordcloud.jpeg"><br>
                 </div>
                 <div class="col-md-6 text-center cube">
-                    <h3>Buzzworthy Cards</h3>
+                    <h3>焦點信用卡</h3>
+                    <h5></h5>
                     <div id="score_of_cards"></div>
-                    <p>* Scores based on the number of appearance and push in PTT community 'creditcards'</p>
+                    <p class="text-start">*評分方式：依照 PTT 社群「creditcards」版各文章內提及的信用卡名稱加總貼文數與推文數計算。</p>
                 </div>
             </div>
         </div>
         <div class="container">
             <div class="row">
                 <div class="col-md-12 cube">
-                    <h3 class="text-center">Must Read</h3>
+                    <h3 class="text-center m-5">近期熱門文章</h3>
                     {% for article in articles %}
                     <div class="container my-3">
                         <div class="row rounded my-1 py-1 must-read-head d-flex align-items-center">
-                            <h5 class="col-md-1 my-1"><strong>爆</strong></h5>
-                            <h5 class="col-md-2 post-date my-1">{{ article['post_dt'] }}</h5>
-                            <h5 class="col-md-2 post-author my-1">{{ article['post_author'] }}</h5>
-                            <h5 class="col-md-7"></h5>
+                            <h5 class="col-md-1 my-1">
+                                {% if article['push'] == 100 %}
+                                爆
+                                {% else %}
+                                {{ article['push'] }}
+                                {% endif %}
+                            </h5>
+                            <h5 class="col-md-11 post-date my-1">{{ article['post_dt'] }}</h5>
                         </div>
                         <div class="row rounded my-2 py-2 must-read-title d-flex align-items-center">
                             <h4 class="post-title font-weight-bold">{{ article['post_title'] }}</h4>
@@ -129,7 +142,10 @@
     <div class="hr"></div>
     <!-- Recent QA -->
     <section id="chill-questions" class="padding container">   
-        <h2 class="text-center">CHILL QUESTIONS</h2>
+        <h2 class="text-center">歷 史 熱 烈 問 答</h2>
+        <div class="d-flex justify-content-center mt-5" style="height: 100px;">
+            <div class="vr"></div>
+        </div>
         <div class="container">
             <div id="recent_qa" class="card">
                 {% for chat in plot_5 %}
@@ -169,7 +185,10 @@
     <section>
         <div class="padding container" id="chat-box">
             <div class="row container d-flex justify-content-center">
-                <h2 class="text-center">CHAT WITH BOT</h2>
+                <h2 class="text-center">和 Finn Bot 聊 聊</h2>
+                <div class="d-flex justify-content-center mt-5" style="height: 100px;">
+                    <div class="vr"></div>
+                </div>
                 <div class="col-md-12">
                 <div class="card card-bordered">
                     <div class="card-header">
@@ -179,7 +198,7 @@
                         <div class="media media-chat">
                             <img class="avatar" width="48" height="48" src="https://img.icons8.com/color/48/finn--v1.png" alt="finn--v1"/>
                             <div class="media-body">
-                                <p>Hi! 我是 Finn Bot，你可以向我詢問信用卡詳細的信用卡介紹</p>
+                                <p>Hi! 我是 Finn Bot，你可以向我詢問詳細的信用卡介紹。</p>
                             </div>
                         </div>
                     </div>
@@ -198,15 +217,15 @@
             <div class="row">
                 <div class="col-md-4">
                     <h5>Credit All-In-One</h5>
-                    <p>台灣各家銀行信用卡資訊總覽</p>
+                    <p>彙整台灣各家銀行信用卡資訊總覽與問答機器人的一站式平台</p>
                     <img src="https://img.icons8.com/color/48/finn--v1.png" alt="finn--v1"/>
                 </div>
                 <div class="col-md-4">
                     <h5>快速導覽 - Links</h5>
-                    <div><i class="fa-solid fa-credit-card"></i><a class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#hot-cards"> Cards Dashboard</a></div>
-                    <div><i class="fa-solid fa-address-card"></i><a class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#community-analysis"> Community Analysis</a></div>
-                    <div><i class="fa-solid fa-comment-dots"></i><a class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#chill-questions"> Chill Questions</a></div>
-                    <div><i class="fa-solid fa-robot"></i><a class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#chat-box"> Chat with Bot</a></div>
+                    <div><i class="fa-solid fa-credit-card"></i><a class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#hot-cards"> 信用卡資訊總覽</a></div>
+                    <div><i class="fa-solid fa-address-card"></i><a class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#community-analysis"> 社群話題分析</a></div>
+                    <div><i class="fa-solid fa-comment-dots"></i><a class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#chill-questions"> 近期熱烈問答</a></div>
+                    <div><i class="fa-solid fa-robot"></i><a class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#chat-box"> 和 Finn Bot 聊聊</a></div>
                 </div>
                 <div class="col-md-4">
                     <h5>關於我 - Contact Me</h5>
