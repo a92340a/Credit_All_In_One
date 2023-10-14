@@ -32,7 +32,7 @@ def fetch_ptt_title_splitted():
                 background_color="rgba(255, 255, 255, 0)", mode="RGBA",
                 max_font_size=100,
                 width=700,
-                height=500,
+                height=550,
             ).generate(" ".join(data))
     return wc.to_image() 
 
