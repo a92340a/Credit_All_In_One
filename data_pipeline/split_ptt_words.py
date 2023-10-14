@@ -173,7 +173,7 @@ scheduler.add_job(
 )
 
 scheduler.add_job(
-    split_ptt_title,
+    score_ptt_article,
     trigger="cron",
     hour=8,
     minute=7,
