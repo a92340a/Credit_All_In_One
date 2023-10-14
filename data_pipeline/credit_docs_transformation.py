@@ -153,10 +153,14 @@ def docs_comparing_and_embedding(*manual):
 scheduler.add_job(
     docs_comparing_and_embedding,
     trigger="cron",
-    hour="8",
+    hour=8,
     minute=0,
     timezone=pytz.timezone("Asia/Taipei"),
 )
 
-if __name__ == '__main__':
-    docs_comparing_and_embedding()
+scheduler.start()
+dev_logger.info(json.dumps({'msg':'Scheduler started ...'}))
+
+
+while True:
+    pass

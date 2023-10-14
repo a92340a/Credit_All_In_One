@@ -90,14 +90,17 @@ def main_credit_info():
 scheduler.add_job(
     main_credit_info,
     trigger="cron",
-    hour="8",
+    hour=8,
     minute=0,
     timezone=pytz.timezone("Asia/Taipei"),
 )
 
+scheduler.start()
+dev_logger.info(json.dumps({'msg':'Scheduler started ...'}))
 
-if __name__ == '__main__':
-    main_credit_info()    
+
+while True:
+    pass
 
 
    
