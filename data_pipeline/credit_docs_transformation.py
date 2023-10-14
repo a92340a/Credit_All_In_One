@@ -24,7 +24,6 @@ from my_configuration import _get_mongodb
 
 # Advanced Python Scheduler
 scheduler = BackgroundScheduler()
-scheduler.start()
 
 # GCP logging
 gcp_key = json.load(open(os.getenv("KEY")))
@@ -149,7 +148,12 @@ def docs_comparing_and_embedding(*manual):
                 _insert_into_chroma(card, new_docs)
                 # print('-----')
 
-# scheduler.add_job(docs_comparing_and_embedding, "interval", seconds=60)
+
+def test_scheduler():
+    print('hello')
+    
+
+scheduler.add_job(test_scheduler, "interval", seconds=5)
 scheduler.add_job(
     docs_comparing_and_embedding,
     trigger="cron",

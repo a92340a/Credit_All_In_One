@@ -28,7 +28,6 @@ today = now.strftime('%Y-%m-%d')
 
 # Advanced Python Scheduler
 scheduler = BackgroundScheduler()
-scheduler.start()
 
 # GCP logging
 gcp_key = json.load(open(os.getenv("KEY")))
