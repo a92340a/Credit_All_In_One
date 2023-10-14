@@ -86,7 +86,5 @@ scheduler.start()
 dev_logger.info(json.dumps({'msg':'Scheduler started ...'}))
 
 
-# while True:
-#     pass
-if __name__ == "__main__":
-    retrieve_popular_articles()
+while True:
+    pass
