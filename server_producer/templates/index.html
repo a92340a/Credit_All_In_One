@@ -66,7 +66,7 @@
                         {% for card in plot_2 %}
                             <div class="carousel-item {% if loop.index == 1 %}active{% endif %}">
                                 <h4 class="bank-name cube text-secondary">{{ card[1] }}</h4>
-                                <div class="card-name cube display-6 text-info font-weight-bold">{{ card[2] }}</div>
+                                <div class="card-name cube display-6 font-weight-bold">{{ card[2] }}</div>
                                 <a class="url cube" href="{{card[4]}}" target="_blank"><img class="card-image cube d-block rounded mx-auto" src="{{ card[3] }}" alt="/static/images/credit_card_image.png" height="200"></a>
                                 <h6 class="release-date cube font-weight-light">更新於 {{ card[0] }}</h6>
                             </div>
@@ -198,7 +198,7 @@
                         <div class="media media-chat">
                             <img class="avatar" width="48" height="48" src="https://img.icons8.com/color/48/finn--v1.png" alt="finn--v1"/>
                             <div class="media-body">
-                                <p>Hi! 我是 Finn Bot，你可以向我詢問信用卡詳細的信用卡介紹</p>
+                                <p>Hi! 我是 Finn Bot，你可以向我詢問詳細的信用卡介紹。</p>
                             </div>
                         </div>
                     </div>

@@ -30,6 +30,11 @@ h3,h4,h5,h6 {
     opacity: 0.5;
 }
 
+.carousel-item .card-name {
+    color: #92828D;
+    font-weight: bold;
+}
+
 .cube {
     padding: 1rem;
 }

@@ -6,9 +6,6 @@ from collections import Counter
 
 from flask import Flask, request, render_template
 from flask_socketio import SocketIO
-from flask_sqlalchemy import Model, SQLAlchemy
-from google.cloud.pubsublite.cloudpubsub import PublisherClient
-from google.cloud.pubsublite.types import MessageMetadata
 
 import plotly as py
 import plotly.graph_objects as go

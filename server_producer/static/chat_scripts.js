@@ -1,4 +1,4 @@
-const socket = io();
+const socket = io('https://credit-all-in-one.com/');
 
 const chatContent = document.getElementById("chat-content");
 const publisher = document.querySelector(".publisher");
