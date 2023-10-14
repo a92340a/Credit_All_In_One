@@ -40,9 +40,9 @@ dev_titles_logger = logging.getLogger("data_pipeline:ptt_titles_split")
 dev_articles_logger = logging.getLogger("data_pipeline:ptt_articles_split")
 
 
-jieba.set_dictionary('data_pipeline/text_jieba/dict.txt.big') # simpified to tranditional chinese
-jieba.load_userdict('data_pipeline/text_jieba/custom_words.txt') # custom words
-jieba.analyse.set_stop_words('data_pipeline/text_jieba/stop_words.txt')
+jieba.set_dictionary('data_pipeline/txt_jieba/dict.txt.big') # simpified to tranditional chinese
+jieba.load_userdict('data_pipeline/txt_jieba/custom_words.txt') # custom words
+jieba.analyse.set_stop_words('data_pipeline/txt_jieba/stop_words.txt')
 mongo_db = _get_mongodb()
 mongo_collection = mongo_db["ptt"]
 redis_conn = _get_redis()
@@ -159,6 +159,11 @@ def score_ptt_article(max_retries: int = 5, delay: int = 2):
             time.sleep(delay)
 
 
+def test_scheduler():
+    print('hello from split_ptt_words')
+
+
+scheduler.add_job(test_scheduler, "interval", seconds=5)
 scheduler.add_job(
     split_ptt_title,
     trigger="cron",

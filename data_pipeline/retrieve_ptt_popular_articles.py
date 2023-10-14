@@ -68,6 +68,12 @@ def retrieve_popular_articles(push_num = 50, max_retries: int = 5, delay: int = 
         dev_logger.warning(json.dumps({'msg':'Fail to retrieve ptt popular articles!'}))
 
 
+
+def test_scheduler():
+    print('hello from retrieve_ptt_popular_articles')
+
+
+scheduler.add_job(test_scheduler, "interval", seconds=5)
 scheduler.add_job(
     retrieve_popular_articles,
     trigger="cron",
