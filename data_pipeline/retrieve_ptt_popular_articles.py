@@ -45,7 +45,7 @@ def retrieve_popular_articles(push_num = 50, max_retries: int = 5, delay: int = 
     max_create_dt = mongo_collection.find_one(sort=[('create_dt', pymongo.DESCENDING)])['create_dt']
 
     projection = {'post_title': 1, 'post_author':1 , 'post_dt':1, 'post_link':1, 'article': 1, '_id': 0}
-    cursor = mongo_collection.find({'push': push_num, 'create_dt':max_create_dt}, projection).sort('post_dt', pymongo.DESCENDING)
+    cursor = mongo_collection.find({'push': {'$gte': push_num}, 'create_dt':max_create_dt}, projection).sort('post_dt', pymongo.DESCENDING)
     popular_articles = list(cursor)
 
     if popular_articles:
@@ -86,5 +86,7 @@ scheduler.start()
 dev_logger.info(json.dumps({'msg':'Scheduler started ...'}))
 
 
-while True:
-    pass
+# while True:
+#     pass
+if __name__ == "__main__":
+    retrieve_popular_articles()
