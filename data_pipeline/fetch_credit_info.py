@@ -90,7 +90,7 @@ def test_scheduler():
     print('hello from fetch_credit_info')
 
 
-scheduler.add_job(test_scheduler, "interval", seconds=5)
+#scheduler.add_job(test_scheduler, "interval", seconds=5)
 scheduler.add_job(
     main_credit_info,
     trigger="cron",

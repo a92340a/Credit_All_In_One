@@ -163,7 +163,7 @@ def test_scheduler():
     print('hello from split_ptt_words')
 
 
-scheduler.add_job(test_scheduler, "interval", seconds=5)
+#scheduler.add_job(test_scheduler, "interval", seconds=5)
 scheduler.add_job(
     split_ptt_title,
     trigger="cron",

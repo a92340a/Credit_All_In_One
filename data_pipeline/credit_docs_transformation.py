@@ -153,7 +153,7 @@ def test_scheduler():
     print('hello from credit_docs_transformation')
 
 
-scheduler.add_job(test_scheduler, "interval", seconds=5)
+#scheduler.add_job(test_scheduler, "interval", seconds=5)
 scheduler.add_job(
     docs_comparing_and_embedding,
     trigger="cron",
