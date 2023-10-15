@@ -33,7 +33,7 @@ client = google.cloud.logging.Client(credentials=credentials)
 client.setup_logging()
 
 # create a logger
-dev_logger = logging.getLogger("data_pipeline:ptt_populat_articles")
+dev_logger = logging.getLogger("data_pipeline:retrieve_ptt_popular_articles:retrieve_popular_articles")
 
 
 mongo_db = _get_mongodb()
@@ -49,7 +49,7 @@ def retrieve_popular_articles(push_num = 50, max_retries: int = 5, delay: int = 
     popular_articles = list(cursor)
 
     if popular_articles:
-        dev_logger.info(f'Finish retrieving ptt popular articles on {max_create_dt} updated documents.')
+        dev_logger.info(json.dumps({'msg':f'Finish retrieving ptt popular articles on {max_create_dt} updated documents.'}))
         for trying in range(1, max_retries + 1):
             try:
                 redis_conn.set("ptt_popular_articles", json.dumps(popular_articles))
@@ -87,4 +87,4 @@ dev_logger.info(json.dumps({'msg':'Scheduler started ...'}))
 
 
 while True:
-    pass
+    time.sleep(5)

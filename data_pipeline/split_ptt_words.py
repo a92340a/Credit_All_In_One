@@ -36,8 +36,8 @@ client = google.cloud.logging.Client(credentials=credentials)
 client.setup_logging()
 
 # create a logger
-dev_titles_logger = logging.getLogger("data_pipeline:ptt_titles_split")
-dev_articles_logger = logging.getLogger("data_pipeline:ptt_articles_split")
+dev_titles_logger = logging.getLogger("data_pipeline:split_ptt_words:split_ptt_title")
+dev_articles_logger = logging.getLogger("data_pipeline:split_ptt_words:score_ptt_article")
 
 
 jieba.set_dictionary('data_pipeline/txt_jieba/dict.txt.big') # simpified to tranditional chinese
@@ -186,7 +186,8 @@ dev_articles_logger.info(json.dumps({'msg':'Scheduler started ...'}))
 
 
 while True:
-    pass
+    time.sleep(5)
+    
     
 
     

@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import time
 import pytz
 import logging
 from datetime import datetime
@@ -104,7 +105,7 @@ dev_logger.info(json.dumps({'msg':'Scheduler started ...'}))
 
 
 while True:
-    pass
+    time.sleep(5)
 
 
    
