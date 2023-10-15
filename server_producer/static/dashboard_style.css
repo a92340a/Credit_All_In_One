@@ -61,24 +61,31 @@ h3,h4,h5,h6 {
      background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23808080' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E") !important;
 }
 
-.qa-box p.collapse[aria-expanded="false"] {
-    display: block;
-    max-height: 50px;
-    overflow: hidden;
-}
-
-.qa-box a.collapsed:after  {
-    content: '+ Read More';
-    padding-left: 48px;
-}
-
-.qa-box a:not(.collapsed):after {
-    content: '- Read Less';
-    padding-left: 48px;
+.qa-answer img {
+    padding-top: 1rem;
+    margin-top: 1rem;
 }
 
 .qa-answer {
     list-style-type: none;
+    max-height: calc(1 * 16px * 4); /* font-size * 4 */ 
+    overflow: hidden;
+}
+
+.qa-answer.expanded {
+    max-height: none;
+}
+
+.read-more {
+    padding-left: 48px;
+}
+
+.read-more.collapsed {
+    display: block;
+}
+
+.read-more.expanded {
+    display: none;
 }
 
 .must-read-head {
