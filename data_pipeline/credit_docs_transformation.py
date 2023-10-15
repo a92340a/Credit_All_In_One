@@ -46,7 +46,7 @@ yesterday = (today_date-timedelta(days=1)).strftime('%Y-%m-%d')
 
 
 # create a logger
-dev_logger = logging.getLogger("data_pipeline:embedding")
+dev_logger = logging.getLogger("data_pipeline:credit_docs_transformation:docs_comparing_and_embedding")
 
 def _docs_refactoring(data):
     """
@@ -167,4 +167,4 @@ dev_logger.info(json.dumps({'msg':'Scheduler started ...'}))
 
 
 while True:
-    pass
+    time.sleep(5)
