@@ -43,9 +43,10 @@
             <div class="row my-5 text-center">
                 <h3>銀行總數 <span class="number-hightlight">{{card_banks}}</span></h3>
                 {% for bank in banks %}
-                    <div class="available-bank d-inline col-md-1 p-2 m-2 text-center align-self-center rounded">{{bank[0]}}</div>
+                    <div class="available-bank d-inline col-md-1 p-2 m-2 text-center align-self-center rounded" data-bs-target="#new_updates" data-bs-slide-to="{{bank[1]}}">{{bank[0]}}</div>
                 {% endfor %}
             </div>
+            <p>*點擊銀行按鈕跳轉前往該銀行最新信用卡資訊輪播</p>
         </div>
         <div class="container">
             <div class="row">
