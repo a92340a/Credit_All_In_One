@@ -63,7 +63,7 @@ def _insert_into_pgsql(sid, question, answer, user_icon):
     try:
         cursor.execute("""INSERT INTO question_answer(sid,create_dt,create_timestamp,question,answer,user_icon) 
                        VALUES (%s, %s, %s, %s, %s, %s);""", 
-                       (sid, today, int(time.time()), question, answer, user_icon))
+                       (sid, datetime.now(taiwanTz).strftime('%Y-%m-%d'), int(time.time()), question, answer, user_icon))
         pg_db.commit()
         dev_logger.info('Successfully insert into PostgreSQL')
     except Exception as e:
