@@ -25,9 +25,10 @@ def fetch_all_banks():
         GROUP BY bank_name, card_name
         ORDER BY bank_name, card_name
     )
-    SELECT bank_name, min(row_num) AS row_num
+    SELECT bank_name, min(row_num)-1 AS row_num
     FROM card_order
-    GROUP BY bank_name;
+    GROUP BY bank_name
+    ORDER BY min(row_num);
     """
     cursor.execute(sql)
     data = cursor.fetchall()
