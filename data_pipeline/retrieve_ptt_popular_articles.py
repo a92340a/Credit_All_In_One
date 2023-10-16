@@ -74,6 +74,7 @@ def test_scheduler():
 
 
 #scheduler.add_job(test_scheduler, "interval", seconds=5)
+scheduler.add_job(retrieve_popular_articles, "interval", minutes=5)
 scheduler.add_job(
     retrieve_popular_articles,
     trigger="cron",
