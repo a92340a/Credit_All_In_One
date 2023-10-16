@@ -164,8 +164,8 @@ def test_scheduler():
 
 
 #scheduler.add_job(test_scheduler, "interval", seconds=5)
-scheduler.add_job(split_ptt_title, "interval", minutes=5)
-scheduler.add_job(score_ptt_article, "interval", minutes=5)
+#scheduler.add_job(split_ptt_title, "interval", minutes=5)
+#scheduler.add_job(score_ptt_article, "interval", minutes=5)
 scheduler.add_job(
     split_ptt_title,
     trigger="cron",
