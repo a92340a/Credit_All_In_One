@@ -157,7 +157,7 @@ def test_scheduler():
 scheduler.add_job(
     docs_comparing_and_embedding,
     trigger="cron",
-    hour=8,
+    hour="0, 4, 8, 12, 16, 20",
     minute=0,
     timezone=pytz.timezone("Asia/Taipei"),
 )

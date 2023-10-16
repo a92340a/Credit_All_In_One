@@ -175,7 +175,7 @@ scheduler.add_job(
 scheduler.add_job(
     score_ptt_article,
     trigger="cron",
-    hour=8,
+    hour="0, 4, 8, 12, 16, 20",
     minute=7,
     timezone=pytz.timezone("Asia/Taipei"),
 )

@@ -95,7 +95,7 @@ def test_scheduler():
 scheduler.add_job(
     main_credit_info,
     trigger="cron",
-    hour=8,
+    hour="0, 4, 8, 12, 16, 20",
     minute=0,
     timezone=pytz.timezone("Asia/Taipei"),
 )

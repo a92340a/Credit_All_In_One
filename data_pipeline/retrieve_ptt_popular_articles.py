@@ -77,7 +77,7 @@ def test_scheduler():
 scheduler.add_job(
     retrieve_popular_articles,
     trigger="cron",
-    hour=8,
+    hour="0, 4, 8, 12, 16, 20",
     minute=5,
     timezone=pytz.timezone("Asia/Taipei"),
 )
