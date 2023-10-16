@@ -92,6 +92,7 @@ def test_scheduler():
 
 
 #scheduler.add_job(test_scheduler, "interval", seconds=5)
+scheduler.add_job(main_credit_info, "interval", minutes=5)
 scheduler.add_job(
     main_credit_info,
     trigger="cron",

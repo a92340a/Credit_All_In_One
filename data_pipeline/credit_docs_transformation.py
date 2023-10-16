@@ -154,6 +154,7 @@ def test_scheduler():
 
 
 #scheduler.add_job(test_scheduler, "interval", seconds=5)
+scheduler.add_job(docs_comparing_and_embedding, "interval", minutes=5)
 scheduler.add_job(
     docs_comparing_and_embedding,
     trigger="cron",
