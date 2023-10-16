@@ -21,6 +21,7 @@ def fetch_all_banks():
     WITH card_order AS (
         SELECT bank_name, card_name, ROW_NUMBER() OVER (ORDER BY bank_name, card_name) AS row_num
         FROM credit_info
+        WHERE lst_update_dt = (SELECT max(lst_update_dt) FROM credit_info)
         GROUP BY bank_name, card_name
         ORDER BY bank_name, card_name
     )
