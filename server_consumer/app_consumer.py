@@ -2,9 +2,9 @@ import os
 import sys
 import json
 import time
+import pytz
 from datetime import datetime
 from dotenv import load_dotenv
-import psycopg2
 
 import requests
 from google.pubsub_v1 import PubsubMessage
@@ -22,7 +22,8 @@ import my_logger
 from my_configuration import _get_mongodb, _get_pgsql
 
 # datetime
-now = datetime.now()
+taiwanTz = pytz.timezone("Asia/Taipei") 
+now = datetime.now(taiwanTz)
 today_date = now.date()
 today = now.strftime('%Y-%m-%d')
 
@@ -51,48 +52,24 @@ per_partition_flow_control_settings = FlowControlSettings(
 )
 
 
-
 def _insert_into_pgsql(sid, question, answer, user_icon):
     """
-    :param:sid: user's sockect sid
-    :param:question: user's question 
-    :param:answer: answer from QA model
+    :param sid: user's sockect sid
+    :param question: user's question 
+    :param answer: answer from QA model
     """
     pg_db = _get_pgsql()
     cursor = pg_db.cursor()
     try:
         cursor.execute("""INSERT INTO question_answer(sid,create_dt,create_timestamp,question,answer,user_icon) 
                        VALUES (%s, %s, %s, %s, %s, %s);""", 
-                       (sid, today, int(time.time()), question, answer, user_icon))
+                       (sid, datetime.now(taiwanTz).strftime('%Y-%m-%d'), int(time.time()), question, answer, user_icon))
         pg_db.commit()
         dev_logger.info('Successfully insert into PostgreSQL')
     except Exception as e:
         dev_logger.warning(f'Inserting into pgsql error: {e}')
     else:
         cursor.close()
-
-
-# def _get_distinct_source_and_cards():
-#     """
-#     Getting distinct source and link
-#     """
-#     pipeline = [{"$group": {"_id": {"source": "$source", "card_name": "$card_name"}}}]
-#     result = mongo_collection.aggregate(pipeline)
-    
-#     source_dict = {}
-#     for doc in result:
-#         source = doc['_id']['source']
-#         card_name = doc['_id']['card_name']
-        
-#         if source in source_dict:
-#             source_dict[source].append(card_name)
-#         else:
-#             source_dict[source] = [card_name]
-    
-#     source_list = []
-#     for i in source_dict:
-#         source_list.append({'銀行名稱':i, '卡片名稱':source_dict[i]})
-#     return source_list
 
 
 def language_calculation(message_data):

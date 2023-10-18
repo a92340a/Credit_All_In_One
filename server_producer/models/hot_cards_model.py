@@ -18,9 +18,17 @@ def fetch_all_banks():
     pgsql_db = _get_pgsql()
     cursor = pgsql_db.cursor()
     sql = """
-    SELECT DISTINCT bank_name 
-    FROM credit_info 
-    ORDER BY bank_name;
+    WITH card_order AS (
+        SELECT bank_name, card_name, ROW_NUMBER() OVER (ORDER BY bank_name, card_name) AS row_num
+        FROM credit_info
+        WHERE lst_update_dt = (SELECT max(lst_update_dt) FROM credit_info)
+        GROUP BY bank_name, card_name
+        ORDER BY bank_name, card_name
+    )
+    SELECT bank_name, min(row_num)-1 AS row_num
+    FROM card_order
+    GROUP BY bank_name
+    ORDER BY min(row_num);
     """
     cursor.execute(sql)
     data = cursor.fetchall()
@@ -33,7 +41,7 @@ def fetch_cards_ranking(top_k=5):
     pgsql_db = _get_pgsql()
     cursor = pgsql_db.cursor()
     sql = """
-    SELECT bank_name, count(DISTINCT card_link) AS cnt 
+    SELECT bank_name, count(DISTINCT card_name) AS cnt 
     FROM credit_info 
     WHERE lst_update_dt = (SELECT max(lst_update_dt) FROM credit_info)
     GROUP BY bank_name
@@ -70,6 +78,7 @@ def fetch_latest_cards():
         lst_update_dt, bank_name, card_name, card_image, card_link
     FROM credit_info
     WHERE lst_update_dt = (SELECT MAX(lst_update_dt) FROM credit_info)
+    ORDER BY bank_name, card_name;
     """
     cursor.execute(sql)
     data = cursor.fetchall()

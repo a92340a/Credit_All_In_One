@@ -6,9 +6,6 @@ from collections import Counter
 
 from flask import Flask, request, render_template
 from flask_socketio import SocketIO
-from flask_sqlalchemy import Model, SQLAlchemy
-from google.cloud.pubsublite.cloudpubsub import PublisherClient
-from google.cloud.pubsublite.types import MessageMetadata
 
 import plotly as py
 import plotly.graph_objects as go
@@ -59,14 +56,19 @@ def index():
     fig1 = go.Figure()
     bank_names = [_[0] for _ in cards]
     card_counts = [_[1] for _ in cards]
+    colors = ['#92828D', '#CEB5A7', '#D5C6B1', '#DCD6BB', '#DFDCCE']
 
     fig1.add_trace(go.Bar(x=bank_names, y=card_counts, name='S', 
-                         marker=dict(color=card_counts, colorscale='dense'))) #Blues
+                          marker=dict(color=colors)))
     fig1.update_layout(autosize=True, title_x=0.5,
-                      title_text=f'Quantity of top {top_k_banks} active cards in Taiwan',
-                      xaxis_title='Banks', yaxis_title='Quantity',
+                      title_text=f'前 {top_k_banks} 大流通信用卡之銀行及信用卡數',
+                      xaxis_title='銀行名稱', yaxis_title='流通信用卡數',
                       paper_bgcolor='rgba(0,0,0,0)',
-                      plot_bgcolor='rgba(0,0,0,0)')
+                      plot_bgcolor='rgba(0,0,0,0)',
+                      font=dict(
+                        size=16,
+                        color="#525256"
+                    ))
     plot_1 = json.dumps(fig1, cls=py.utils.PlotlyJSONEncoder)
 
     # === part 3: bank name, card name, card_link and image ===
@@ -92,14 +94,19 @@ def index():
     fig4 = go.Figure()
     card_name4 = [_[0] for _ in sorted_scores]
     card_score4 = [_[1] for _ in sorted_scores]
+    colors = ['#92828D', '#B09C9A', '#BFA9A1', '#CEB5A7', '#D5C6B1', '#DCD6BB', '#DFDCCE']
     fig4.add_trace(go.Bar(x=card_score4, y=card_name4, orientation='h',
-                         marker=dict(color=card_counts, colorscale='dense'))) #Blues
+                         marker=dict(color=colors)))
     fig4.update_layout(autosize=True, title_x=0.5,
-                      title_text="What's the Most Highly-Regarded Credit Cards?",
-                      xaxis_title='Scores of cards in PTT community', 
+                      title_text="近三個月備受關注的信用卡有哪些？",
+                      xaxis_title='PTT 社群信用卡關注度評分', 
                       paper_bgcolor='rgba(0,0,0,0)',
-                      plot_bgcolor='rgba(0,0,0,0)')
-    fig4.update_layout(xaxis={'categoryorder':'total descending'})
+                      plot_bgcolor='rgba(0,0,0,0)',
+                      font=dict(
+                        size=15,
+                        color="#525256"
+                    ))
+    fig4.update_layout(yaxis={'categoryorder':'total ascending'}) ######how to desc?
     plot_4 = json.dumps(fig4, cls=py.utils.PlotlyJSONEncoder)
 
     # === part 3: popular ptt articles ===

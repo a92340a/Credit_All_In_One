@@ -24,8 +24,8 @@ class KaohsiungSpider(scrapy.Spider):
     def parse(self, response):
         boxes = response.css("div.card-intro-box")
         for box in boxes:
-            source = '高雄'
-            bank_name = '高雄, 高雄銀行, 016, bok, bank of kaohsiung'
+            source = '高雄銀'
+            bank_name = '高雄銀, 高雄銀行, 016, bok, bank of kaohsiung'
             card_image = 'https://www.bok.com.tw' + box.css('span.img-wrap img::attr(src)').get()
             card_name = box.css('h3.intro-title::text').get()
             if '停發' not in card_name:

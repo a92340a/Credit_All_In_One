@@ -39,13 +39,10 @@ def load_data(mongo_history):
     CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template(_template)
     
     template = """
-    你是一個數家銀行信用卡介紹與優惠資訊的聊天機器人，包括：
-    1.'銀行名稱': 'crawling_chartered', '卡片名稱': '渣打優先理財無限卡', '渣打現金回饋御璽卡', '渣打LINE Bank聯名卡', 'TheShoppingCard 分期卡'。
-    請依據下方給定的內容與使用者本次問題進行回覆。
+    你是一個數家銀行信用卡介紹與優惠資訊的聊天機器人，請依據下方給定的內容與使用者本次問題進行回覆。
     請依使用者提問的語言回答他的問題，若有不清楚使用者語言或是簡體中文，一律使用繁體中文回答。
-    如果有搜尋到相關信用卡資訊，但詳細資料不足，請提供資料庫內該信用卡的link連結給使用者自行檢索。
+    先模糊比對信用卡資訊，且也提供資料庫內該信用卡的link連結給使用者自行檢索。
     如果使用者的問題與信用卡、基本問候無關的話，請回答「抱歉，我目前沒有這個問題的相關資訊。您可以調整您的提問，或是詢問我其他問題。」
-    當你無法理解使用者的提問時，請引導使用者作出更詳細的提問。
     Question: {question}
     =========
     {context}
@@ -59,7 +56,6 @@ def load_data(mongo_history):
     # retriever = vectordb.as_retriever() 
     # retriever = vectordb.as_retriever(search_type="similarity", search_kwargs={"k": 2}) 
     # retriever = vectordb.as_retriever(search_type="similarity_score_threshold", search_kwargs={"score_threshold": .5})
-    # retriever = _build_self_query_retriever(vectordb, _get_distinct_cards())
     retriever = _build_self_query_retriever(vectordb)
 
     memory = ConversationBufferMemory(memory_key="chat_history", chat_memory=mongo_history, return_messages=True)

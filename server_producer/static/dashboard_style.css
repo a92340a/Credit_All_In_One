@@ -8,11 +8,31 @@ h3,h4,h5,h6 {
     font-weight: 400;
 }
 
-/* h5,h6 {
-    font-family: 'Onest', sans-serif;
-} */
 .header {
-    background-image: url('../static/images/Grayscale_ori.svg');
+    background-image: url('../static/images/GrayBlackSimple.svg');
+    background-size: 70%;
+}
+
+.number-hightlight {
+    color: rgb(193, 92, 45);
+    font-weight: bold;
+    font-size: larger;
+}
+
+.available-bank {
+    border-radius: 10px;
+    border: 0.2rem outset #D5C6B1;
+}
+
+.available-bank:hover {
+    border-radius: 10px;
+    border: 0.2rem outset #D5C6B1;
+    opacity: 0.5;
+}
+
+.carousel-item .card-name {
+    color: #92828D;
+    font-weight: bold;
 }
 
 .cube {
@@ -23,6 +43,16 @@ h3,h4,h5,h6 {
     margin: 1rem;
 }
 
+.graph-container {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.graph {
+    width: 50%;
+}
+
 .carousel-control-prev-icon {
     background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23808080' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E") !important;
 }
@@ -31,18 +61,41 @@ h3,h4,h5,h6 {
      background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23808080' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E") !important;
 }
 
-.qa-box p.collapse[aria-expanded="false"] {
-    display: block;
-    max-height: 50px;
+.qa-answer img {
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+
+.qa-answer {
+    list-style-type: none;
+    max-height: calc(1 * 16px * 4); /* font-size * 4 */ 
     overflow: hidden;
 }
 
-.qa-box a.collapsed:after  {
-    content: '+ Read More';
+.qa-answer.expanded {
+    max-height: none;
+}
+
+.read-more {
     padding-left: 48px;
 }
 
-.qa-box a:not(.collapsed):after {
-    content: '- Read Less';
-    padding-left: 48px;
+.read-more.collapsed {
+    display: block;
+}
+
+.read-more.expanded {
+    display: none;
+}
+
+.must-read-head {
+    background-color: #EFEDE6;
+    /* font-weight: 700; */
+    color: #525256;
+}
+
+.must-read-title {
+    background-color: #D5C6B1;
+    border: 0.2rem outset #D5C6B1;
+    color: #323340;
 }

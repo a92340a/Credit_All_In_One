@@ -1,25 +1,40 @@
 import os
 import sys
+import json
+import time
+import pytz
+import logging
 from datetime import datetime
 from dotenv import load_dotenv
 import pymongo
+from apscheduler.schedulers.background import BackgroundScheduler
+
+import google.cloud.logging
+from google.oauth2.service_account import Credentials
+
 
 load_dotenv()
 sys.path.append('../Credit_All_In_One/')
-import my_logger
 from my_configuration import _get_mongodb, _get_pgsql
 
 
 # datetime
-now = datetime.now()
+taiwanTz = pytz.timezone("Asia/Taipei") 
+now = datetime.now(taiwanTz)
 today_date = now.date()
 today = now.strftime('%Y-%m-%d')
 
+# Advanced Python Scheduler
+scheduler = BackgroundScheduler()
+
+# GCP logging
+gcp_key = json.load(open(os.getenv("KEY")))
+credentials = Credentials.from_service_account_info(gcp_key)
+client = google.cloud.logging.Client(credentials=credentials)
+client.setup_logging()
 
 # create a logger
-dev_logger = my_logger.MyLogger('data_pipeline:fetch_credit_info')
-dev_logger.console_handler()
-dev_logger.file_handler(today)
+dev_logger = logging.getLogger("data_pipeline:fetch_credit_info")
 
 
 def fetch_from_mongodb():
@@ -42,8 +57,8 @@ def fetch_from_mongodb():
         card_link = i['card_link']
         lst_update_dt = i['create_dt']
         credit_latest_info.append(tuple([bank_name, bank_alias_name, card_name, card_image, card_link, lst_update_dt]))
-    dev_logger.info('Update for {}'.format(credit_latest_info[0][5]))
-    dev_logger.info(f'Numbers of latest data in MongoDB: {len(credit_latest_info)}')
+    dev_logger.info(json.dumps({'msg':'Update for {}'.format(credit_latest_info[0][5])}))
+    dev_logger.info(json.dumps({'msg':f'Numbers of latest data in MongoDB: {len(credit_latest_info)}'}))
     return credit_latest_info
 
 
@@ -60,16 +75,38 @@ def insert_into_pgsql(credit_latest_info):
                            SET (bank_alias_name, card_image, card_link) = (EXCLUDED.bank_alias_name, EXCLUDED.card_image, EXCLUDED.card_link);""", 
                            credit_latest_info)
         pg_db.commit()
-        dev_logger.info('Successfully insert into PostgreSQL')
+        dev_logger.info(json.dumps({'msg':'Successfully insert into PostgreSQL'}))
     except Exception as e:
-        dev_logger.warning(f'Failed to insert data into credit_info in PostgreSQL: {e}')
+        dev_logger.warning(json.dumps({'msg':f'Failed to insert data into credit_info in PostgreSQL: {e}'}))
     else:
         cursor.close()
 
 
-if __name__ == '__main__':
+def main_credit_info():
     data = fetch_from_mongodb()
     insert_into_pgsql(data)
+
+
+def test_scheduler():
+    print('hello from fetch_credit_info')
+
+
+#scheduler.add_job(test_scheduler, "interval", seconds=5)
+#scheduler.add_job(main_credit_info, "interval", minutes=5)
+scheduler.add_job(
+    main_credit_info,
+    trigger="cron",
+    hour="0, 4, 8, 12, 16, 20",
+    minute=0,
+    timezone=pytz.timezone("Asia/Taipei"),
+)
+
+scheduler.start()
+dev_logger.info(json.dumps({'msg':'Scheduler started ...'}))
+
+
+while True:
+    time.sleep(5)
 
 
    
