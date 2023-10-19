@@ -99,3 +99,7 @@ h3,h4,h5,h6 {
     border: 0.2rem outset #D5C6B1;
     color: #323340;
 }
+
+.custom-p {
+    margin-right: 50px;
+}

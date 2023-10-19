@@ -2,14 +2,14 @@ const socket = io('https://credit-all-in-one.com/');
 
 const chatContent = document.getElementById("chat-content");
 const publisher = document.querySelector(".publisher");
-const clientIcons = ['https://img.icons8.com/color/48/parrot.png','https://img.icons8.com/color/48/toucan.png','https://img.icons8.com/color/48/duck.png',
-    'https://img.icons8.com/color/48/cute-hamster.png','https://img.icons8.com/color/48/dinosaur-egg.png','https://img.icons8.com/color/48/pegasus.png',
-    'https://img.icons8.com/color/48/jackalope.png','https://img.icons8.com/color/48/unicorn--v1.png','https://img.icons8.com/color/48/bumblebee.png',
-    'https://img.icons8.com/color/48/ladybird.png','https://img.icons8.com/color/48/pony.png','https://img.icons8.com/color/48/hedgehog.png',
-    'https://img.icons8.com/color/48/sheep.png','https://img.icons8.com/color/48/calico-cat.png','https://img.icons8.com/color/48/corgi.png',
-    'https://img.icons8.com/color/48/cat_in_a_box.png','https://img.icons8.com/color/48/dog.png','https://img.icons8.com/color/48/aggressive-shark.png',
-    'https://img.icons8.com/color/48/whale.png','https://img.icons8.com/color/48/crab.png','https://img.icons8.com/color/48/bear.png',
-    'https://img.icons8.com/color/48/deer.png','https://img.icons8.com/color/48/elephant.png','https://img.icons8.com/color/48/giraffe.png'];
+const clientIcons = ['https://storage.googleapis.com/credit-398810-website-image/user_icon/parrot.png','https://storage.googleapis.com/credit-398810-website-image/user_icon/toucan.png','https://storage.googleapis.com/credit-398810-website-image/user_icon/duck.png',
+    'https://storage.googleapis.com/credit-398810-website-image/user_icon/cute-hamster.png','https://storage.googleapis.com/credit-398810-website-image/user_icon/dinosaur-egg.png','https://storage.googleapis.com/credit-398810-website-image/user_icon/pegasus.png',
+    'https://storage.googleapis.com/credit-398810-website-image/user_icon/jackalope.png','https://storage.googleapis.com/credit-398810-website-image/user_icon/unicorn--v1.png','https://storage.googleapis.com/credit-398810-website-image/user_icon/bumblebee.png',
+    'https://storage.googleapis.com/credit-398810-website-image/user_icon/ladybird.png','https://storage.googleapis.com/credit-398810-website-image/user_icon/pony.png','https://storage.googleapis.com/credit-398810-website-image/user_icon/hedgehog.png',
+    'https://storage.googleapis.com/credit-398810-website-image/user_icon/sheep.png','https://storage.googleapis.com/credit-398810-website-image/user_icon/calico-cat.png','https://storage.googleapis.com/credit-398810-website-image/user_icon/corgi.png',
+    'https://storage.googleapis.com/credit-398810-website-image/user_icon/cat_in_a_box.png','https://storage.googleapis.com/credit-398810-website-image/user_icon/dog.png','https://storage.googleapis.com/credit-398810-website-image/user_icon/aggressive-shark.png',
+    'https://storage.googleapis.com/credit-398810-website-image/user_icon/whale.png','https://storage.googleapis.com/credit-398810-website-image/user_icon/crab.png','https://storage.googleapis.com/credit-398810-website-image/user_icon/bear.png',
+    'https://storage.googleapis.com/credit-398810-website-image/user_icon/deer.png','https://storage.googleapis.com/credit-398810-website-image/user_icon/elephant.png','https://storage.googleapis.com/credit-398810-website-image/user_icon/giraffe.png'];
 
 // random choose a icon for client
 let selectedIcon; 
@@ -104,7 +104,7 @@ function addServerMessage(messageText) {
 
     var avatar = document.createElement("img");
     avatar.classList.add("avatar");
-    avatar.src = "https://img.icons8.com/color/48/finn--v1.png";
+    avatar.src = "https://storage.googleapis.com/credit-398810-website-image/favicon/finn--v1.png";
     avatar.alt = "finn";
     
     var mediaBody = document.createElement("div");

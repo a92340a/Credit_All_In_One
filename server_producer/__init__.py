@@ -50,8 +50,8 @@ def index():
     card_cards = fetch_total_banks_and_cards()[0][1]
 
     # === part 2: bar ===
-    top_k_banks = 5
-    cards = fetch_cards_ranking(top_k_banks)
+    TOP_K_BANKS = 5
+    cards = fetch_cards_ranking(TOP_K_BANKS)
 
     fig1 = go.Figure()
     bank_names = [_[0] for _ in cards]
@@ -72,13 +72,12 @@ def index():
     plot_1 = json.dumps(fig1, cls=py.utils.PlotlyJSONEncoder)
 
     # === part 3: bank name, card name, card_link and image ===
-    release_intervals = 30 #######
+    RELEASE_INTERVALS = 30 
     latest = fetch_latest_cards()
-    # first_date, bank_name, card_name, card_image, card_link
     if latest:
         plot_2 = latest
     else:
-        plot_2 = release_intervals
+        plot_2 = RELEASE_INTERVALS
     
     ##### Community Analysis #####
     # === part 1: wordclouds from ptt titles ===
@@ -119,5 +118,4 @@ def index():
     return render_template('index.html', banks=banks, card_banks=card_banks ,card_cards=card_cards, plot_1=plot_1, plot_2=plot_2, plot_4=plot_4, plot_3=image_url, articles=articles, plot_5=plot_5)
 
 
-from server_producer.views import socketio_view
-from server_producer.controllers import lang_controller
+from server_producer.controllers import socketio_controller, lang_controller
