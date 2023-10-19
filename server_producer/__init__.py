@@ -61,7 +61,7 @@ def index():
     fig1.add_trace(go.Bar(x=bank_names, y=card_counts, name='S', 
                           marker=dict(color=colors)))
     fig1.update_layout(autosize=True, title_x=0.5,
-                      title_text=f'前 {top_k_banks} 大流通信用卡之銀行及信用卡數',
+                      title_text=f'前 {TOP_K_BANKS} 大流通信用卡之銀行及信用卡數',
                       xaxis_title='銀行名稱', yaxis_title='流通信用卡數',
                       paper_bgcolor='rgba(0,0,0,0)',
                       plot_bgcolor='rgba(0,0,0,0)',
