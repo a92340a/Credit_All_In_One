@@ -24,7 +24,7 @@ load_dotenv()
 sys.path.append('../Credit_All_In_One/')
 from my_configuration import _get_mongodb, _get_pgsql
 import my_logger
-from data_pipeline.etl_utils import insert_into_redis
+from data_pipeline.etl_utils import fetch_latest_from_mongodb, insert_into_redis
 
 # datetime
 taiwanTz = pytz.timezone("Asia/Taipei") 
@@ -56,29 +56,33 @@ mongo_db = _get_mongodb()
 pg_db = _get_pgsql()
 
 
+def _split_titles(ptt_titles:list) -> list:
+    """
+    :param ptt_titles: all ptt_titles from MongoDB with latest update date
+    """
+    ptt_title_cleaned = []
+    for title in ptt_titles:
+        title_text = title['post_title'].split('] ')
+        # title_text_wo_stops = jieba.analyse.extract_tags(title_text,20)
+        title_splits = jieba.cut(title_text[-1], cut_all=False) # 精準模式
+        ptt_title_cleaned.extend(list(title_splits))
+    return ptt_title_cleaned
 
-def split_ptt_title(collection:str="ptt", pipeline="split_ptt_title", max_retries: int = 5, delay: int = 2):
+
+def split_ptt_title(collection:str="ptt", pipeline="split_ptt_title", redis_key="ptt_title"):
     """
     split ptt titles from mongodb and store it in Redis
     :param max_retries: maximum number of retries
     :param delay: delay between retries in seconds
     """
-    mongo_collection = mongo_db[collection]
-    max_create_dt = mongo_collection.find_one(sort=[('create_dt', pymongo.DESCENDING)])['create_dt']
     projection = {'post_title':1, '_id':0}
-    ptt_titles = list(mongo_collection.find({'create_dt':max_create_dt}, projection))
-
+    ptt_titles = fetch_latest_from_mongodb(logger=dev_logger, collection=collection, projection=projection)
+    
     if ptt_titles:
-        dev_logger.info(json.dumps({'msg':f'Finish retrieving ptt titles on {max_create_dt} updated documents.'}))
-        ptt_title_cleaned = []
-        for title in ptt_titles:
-            title_text = title['post_title'].split('] ')
-            # title_text_wo_stops = jieba.analyse.extract_tags(title_text,20)
-            title_splits = jieba.cut(title_text[-1], cut_all=False) # 精準模式
-            ptt_title_cleaned.extend(list(title_splits))
+        ptt_title_cleaned = _split_titles(ptt_titles)
         dev_logger.info(json.dumps({'msg':f'Finish splits ptt_titles, number of splits: {len(ptt_title_cleaned)}'}))
         
-        insert_into_redis(logger=dev_logger, pipeline=pipeline, redis_key="ptt_title", redis_value=ptt_title_cleaned , max_retries=max_retries, delay=delay)
+        insert_into_redis(logger=dev_logger, pipeline=pipeline, redis_key=redis_key, redis_value=ptt_title_cleaned)
     else:
         dev_logger.error(json.dumps({'msg':'Fail to retrieve ptt titles!'}))
 
