@@ -63,7 +63,7 @@ def _rebuild_credit_card_data(fetch_latest_info:list):
     return credit_latest_info, card_distinct_info
 
 
-def _insert_into_pgsql_credit_info(credit_latest_info):
+def _insert_into_pgsql_credit_info(credit_latest_info:list):
     """
     Insert the latest credit info into PostgreSQL
     :param credit_latest_info: latest credit info from MongoDB
@@ -83,7 +83,7 @@ def _insert_into_pgsql_credit_info(credit_latest_info):
         cursor.close()
 
 
-def _insert_into_pgsql_card_dict(card_distinct_info):
+def _insert_into_pgsql_card_dict(card_distinct_info:list):
     """
     Insert the distinct card info PostgreSQL card dict
     :param credit_latest_info: latest credit info_from MongoDB

@@ -3,7 +3,7 @@ import pytest
 import collections
 
 sys.path.append('../Credit_All_In_One/')
-# from data_pipeline.fetch_credit_info import fetch_from_mongodb
+from data_pipeline.fetch_credit_info import _rebuild_credit_card_data
 from data_pipeline.score_ptt_article import _find_top5_keywords, _fetch_card_alias_name, _count_num_of_appearance
 from data_pipeline.split_ptt_words import _split_titles
 from data_pipeline.etl_utils import fetch_latest_from_mongodb
@@ -16,17 +16,24 @@ dev_logger.console_handler()
 
 
 # fetch_credit_info
-def test_fetch_latest_of_offcial_website_test():
+def test_fetch_latest_of_official_website_test():
     mock_projection = {'source': 1, 'bank_name':1 , 'card_name':1, 'card_image':1, 'card_link': 1, 'create_dt':1, '_id': 0}
-    credit_latest_info, card_distinct_info = fetch_latest_from_mongodb(logger=dev_logger, pipeline="test", collection="offcial_website_test", projection=mock_projection, additional_searching={'push': {'$gte': 50}})
-    assert credit_latest_info == [('聯邦', '聯邦, 聯邦銀行, 803, ubot', '聯邦銀行吉鶴卡', 'https://images.contentstack.io/v3/assets/blt4ca32b8be67c85f8/blt2ed67dd808fb1e78/62de00ba5c954177895aa31f/ubotcc.png?width=256&disable=upscale&fit=bounds&auto=webp', 'https://card.ubot.com.tw/eCard/dspPageContent.aspx?strID=2008060014', '2023-10-10')]
-    assert card_distinct_info == [('聯邦', '聯邦銀行吉鶴卡', '2023-10-10')]
+    result = fetch_latest_from_mongodb(logger=dev_logger, pipeline="test", collection="official_website_test", projection=mock_projection)
+    assert result == [{'source': '聯邦', 'bank_name': '聯邦, 聯邦銀行, 803, ubot', 'card_image': 'https://images.contentstack.io/v3/assets/blt4ca32b8be67c85f8/blt2ed67dd808fb1e78/62de00ba5c954177895aa31f/ubotcc.png?width=256&disable=upscale&fit=bounds&auto=webp', 'card_name': '聯邦銀行吉鶴卡', 'card_link': 'https://card.ubot.com.tw/eCard/dspPageContent.aspx?strID=2008060014', 'create_dt': '2023-10-10'}]
 
 
 def test_fetch_latest_of_ptt_test():
     mock_projection = {'post_title': 1, 'post_author':1 , 'push':1, 'post_dt':1, 'post_link':1, 'article': 1, '_id': 0}
     popular_articles = fetch_latest_from_mongodb(logger=dev_logger, pipeline="test", collection="ptt_test", projection=mock_projection, push={'$gte': 10})
     assert popular_articles == [{'post_title': '[心得] 國泰長榮極致無限卡', 'post_author': 'TGTplayer', 'post_dt': '2023-10-06', 'push': 12, 'post_link': 'https://www.ptt.cc/bbs/creditcard/M.1696582438.A.104.html', 'article': '★申請卡片：國泰長榮極致無限卡★年收入：40萬★提供之財力證明：樂天活存3M★最近三個月有無申辦卡片：中信華航聯名御璽卡(被拒)★核卡額度：40萬★申辦過程：9/29線上送審10/2 傳訊息要求補件，說明有遲繳案件要求證明&說明10/6 收到信用卡。★心得：看到葉佩雯就腦波弱，花臺幣買里程首刷禮再想想要出售還是自用好了！'}]
+
+
+def test_rebuild_credit_card_data():
+    mock_data = [{'source': '聯邦', 'bank_name': '聯邦, 聯邦銀行, 803, ubot', 'card_image': 'https://images.contentstack.io/v3/assets/blt4ca32b8be67c85f8/blt2ed67dd808fb1e78/62de00ba5c954177895aa31f/ubotcc.png?width=256&disable=upscale&fit=bounds&auto=webp', 'card_name': '聯邦銀行吉鶴卡', 'card_link': 'https://card.ubot.com.tw/eCard/dspPageContent.aspx?strID=2008060014', 'create_dt': '2023-10-10'}]
+    data_credit_info, data_card_dict = _rebuild_credit_card_data(mock_data)
+    assert data_credit_info == [('聯邦', '聯邦, 聯邦銀行, 803, ubot', '聯邦銀行吉鶴卡', 'https://images.contentstack.io/v3/assets/blt4ca32b8be67c85f8/blt2ed67dd808fb1e78/62de00ba5c954177895aa31f/ubotcc.png?width=256&disable=upscale&fit=bounds&auto=webp', 'https://card.ubot.com.tw/eCard/dspPageContent.aspx?strID=2008060014', '2023-10-10')]
+    assert data_card_dict == [('聯邦', '聯邦銀行吉鶴卡', '2023-10-10')]
+
 
 # score_ptt_article
 def test_find_top5_keywords():

@@ -60,6 +60,7 @@ def fetch_latest_from_mongodb(logger, pipeline, collection:str, projection:dict,
     mongo_db = _get_mongodb()
     mongo_collection = mongo_db[collection]
     max_create_dt = mongo_collection.find_one(sort=[('create_dt', pymongo.DESCENDING)])['create_dt']
+    # print(f'max_create_dt:{max_create_dt}')
     searching = {'create_dt':max_create_dt}
     if additional_searching:
         for k, v in additional_searching.items():
@@ -90,4 +91,5 @@ def insert_into_redis(logger, pipeline:str, redis_key:str, redis_value:dict, max
 
 
 if __name__ == '__main__':
+    # fetch_latest_from_mongodb(collection="official_website_test")
     get_chroma_content()
