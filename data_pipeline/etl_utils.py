@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import pytz
+import json
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -13,10 +14,12 @@ os.environ["OPENAI_API_KEY"] = os.getenv('OPEN_KEY')
 
 sys.path.append('../Credit_All_In_One/')
 import my_logger
-from my_configuration import _get_mongodb
+from my_configuration import _get_mongodb, _get_redis
+
 
 persist_directory = './chroma_db'
 embedding = OpenAIEmbeddings() # default: "text-davinci-003", try to find replacable embedding function
+
 
 
 # datetime
@@ -50,6 +53,24 @@ def truncate_chroma():
     vectordb.persist()
     vectordb = None
     dev_logger.info('Truncate chromaDB collection.')
+
+
+def insert_into_redis(logger, pipeline:str, redis_key:str, redis_value:dict, max_retries:int = 5, delay:int = 2):
+    redis_conn = _get_redis()
+    for trying in range(1, max_retries + 1):
+        try:
+            redis_conn.set(redis_key, json.dumps(redis_value))
+            logger.info(json.dumps({'msg':f'Finish inserting {pipeline} into Redis'}))
+            break
+        except Exception as e:
+            logger.warning(
+                json.dumps({'msg':
+                    f"Failed to set value of {pipeline} in Redis: {e}"
+                    f"Attempt {trying + 1} of {max_retries}. Retrying in {delay} seconds."})
+            )
+            if trying == max_retries:
+                logger.error(json.dumps({'msg':f"Failed to set value of {pipeline} in {max_retries} attempts"}))
+            time.sleep(delay)
 
 
 if __name__ == '__main__':

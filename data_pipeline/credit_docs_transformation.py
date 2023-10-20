@@ -48,7 +48,7 @@ yesterday = (today_date-timedelta(days=1)).strftime('%Y-%m-%d')
 # create a logger
 dev_logger = logging.getLogger("data_pipeline:credit_docs_transformation:docs_comparing_and_embedding")
 
-def _docs_refactoring(data):
+def _docs_refactoring(data: list) -> list:
     """
     Compare the difference in card_content between yesterday and today.
     :param data: The data between these 2 days. For example: [{'_id': ObjectId('651bd25a646a02fa2d4205b1'), 'source': ..., 'create_dt': '2023-10-03'}, ...]
@@ -89,7 +89,7 @@ def _docs_refactoring(data):
 
 def _insert_into_chroma(card_name, docs, persist_directory=persist_directory):
     """
-    Docs embedding and convert to vectors into ChromaDB
+    Docs embedding and converting into vectors
     :param card_name: data source of the card name, 
     :param docs: card content
     """
