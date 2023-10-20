@@ -62,7 +62,7 @@ def retrieve_popular_articles(push_num = 50, max_retries: int = 5, delay: int = 
                         f"Attempt {trying + 1} of {max_retries}. Retrying in {delay} seconds."})
                 )
                 if trying == max_retries:
-                    dev_logger.warning(json.dumps({'msg':f"Failed to set value of ptt_popular_articles in {max_retries} attempts."}))
+                    dev_logger.error(json.dumps({'msg':f"Failed to set value of ptt_popular_articles in {max_retries} attempts."}))
                 time.sleep(delay)
     else:
         dev_logger.warning(json.dumps({'msg':'Fail to retrieve ptt popular articles!'}))

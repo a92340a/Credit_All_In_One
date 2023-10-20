@@ -7,11 +7,11 @@ import redis
 
 load_dotenv()
 
-def _get_mongodb():
-    """ connect to mongodb database: credit """
-    MONGO_CONFIG = f"mongodb://{os.getenv('MONGO_USERNAME')}:{os.getenv('MONGO_PASSWORD')}@{os.getenv('MONGO_HOST')}:{os.getenv('MONGO_PORT')}/credit?authMechanism={os.getenv('MONGO_AUTHMECHANISM')}"
+
+def _get_mongodb(database="credit"):
+    MONGO_CONFIG = f"mongodb://{os.getenv('MONGO_USERNAME')}:{os.getenv('MONGO_PASSWORD')}@{os.getenv('MONGO_HOST')}:{os.getenv('MONGO_PORT')}/{database}?authMechanism={os.getenv('MONGO_AUTHMECHANISM')}"
     client = pymongo.MongoClient(MONGO_CONFIG) 
-    return client['credit']
+    return client[database]
 
 
 def _get_pgsql():

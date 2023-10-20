@@ -10,9 +10,8 @@ log/
 webdriver/
 chroma_db/
 
-# sh
-consumer.sh
-application.sh
+# ini
+config.ini
 
 # scrapy
 .scrapy
