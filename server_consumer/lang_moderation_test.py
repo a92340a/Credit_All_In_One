@@ -16,15 +16,10 @@ import my_logger
 
 # datetime
 taiwanTz = pytz.timezone("Asia/Taipei") 
-now = datetime.now(taiwanTz)
-today_date = now.date()
-today = now.strftime('%Y-%m-%d')
 
 # create a logger
 dev_logger = my_logger.MyLogger('consumer')
 dev_logger.console_handler()
-dev_logger.file_handler(today)
-
 
 
 def is_moderation_check_passed(checking_text, verbose=False):
