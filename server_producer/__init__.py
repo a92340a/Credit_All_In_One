@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 from dotenv import load_dotenv
 from collections import Counter
+import random
 
 from flask import Flask, request, render_template
 from flask_socketio import SocketIO
@@ -16,7 +17,7 @@ from server_producer.models.hot_cards_model import fetch_all_banks, fetch_cards_
     fetch_total_banks_and_cards, fetch_latest_cards
 from server_producer.models.community_analysis_model import fetch_ptt_title_splitted, \
     fetch_ptt_article_scores, fetch_ptt_popular_articles
-from server_producer.models.chat_model import fetch_latest_chats
+from server_producer.models.chat_model import fetch_latest_chats, fetch_popular_card_names
 import my_logger 
 load_dotenv()
 
@@ -114,8 +115,13 @@ def index():
     ##### Recent chats #####
     # === part 5: recent chats: create_dt, question, answer ===
     plot_5 = fetch_latest_chats()
-        
-    return render_template('index.html', banks=banks, card_banks=card_banks ,card_cards=card_cards, plot_1=plot_1, plot_2=plot_2, plot_4=plot_4, plot_3=image_url, articles=articles, plot_5=plot_5)
+
+    ##### Suggested questions #####
+    # === part 6: popular cards ===
+    card_names = fetch_popular_card_names()
+    sorted_card_names = random.choices(list(card_names.keys()), weights=tuple(card_names.values()), k=3)
+    
+    return render_template('index.html', banks=banks, card_banks=card_banks ,card_cards=card_cards, plot_1=plot_1, plot_2=plot_2, plot_4=plot_4, plot_3=image_url, articles=articles, plot_5=plot_5, sorted_card_names=sorted_card_names)
 
 
 from server_producer.controllers import socketio_controller, lang_controller

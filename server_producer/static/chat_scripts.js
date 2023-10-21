@@ -1,4 +1,5 @@
 const socket = io('https://credit-all-in-one.com/');
+const sendButton = document.getElementById('send_button');
 
 const chatContent = document.getElementById("chat-content");
 const publisher = document.querySelector(".publisher");
@@ -24,7 +25,6 @@ window.addEventListener('load', getRandomIcon);
 
 // disable the send_button as the input is empty
 document.getElementById('message_input').addEventListener('input', function() {
-    const sendButton = document.getElementById('send_button');
     const input = this;
 
     if (input.value.trim() === "") {
@@ -42,15 +42,28 @@ function sendMessage() {
     
     input.value = '';
     sendButton.disabled = true;
-    socket.emit('message', message);
-
+    
     // add client message bubble
     addClientMessage(message, selectedIcon);
+    // check the length of client message
+    checkInputLen(message)
     // make publisher sticked in the bottom
     keepPublisherAtBottom();
     // scroll down
     chatContent.scrollTop = chatContent.scrollHeight;
 };
+
+
+function checkInputLen(message) {
+    const input = message[0];
+    if (input.length > 150) {
+        // prevent the question to server
+        addServerMessage('您的訊息內容過長，請調整您的訊息後重新提問。');
+    } else {
+        // submit to server
+        socket.emit('message', message);
+    }
+}
 
 // waiting and showing marquee
 socket.on('calculating', function(calculating) {
@@ -64,8 +77,8 @@ socket.on('calculating', function(calculating) {
 // show results
 socket.on('result', function(data) {
     // replace the waiting content into the result
-    var lastMediaChat = chatContent.querySelector('.media.media-chat:last-child');
-    var lastPTag = lastMediaChat.querySelector('p');
+    let lastMediaChat = chatContent.querySelector('.media.media-chat:last-child');
+    let lastPTag = lastMediaChat.querySelector('p');
     lastPTag.innerText = data;
 });
 
@@ -76,18 +89,18 @@ function keepPublisherAtBottom() {
 }
 
 function addClientMessage(messageText, icon) {
-    var newMessage = document.createElement("div");
+    let newMessage = document.createElement("div");
     newMessage.classList.add("media", "media-chat", "media-chat-reverse");
 
-    var avatar = document.createElement("img");
+    let avatar = document.createElement("img");
     avatar.classList.add("avatar");
     avatar.src = icon;
     avatar.alt = "client";
     
-    var mediaBody = document.createElement("div");
+    let mediaBody = document.createElement("div");
     mediaBody.classList.add("media-body", "d-flex", "align-items-center");
 
-    var paragraph = document.createElement("p");
+    let paragraph = document.createElement("p");
     paragraph.textContent = messageText[0];
 
     mediaBody.appendChild(paragraph);
@@ -99,18 +112,18 @@ function addClientMessage(messageText, icon) {
 }
 
 function addServerMessage(messageText) {
-    var newMessage = document.createElement("div");
+    let newMessage = document.createElement("div");
     newMessage.classList.add("media", "media-chat");
 
-    var avatar = document.createElement("img");
+    let avatar = document.createElement("img");
     avatar.classList.add("avatar");
     avatar.src = "https://storage.googleapis.com/credit-398810-website-image/favicon/finn--v1.png";
     avatar.alt = "finn";
     
-    var mediaBody = document.createElement("div");
+    let mediaBody = document.createElement("div");
     mediaBody.classList.add("media-body");
 
-    var paragraph = document.createElement("p");
+    let paragraph = document.createElement("p");
     paragraph.textContent = messageText;
 
     mediaBody.appendChild(paragraph);
@@ -119,4 +132,18 @@ function addServerMessage(messageText) {
 
     // add into html element
     chatContent.appendChild(newMessage);
+}
+
+
+
+function addQuestion(button) {
+    let suggestedQuestons = document.getElementById('suggested-questions');
+    let suggestedQueston = button.innerText;
+    let input = document.getElementById('message_input');
+    console.log()
+    // fill the message input
+    input.value = suggestedQueston;
+    sendButton.disabled = false;
+    // clean all the suggestedQuestons
+    suggestedQuestons.innerHTML = '';
 }
