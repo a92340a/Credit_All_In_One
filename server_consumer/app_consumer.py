@@ -78,7 +78,7 @@ def language_calculation(message_data):
     1. Fetching chatting history for specific sid 
     2. Loading Conversational Retrieval Chain with vector ChromaDB
     3. Inserting the question and answer info to PostgreSQL from chatting history
-    :param:message_data: chatting related message from web server
+    :param message_data: chatting related message from web server
     """
     message_sid = json.loads(message_data)
     query = message_sid['message']
@@ -109,6 +109,16 @@ def language_calculation(message_data):
     return message_sid
 
 
+def fail_moderation_injection(message_data):
+    """ 
+    Verify if the query is failing in moderate check or propmt injection test
+    :param message_data: chatting related message from web server
+    """
+    message_sid = json.loads(message_data)
+    message_sid['message'] = "您的訊息應該已經違反我們的使用規範，無法繼續使用本服務。"
+    return message_sid
+
+
 def callback(message: PubsubMessage):
     message_data = message.data.decode("unicode_escape")
     metadata = MessageMetadata.decode(message.message_id)
@@ -120,11 +130,12 @@ def callback(message: PubsubMessage):
 
     # Testing the moderation and prompt injection...
     # Call language_calculation function...
-    if is_moderation_check_passed(message_data) and is_prompt_injection_passed(message_data):
-        processed_message = language_calculation(message_data)
-        payload = {'message': processed_message}
+    if is_moderation_check_passed(json.loads(message_data)['message']) \
+        and is_prompt_injection_passed(json.loads(message_data)['message']):
+        processed_message = language_calculation(message_data)        
     else:
-        payload = {'message': "您的訊息應該已經違反我們的使用規範，無法繼續使用本服務。"}
+        processed_message = fail_moderation_injection(message_data) 
+    payload = {'message': processed_message}
     headers = {'content-type': 'application/json'}
     
     # Reply to producer server
