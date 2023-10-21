@@ -76,7 +76,7 @@ def split_ptt_title(collection:str="ptt", pipeline="split_ptt_title", redis_key=
     :param delay: delay between retries in seconds
     """
     projection = {'post_title':1, '_id':0}
-    ptt_titles = fetch_latest_from_mongodb(logger=dev_logger, collection=collection, projection=projection)
+    ptt_titles = fetch_latest_from_mongodb(logger=dev_logger, pipeline=pipeline, collection=collection, projection=projection)
     
     if ptt_titles:
         ptt_title_cleaned = _split_titles(ptt_titles)
