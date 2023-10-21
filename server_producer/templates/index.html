@@ -203,6 +203,13 @@
                             </div>
                         </div>
                     </div>
+                    <div id="suggested-questions" class="container">
+                        <div class="row cube">
+                            {% for card in sorted_card_names %}
+                            <button id="suggested-question-{{ loop.index }}" onclick="addQuestion(this)" class="col text-center cube m-3 suggested-question">可以幫我介紹一下{{ card[0] }}嗎？</button>
+                            {% endfor %}
+                        </div>
+                    </div>
                     <div class="publisher bt-1 border-light">
                         <img class="avatar avatar-xs" id="selected-icon" src="" alt="client">
                         <input class="publisher-input" type="text" placeholder="Ask something about credit card..." id="message_input" autocomplete="off" />

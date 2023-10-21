@@ -1,4 +1,5 @@
 const socket = io('https://credit-all-in-one.com/');
+const sendButton = document.getElementById('send_button');
 
 const chatContent = document.getElementById("chat-content");
 const publisher = document.querySelector(".publisher");
@@ -24,7 +25,6 @@ window.addEventListener('load', getRandomIcon);
 
 // disable the send_button as the input is empty
 document.getElementById('message_input').addEventListener('input', function() {
-    const sendButton = document.getElementById('send_button');
     const input = this;
 
     if (input.value.trim() === "") {
@@ -132,4 +132,18 @@ function addServerMessage(messageText) {
 
     // add into html element
     chatContent.appendChild(newMessage);
+}
+
+
+
+function addQuestion(button) {
+    let suggestedQuestons = document.getElementById('suggested-questions');
+    let suggestedQueston = button.innerText;
+    let input = document.getElementById('message_input');
+    console.log()
+    // fill the message input
+    input.value = suggestedQueston;
+    sendButton.disabled = false;
+    // clean all the suggestedQuestons
+    suggestedQuestons.innerHTML = '';
 }
