@@ -63,7 +63,7 @@ def fetch_popular_card_names():
     for key, value in redis_data.items():
         for card_upper_name, card_ori_name in zip(pgsql_data_upper, pgsql_data):
             if key == card_upper_name:
-                new_redis_data[card_ori_name[0]] = round(value/total_scores, 2)
+                new_redis_data[card_ori_name[0]] = value/total_scores
 
     cursor.close()
     pgsql_db.close()

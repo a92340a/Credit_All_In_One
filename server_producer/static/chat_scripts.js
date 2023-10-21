@@ -39,6 +39,7 @@ function sendMessage() {
     const input = document.getElementById('message_input');
     const sendButton = document.getElementById('send_button');
     const message = [input.value, selectedIcon];
+    let suggestedQuestons = document.getElementById('suggested-questions');
     
     input.value = '';
     sendButton.disabled = true;
@@ -47,6 +48,8 @@ function sendMessage() {
     addClientMessage(message, selectedIcon);
     // check the length of client message
     checkInputLen(message)
+    // clean all the suggestedQuestons
+    suggestedQuestons.innerHTML = '';
     // make publisher sticked in the bottom
     keepPublisherAtBottom();
     // scroll down
@@ -121,7 +124,7 @@ function addServerMessage(messageText) {
     avatar.alt = "finn";
     
     let mediaBody = document.createElement("div");
-    mediaBody.classList.add("media-body");
+    mediaBody.classList.add("media-body", "bot-message");
 
     let paragraph = document.createElement("p");
     paragraph.textContent = messageText;
