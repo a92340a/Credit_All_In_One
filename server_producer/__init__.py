@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 from dotenv import load_dotenv
 from collections import Counter
-import random
+import numpy as np
 
 from flask import Flask, request, render_template
 from flask_socketio import SocketIO
@@ -119,7 +119,7 @@ def index():
     ##### Suggested questions #####
     # === part 6: popular cards ===
     card_names = fetch_popular_card_names()
-    sorted_card_names = random.choices(list(card_names.keys()), weights=tuple(card_names.values()), k=3)
+    sorted_card_names = np.random.choice(list(card_names.keys()), size=3, replace=False, p=list(card_names.values()))
     
     return render_template('index.html', banks=banks, card_banks=card_banks ,card_cards=card_cards, plot_1=plot_1, plot_2=plot_2, plot_4=plot_4, plot_3=image_url, articles=articles, plot_5=plot_5, sorted_card_names=sorted_card_names)
 

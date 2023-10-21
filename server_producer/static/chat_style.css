@@ -311,6 +311,10 @@ button, input, optgroup, select, textarea {
     color: #48b0f7 !important;
 }
 
+.bot-message {
+    margin-right: 52px;
+}
+
 #chat-content {
     position: relative;
     display: flex;
