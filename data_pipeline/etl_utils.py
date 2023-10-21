@@ -5,6 +5,7 @@ import pytz
 import json
 from datetime import datetime
 from dotenv import load_dotenv
+import pymongo
 
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores.chroma import Chroma
@@ -55,6 +56,22 @@ def truncate_chroma():
     dev_logger.info('Truncate chromaDB collection.')
 
 
+def fetch_latest_from_mongodb(logger, pipeline, collection:str, projection:dict, **additional_searching) -> list:
+    mongo_db = _get_mongodb()
+    mongo_collection = mongo_db[collection]
+    max_create_dt = mongo_collection.find_one(sort=[('create_dt', pymongo.DESCENDING)])['create_dt']
+    # print(f'max_create_dt:{max_create_dt}')
+    searching = {'create_dt':max_create_dt}
+    if additional_searching:
+        for k, v in additional_searching.items():
+            searching[k] = v
+    print(searching)
+    data = list(mongo_collection.find(searching, projection))
+    if data:
+        logger.info(json.dumps({'msg':f'Finish retrieving {pipeline} on {max_create_dt} updated documents.'}))
+    return data
+
+
 def insert_into_redis(logger, pipeline:str, redis_key:str, redis_value:dict, max_retries:int = 5, delay:int = 2):
     redis_conn = _get_redis()
     for trying in range(1, max_retries + 1):
@@ -74,4 +91,5 @@ def insert_into_redis(logger, pipeline:str, redis_key:str, redis_value:dict, max
 
 
 if __name__ == '__main__':
+    # fetch_latest_from_mongodb(collection="official_website_test")
     get_chroma_content()

@@ -16,8 +16,9 @@ from google.oauth2.service_account import Credentials
 
 load_dotenv()
 sys.path.append('../Credit_All_In_One/')
-from my_configuration import _get_mongodb, _get_pgsql
+from my_configuration import _get_pgsql
 import my_logger
+from data_pipeline.etl_utils import fetch_latest_from_mongodb
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -45,17 +46,7 @@ else:
     dev_logger.file_handler(datetime.now(taiwanTz).strftime('%Y-%m-%d'))
 
 
-def fetch_from_mongodb(collection="official_website"):
-    """
-    fetch the latest credit info from MongoDB
-    """
-    mongo_db = _get_mongodb()
-    mongo_collection = mongo_db[collection]
-    max_create_dt = mongo_collection.find_one(sort=[('create_dt', pymongo.DESCENDING)])['create_dt']
-
-    projection = {'source': 1, 'bank_name':1 , 'card_name':1, 'card_image':1, 'card_link': 1, 'create_dt':1, '_id': 0}
-    fetch_latest_info = list(mongo_collection.find({'create_dt': max_create_dt}, projection))
-
+def _rebuild_credit_card_data(fetch_latest_info:list):
     credit_latest_info = []
     card_distinct_info = []
     for i in fetch_latest_info:
@@ -72,7 +63,7 @@ def fetch_from_mongodb(collection="official_website"):
     return credit_latest_info, card_distinct_info
 
 
-def insert_into_pgsql_credit_info(credit_latest_info):
+def _insert_into_pgsql_credit_info(credit_latest_info:list):
     """
     Insert the latest credit info into PostgreSQL
     :param credit_latest_info: latest credit info from MongoDB
@@ -92,7 +83,7 @@ def insert_into_pgsql_credit_info(credit_latest_info):
         cursor.close()
 
 
-def insert_into_pgsql_card_dict(card_distinct_info):
+def _insert_into_pgsql_card_dict(card_distinct_info:list):
     """
     Insert the distinct card info PostgreSQL card dict
     :param credit_latest_info: latest credit info_from MongoDB
@@ -121,10 +112,13 @@ def insert_into_pgsql_card_dict(card_distinct_info):
         pg_db.close()
 
 
-def main_credit_info():
-    data_credit_info, data_card_dict = fetch_from_mongodb()
-    insert_into_pgsql_credit_info(data_credit_info)
-    insert_into_pgsql_card_dict(data_card_dict)
+def main_credit_info(collection:str="official_website", pipeline="fetch_credit_info"):
+    projection = {'source': 1, 'bank_name':1 , 'card_name':1, 'card_image':1, 'card_link': 1, 'create_dt':1, '_id': 0}
+    fetch_latest_info = fetch_latest_from_mongodb(logger=dev_logger, pipeline=pipeline, collection=collection, projection=projection)
+    data_credit_info, data_card_dict = _rebuild_credit_card_data(fetch_latest_info)
+    
+    _insert_into_pgsql_credit_info(data_credit_info)
+    _insert_into_pgsql_card_dict(data_card_dict)
 
 
 def test_scheduler():

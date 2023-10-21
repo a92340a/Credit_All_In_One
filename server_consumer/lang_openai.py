@@ -11,10 +11,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain.llms.openai import OpenAI
 from langchain.retrievers.self_query.base import SelfQueryRetriever
 from langchain.chains.query_constructor.base import AttributeInfo
-# from langchain.schema import Document
-# from langchain.callbacks.manager import AsyncCallbackManagerForRetrieverRun
-# from typing import List, cast
-# from langchain.chains.query_constructor.ir import StructuredQuery
+
 
 load_dotenv()
 os.environ["OPENAI_API_KEY"] = os.getenv('OPEN_KEY')
@@ -91,12 +88,9 @@ def _get_distinct_cards():
     return list(cards)
 
 
-
 if __name__ == '__main__':
     cd_li = ['渣打LINE Bank聯名卡','渣打現金回饋御璽卡','TheShoppingCard 分期卡','渣打優先理財無限卡']
     print(_get_distinct_cards())
     vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding)
-    # result = _build_self_query_retriever(vectordb, _get_distinct_cards()).get_relevant_documents('渣打現金回饋御璽卡的內容有什麼？')
-    # print(result)
     result = _build_self_query_retriever(vectordb).get_relevant_documents('海外消費有什麼現金回饋比較多的信用卡？')
     print(result)
