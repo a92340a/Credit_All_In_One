@@ -181,7 +181,7 @@ if __name__ == '__main__':
         docs_comparing_and_embedding,
         trigger="cron",
         hour="0, 4, 8, 12, 16, 20",
-        minute=0,
+        minute=10,
         timezone=pytz.timezone("Asia/Taipei"),
     )
 
