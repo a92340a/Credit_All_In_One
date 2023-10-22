@@ -57,7 +57,7 @@ def _rebuild_credit_card_data(fetch_latest_info:list):
         card_link = i['card_link']
         lst_update_dt = i['create_dt']
         credit_latest_info.append(tuple([bank_name, bank_alias_name, card_name, card_image, card_link, lst_update_dt]))
-        card_distinct_info.append(tuple([bank_name, card_name, lst_update_dt]))
+        card_distinct_info.append(tuple([card_name, lst_update_dt]))
     dev_logger.info(json.dumps({'msg':'Update for {}'.format(credit_latest_info[0][5])}))
     dev_logger.info(json.dumps({'msg':f'Numbers of latest data in MongoDB: {len(credit_latest_info)}'}))
     return credit_latest_info, card_distinct_info
@@ -92,9 +92,8 @@ def _insert_into_pgsql_card_dict(card_distinct_info:list):
     pg_db = _get_pgsql()
     cursor = pg_db.cursor()
     try:
-        cursor.executemany("""INSERT INTO card_dict(bank_name, card_name, lst_mtn_dt) VALUES (%s, %s, %s) \
-                           ON CONFLICT (bank_name, card_name) DO NOTHING \
-                           ;""", 
+        cursor.executemany("""INSERT INTO card_dict(card_name, lst_mtn_dt) VALUES (%s, %s) \
+                           ON CONFLICT (card_name) DO NOTHING;""", 
                            card_distinct_info)
         pg_db.commit()
         
@@ -118,8 +117,9 @@ def main_credit_info(collection:str="official_website", pipeline:str="fetch_cred
     fetch_latest_info = fetch_latest_from_mongodb(logger=dev_logger, pipeline=pipeline, collection=collection, projection=projection)
     data_credit_info, data_card_dict = _rebuild_credit_card_data(fetch_latest_info)
     
-    _insert_into_pgsql_credit_info(data_credit_info)
     _insert_into_pgsql_card_dict(data_card_dict)
+    _insert_into_pgsql_credit_info(data_credit_info)
+
 
 
 if __name__ == '__main__':
