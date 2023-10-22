@@ -78,7 +78,7 @@ h4.card-title {
     line-height: 1.5;
     margin-bottom: 0;
     padding: 15px 20px;
-    border-bottom: 1px solid rgba(77,82,89,0.07);
+    border-bottom: 1px solid rgba(77,82,89,0.2);
 }
 
 
@@ -216,14 +216,6 @@ h4.card-title {
     color: #fff;
 }
 
-.media-chat .media-body p {
-    position: relative;
-    padding: 6px 8px;
-    margin: 4px 0;
-    background-color: #f5f6f7;
-    border-radius: 3px;
-}
-
 .media.media-chat {
     display: flex;
     align-items: flex-start; /* 調整垂直對齊方式 */
@@ -311,8 +303,14 @@ button, input, optgroup, select, textarea {
     color: #48b0f7 !important;
 }
 
+.bot-message p {
+    display: block;
+    word-wrap: wrap;
+    word-break: break-all;
+}
+
 .bot-message {
-    margin-right: 52px;
+    margin-right: 54px;
 }
 
 #chat-content {
