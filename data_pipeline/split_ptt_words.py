@@ -87,12 +87,8 @@ def split_ptt_title(collection:str="ptt", pipeline="split_ptt_title", redis_key=
         dev_logger.error(json.dumps({'msg':'Fail to retrieve ptt titles!'}))
 
 
-def test_scheduler():
-    print('hello from split_ptt_words')
-
 
 if __name__ == '__main__':
-    #scheduler.add_job(test_scheduler, "interval", seconds=5)
     scheduler.add_job(
         split_ptt_title,
         trigger="cron",

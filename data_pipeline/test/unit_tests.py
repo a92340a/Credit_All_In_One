@@ -1,11 +1,13 @@
 import sys
 import pytest
 import collections
+from langchain.schema import Document
 
 sys.path.append('../Credit_All_In_One/')
 from data_pipeline.fetch_credit_info import _rebuild_credit_card_data
 from data_pipeline.score_ptt_article import _find_top5_keywords, _fetch_card_alias_name, _count_num_of_appearance
 from data_pipeline.split_ptt_words import _split_titles
+from data_pipeline.credit_docs_transformation import _docs_refactoring
 from data_pipeline.etl_utils import fetch_latest_from_mongodb
 
 import my_logger
@@ -63,6 +65,58 @@ def test_split_titles():
     result = _split_titles(mock_title_list)
     assert result == ['國泰長榮極致無限卡']
 
+
+# credit_docs_transformation
+def test_docs_refactoring_case1():
+    """
+    Card contents are different between yesterday and today.
+    """
+    mock_data = [{'source': '聯邦', 'bank_name': '聯邦, 聯邦銀行, 803, ubot', 'card_image': 'https://images.contentstack.io/v3/assets/blt4ca32b8be67c85f8/blt2ed67dd808fb1e78/62de00ba5c954177895aa31f/ubotcc.png?width=256&disable=upscale&fit=bounds&auto=webp', 'card_name': '聯邦銀行吉鶴卡', 'card_content': '10 %國內消費現金回饋,10 %國外消費現金回饋,日幣消費現金回饋,/Apple Pay10 %行動支付回饋,日本Apple Pay消費5%', 'card_link': 'https://card.ubot.com.tw/eCard/dspPageContent.aspx?strID=2008060014', 'create_dt': '2023-10-10', 'create_timestamp': 1696922612},
+                 {'source': '聯邦', 'bank_name': '聯邦, 聯邦銀行, 803, ubot', 'card_image': 'https://images.contentstack.io/v3/assets/blt4ca32b8be67c85f8/blt2ed67dd808fb1e78/62de00ba5c954177895aa31f/ubotcc.png?width=256&disable=upscale&fit=bounds&auto=webp', 'card_name': '聯邦銀行吉鶴卡', 'card_content': '8 %國內消費現金回饋,5 %國外消費現金回饋,日幣消費現金回饋,/Apple Pay5 %行動支付回饋,日本Apple Pay消費5%', 'card_link': 'https://card.ubot.com.tw/eCard/dspPageContent.aspx?strID=2008060014', 'create_dt': '2023-10-09', 'create_timestamp': 1696772336}]
+    docs = _docs_refactoring(mock_data, today='2023-10-10')
+    assert docs == [Document(page_content='聯邦銀行吉鶴卡:10 %國內消費現金回饋,10 %國外消費現金回饋,日幣消費現金回饋,/Apple Pay10 %行動支付回饋,日本Apple Pay消費5%。https://card.ubot.com.tw/eCard/dspPageContent.aspx?strID=2008060014', metadata={'bank': '聯邦, 聯邦銀行, 803, ubot', 'card_name': '聯邦銀行吉鶴卡'})]
+
+
+def test_docs_refactoring_case2():
+    """
+    Card contents are the same between yesterday and today.
+    """
+    mock_data = [{'source': '聯邦', 'bank_name': '聯邦, 聯邦銀行, 803, ubot', 'card_image': 'https://images.contentstack.io/v3/assets/blt4ca32b8be67c85f8/blt2ed67dd808fb1e78/62de00ba5c954177895aa31f/ubotcc.png?width=256&disable=upscale&fit=bounds&auto=webp', 'card_name': '聯邦銀行吉鶴卡', 'card_content': '8 %國內消費現金回饋,5 %國外消費現金回饋,日幣消費現金回饋,/Apple Pay5 %行動支付回饋,日本Apple Pay消費5%', 'card_link': 'https://card.ubot.com.tw/eCard/dspPageContent.aspx?strID=2008060014', 'create_dt': '2023-10-10', 'create_timestamp': 1696922612},
+                 {'source': '聯邦', 'bank_name': '聯邦, 聯邦銀行, 803, ubot', 'card_image': 'https://images.contentstack.io/v3/assets/blt4ca32b8be67c85f8/blt2ed67dd808fb1e78/62de00ba5c954177895aa31f/ubotcc.png?width=256&disable=upscale&fit=bounds&auto=webp', 'card_name': '聯邦銀行吉鶴卡', 'card_content': '8 %國內消費現金回饋,5 %國外消費現金回饋,日幣消費現金回饋,/Apple Pay5 %行動支付回饋,日本Apple Pay消費5%', 'card_link': 'https://card.ubot.com.tw/eCard/dspPageContent.aspx?strID=2008060014', 'create_dt': '2023-10-09', 'create_timestamp': 1696772336}]
+    docs = _docs_refactoring(mock_data, today='2023-10-10')
+    assert isinstance(docs, None)
+
+
+def test_docs_refactoring_case3():
+    """
+    Card content is only detected today.
+    """
+    mock_data = [{'source': '聯邦', 'bank_name': '聯邦, 聯邦銀行, 803, ubot', 'card_image': 'https://images.contentstack.io/v3/assets/blt4ca32b8be67c85f8/blt2ed67dd808fb1e78/62de00ba5c954177895aa31f/ubotcc.png?width=256&disable=upscale&fit=bounds&auto=webp', 'card_name': '聯邦銀行吉鶴卡', 'card_content': '10 %國內消費現金回饋,10 %國外消費現金回饋,日幣消費現金回饋,/Apple Pay10 %行動支付回饋,日本Apple Pay消費5%', 'card_link': 'https://card.ubot.com.tw/eCard/dspPageContent.aspx?strID=2008060014', 'create_dt': '2023-10-10', 'create_timestamp': 1696922612}]
+    docs = _docs_refactoring(mock_data, today='2023-10-10')
+    assert docs == [Document(page_content='聯邦銀行吉鶴卡:10 %國內消費現金回饋,10 %國外消費現金回饋,日幣消費現金回饋,/Apple Pay10 %行動支付回饋,日本Apple Pay消費5%。https://card.ubot.com.tw/eCard/dspPageContent.aspx?strID=2008060014', metadata={'bank': '聯邦, 聯邦銀行, 803, ubot', 'card_name': '聯邦銀行吉鶴卡'})]
+
+
+def test_docs_refactoring_case4():
+    """
+    Card content is only detected yesterday.
+    """
+    mock_data = [{'source': '聯邦', 'bank_name': '聯邦, 聯邦銀行, 803, ubot', 'card_image': 'https://images.contentstack.io/v3/assets/blt4ca32b8be67c85f8/blt2ed67dd808fb1e78/62de00ba5c954177895aa31f/ubotcc.png?width=256&disable=upscale&fit=bounds&auto=webp', 'card_name': '聯邦銀行吉鶴卡', 'card_content': '8 %國內消費現金回饋,5 %國外消費現金回饋,日幣消費現金回饋,/Apple Pay5 %行動支付回饋,日本Apple Pay消費5%', 'card_link': 'https://card.ubot.com.tw/eCard/dspPageContent.aspx?strID=2008060014', 'create_dt': '2023-10-09', 'create_timestamp': 1696772336}]
+    docs = _docs_refactoring(mock_data, today='2023-10-10')
+    assert isinstance(docs, None)
+
+
+def test_docs_refactoring_case5():
+    """
+    Card content is not detected in these 2 days.
+    """
+    mock_data = [{'source': '聯邦', 'bank_name': '聯邦, 聯邦銀行, 803, ubot', 'card_image': 'https://images.contentstack.io/v3/assets/blt4ca32b8be67c85f8/blt2ed67dd808fb1e78/62de00ba5c954177895aa31f/ubotcc.png?width=256&disable=upscale&fit=bounds&auto=webp', 'card_name': '聯邦銀行吉鶴卡', 'card_content': '8 %國內消費現金回饋,5 %國外消費現金回饋,日幣消費現金回饋,/Apple Pay5 %行動支付回饋,日本Apple Pay消費5%', 'card_link': 'https://card.ubot.com.tw/eCard/dspPageContent.aspx?strID=2008060014', 'create_dt': '2023-10-09', 'create_timestamp': 1696772336}]
+    docs = _docs_refactoring(mock_data, today='2023-10-12')
+    assert isinstance(docs, None)
+
+
+
+if __name__ == '__main__':
+    test_docs_refactoring_case3()
 
 
 

@@ -89,17 +89,12 @@ def _fetch_card_alias_name() -> list:
     cursor = pg_db.cursor()
     try:
         cursor.execute("""
-                       WITH card AS 
-                        (
-                            SELECT DISTINCT card_name, card_alias_name
-                            FROM card_dict
-                        )
-                        SELECT ARRAY(
-                                SELECT UPPER(REPLACE(unnest(ARRAY[card_name] || string_to_array(card_alias_name,', ')), ' ', ''))
-                                ) AS card_names
-                        FROM card
-                        ORDER BY card_name, card_alias_name;
-                       """)
+            SELECT ARRAY(
+                SELECT UPPER(REPLACE(unnest(ARRAY[card_name] || string_to_array(card_alias_name,', ')), ' ', ''))
+                ) AS card_names
+            FROM card_dict
+            ORDER BY card_name, card_alias_name;
+            """)
         card_names = list(cursor)
         dev_logger.info(json.dumps({'msg':'Successfully fetch card names from PostgreSQL'}))
     except Exception as e:
