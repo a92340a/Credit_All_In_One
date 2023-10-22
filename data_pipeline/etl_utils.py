@@ -15,7 +15,7 @@ os.environ["OPENAI_API_KEY"] = os.getenv('OPEN_KEY')
 
 sys.path.append('../Credit_All_In_One/')
 import my_logger
-from my_configuration import _get_mongodb, _get_redis
+from my_configuration import _get_mongodb, _get_pgsql, _get_redis
 
 
 persist_directory = './chroma_db'
@@ -35,7 +35,7 @@ dev_logger.console_handler()
 dev_logger.file_handler(today)
 
 
-def count_mongo_docs():
+def count_mongodb_docs():
     mongo_db = _get_mongodb()
     mongo_collection = mongo_db["official_website"]
     return mongo_collection.count_documents({})
@@ -90,6 +90,38 @@ def insert_into_redis(logger, pipeline:str, redis_key:str, redis_value:dict, max
             time.sleep(delay)
 
 
+def fetch_distinct_card_name():
+    pg_db = _get_pgsql()
+    cursor = pg_db.cursor()
+
+    cursor.execute("SELECT card_name FROM card_dict ORDER BY card_name;")
+    data = cursor.fetchall()
+    data = [i[0] for i in data]
+    cursor.close()
+    pg_db.close()
+    return data
+
+
+def fetch_distinct_card_alias_name():
+    pg_db = _get_pgsql()
+    cursor = pg_db.cursor()
+
+    sql = """
+        SELECT card_name, \
+            ARRAY(SELECT DISTINCT e FROM unnest(ARRAY[REPLACE(UPPER(card_name),' ','')] || \
+            ARRAY[REPLACE(LOWER(card_name),' ','')] || string_to_array(card_alias_name,', ') || \
+            string_to_array(UPPER(card_alias_name),', ') || string_to_array(LOWER(card_alias_name),', ')) AS e) \
+            AS all_card_names
+        FROM card_dict
+        ORDER BY card_name;
+        """
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    cursor.close()
+    pg_db.close()
+    return data
+
+
 if __name__ == '__main__':
-    # fetch_latest_from_mongodb(collection="official_website_test")
-    get_chroma_content()
+    print(fetch_distinct_card_alias_name())
+    # get_chroma_content()

@@ -61,12 +61,7 @@ def retrieve_popular_articles(collection:str="ptt", pipeline="ptt_popular_articl
 
 
 
-def test_scheduler():
-    print('hello from retrieve_ptt_popular_articles')
-
-
 if __name__ == '__main__':
-    #scheduler.add_job(test_scheduler, "interval", seconds=5)
     scheduler.add_job(
         retrieve_popular_articles,
         trigger="cron",

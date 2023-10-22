@@ -41,7 +41,7 @@ if config['environment']['ENV'] == 'production':
     dev_logger = logging.getLogger("data_pipeline:fetch_credit_info")
 else:
     # create a logger
-    dev_logger = my_logger.MyLogger('producer')
+    dev_logger = my_logger.MyLogger('etl')
     dev_logger.console_handler()
     dev_logger.file_handler(datetime.now(taiwanTz).strftime('%Y-%m-%d'))
 
@@ -81,6 +81,7 @@ def _insert_into_pgsql_credit_info(credit_latest_info:list):
         dev_logger.error(json.dumps({'msg':f'Failed to insert data into credit_info in PostgreSQL: {e}'}))
     else:
         cursor.close()
+        pg_db.close()
 
 
 def _insert_into_pgsql_card_dict(card_distinct_info:list):
@@ -112,7 +113,7 @@ def _insert_into_pgsql_card_dict(card_distinct_info:list):
         pg_db.close()
 
 
-def main_credit_info(collection:str="official_website", pipeline="fetch_credit_info"):
+def main_credit_info(collection:str="official_website", pipeline:str="fetch_credit_info"):
     projection = {'source': 1, 'bank_name':1 , 'card_name':1, 'card_image':1, 'card_link': 1, 'create_dt':1, '_id': 0}
     fetch_latest_info = fetch_latest_from_mongodb(logger=dev_logger, pipeline=pipeline, collection=collection, projection=projection)
     data_credit_info, data_card_dict = _rebuild_credit_card_data(fetch_latest_info)
@@ -121,13 +122,8 @@ def main_credit_info(collection:str="official_website", pipeline="fetch_credit_i
     _insert_into_pgsql_card_dict(data_card_dict)
 
 
-def test_scheduler():
-    print('hello from fetch_credit_info')
-
-
-#scheduler.add_job(test_scheduler, "interval", seconds=5)
-#scheduler.add_job(main_credit_info, "interval", minutes=5)
 if __name__ == '__main__':
+    #scheduler.add_job(main_credit_info, "interval", minutes=5)
     scheduler.add_job(
         main_credit_info,
         trigger="cron",

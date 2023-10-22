@@ -89,8 +89,7 @@ def _get_distinct_cards():
 
 
 if __name__ == '__main__':
-    cd_li = ['渣打LINE Bank聯名卡','渣打現金回饋御璽卡','TheShoppingCard 分期卡','渣打優先理財無限卡']
-    print(_get_distinct_cards())
     vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding)
+    result = _build_self_query_retriever(vectordb).get_relevant_documents('可以幫我介紹一下聯邦銀行吉鶴卡嗎？')
     result = _build_self_query_retriever(vectordb).get_relevant_documents('海外消費有什麼現金回饋比較多的信用卡？')
     print(result)
