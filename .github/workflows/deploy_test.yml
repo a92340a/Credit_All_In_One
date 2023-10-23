@@ -1,6 +1,6 @@
 name: CI/CD Pipeline Deploy to Google Compute Engine
 
-run-name: ${{ github.actor }} | Continuous Deployment by GitHub Actions 🚀
+run-name: ${{ github.actor }} | Continuous Deployment by GitHub Actions 🚀🚀
 
 on:
   push:
