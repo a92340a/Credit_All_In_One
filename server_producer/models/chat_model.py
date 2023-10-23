@@ -50,7 +50,7 @@ def fetch_popular_card_names():
 
     pgsql_db = _get_pgsql()
     cursor = pgsql_db.cursor()
-    sql = "SELECT card_name FROM card_dict"
+    sql = "SELECT card_name FROM card_dictionary"
     cursor.execute(sql)
     pgsql_data = cursor.fetchall()
     pgsql_data_upper = [i[0].replace(' ','').upper() for i in pgsql_data]
