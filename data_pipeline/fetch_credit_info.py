@@ -92,21 +92,21 @@ def _insert_into_pgsql_card_dict(card_distinct_info:list):
     pg_db = _get_pgsql()
     cursor = pg_db.cursor()
     try:
-        cursor.executemany("""INSERT INTO card_dict(card_name, lst_mtn_dt) VALUES (%s, %s) \
+        cursor.executemany("""INSERT INTO card_dictionary(card_name, lst_mtn_dt) VALUES (%s, %s) \
                            ON CONFLICT (card_name) DO NOTHING;""", 
                            card_distinct_info)
         pg_db.commit()
         
         # verify if there is new card today
-        sql = "SELECT * FROM card_dict WHERE lst_mtn_dt = %s;"
+        sql = "SELECT * FROM card_dictionary WHERE lst_mtn_dt = %s;"
         cursor.execute(sql, (datetime.now(taiwanTz).strftime('%Y-%m-%d'),))
         is_new_card = cursor.fetchall()
         if is_new_card:
-            dev_logger.info(json.dumps({'msg':f'Successfully update PostgreSQL: card_dict. {is_new_card}'}))
+            dev_logger.info(json.dumps({'msg':f'Successfully update PostgreSQL: card_dictionary. {is_new_card}'}))
         else:
-            dev_logger.info(json.dumps({'msg':'No new card and not update PostgreSQL: card_dict'}))
+            dev_logger.info(json.dumps({'msg':'No new card and not update PostgreSQL: card_dictionary'}))
     except Exception as e:
-        dev_logger.error(json.dumps({'msg':f'Failed to insert data into card_dict in PostgreSQL: {e}'}))
+        dev_logger.error(json.dumps({'msg':f'Failed to insert data into card_dictionary in PostgreSQL: {e}'}))
     else:
         cursor.close()
         pg_db.close()
@@ -123,21 +123,22 @@ def main_credit_info(collection:str="official_website", pipeline:str="fetch_cred
 
 
 if __name__ == '__main__':
+    main_credit_info()
     #scheduler.add_job(main_credit_info, "interval", minutes=5)
-    scheduler.add_job(
-        main_credit_info,
-        trigger="cron",
-        hour="0, 4, 8, 12, 16, 20",
-        minute=0,
-        timezone=pytz.timezone("Asia/Taipei"),
-    )
+    # scheduler.add_job(
+    #     main_credit_info,
+    #     trigger="cron",
+    #     hour="0, 4, 8, 12, 16, 20",
+    #     minute=0,
+    #     timezone=pytz.timezone("Asia/Taipei"),
+    # )
 
-    scheduler.start()
-    dev_logger.info(json.dumps({'msg':'Scheduler started ...'}))
+    # scheduler.start()
+    # dev_logger.info(json.dumps({'msg':'Scheduler started ...'}))
 
 
-    while True:
-        time.sleep(5)
+    # while True:
+    #     time.sleep(5)
 
 
    

@@ -98,7 +98,7 @@ def fetch_distinct_card_name():
     pg_db = _get_pgsql()
     cursor = pg_db.cursor()
 
-    cursor.execute("SELECT card_name FROM card_dict ORDER BY card_name;")
+    cursor.execute("SELECT card_name FROM card_dictionary ORDER BY card_name;")
     data = cursor.fetchall()
     data = [i[0] for i in data]
     cursor.close()
@@ -116,7 +116,7 @@ def fetch_distinct_card_alias_name():
             ARRAY[REPLACE(LOWER(card_name),' ','')] || string_to_array(card_alias_name,', ') || \
             string_to_array(UPPER(card_alias_name),', ') || string_to_array(LOWER(card_alias_name),', ')) AS e) \
             AS all_card_names
-        FROM card_dict
+        FROM card_dictionary
         ORDER BY card_name;
         """
     cursor.execute(sql)
