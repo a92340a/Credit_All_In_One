@@ -92,7 +92,7 @@ def _fetch_card_alias_name() -> list:
             SELECT ARRAY(
                 SELECT UPPER(REPLACE(unnest(ARRAY[card_name] || string_to_array(card_alias_name,', ')), ' ', ''))
                 ) AS card_names
-            FROM card_dict
+            FROM card_dictionary
             ORDER BY card_name, card_alias_name;
             """)
         card_names = list(cursor)
