@@ -56,17 +56,21 @@ def truncate_chroma():
     dev_logger.info('Truncate chromaDB collection.')
 
 
-def fetch_latest_from_mongodb(logger, pipeline, collection:str, projection:dict, **additional_searching) -> list:
+def fetch_latest_from_mongodb(logger, pipeline, collection:str, projection:dict, *args, **kwargs) -> list:
     mongo_db = _get_mongodb()
     mongo_collection = mongo_db[collection]
     max_create_dt = mongo_collection.find_one(sort=[('create_dt', pymongo.DESCENDING)])['create_dt']
     # print(f'max_create_dt:{max_create_dt}')
     searching = {'create_dt':max_create_dt}
-    if additional_searching:
-        for k, v in additional_searching.items():
-            searching[k] = v
-    print(searching)
-    data = list(mongo_collection.find(searching, projection))
+    if kwargs:
+        if kwargs['push']:
+            searching['push'] = kwargs['push']
+        if kwargs['sorting']:
+            cursor = mongo_collection.find(searching, projection).sort(kwargs['sorting'], pymongo.DESCENDING)
+            data = list(cursor)
+    else:
+        data = list(mongo_collection.find(searching, projection))
+        
     if data:
         logger.info(json.dumps({'msg':f'Finish retrieving {pipeline} on {max_create_dt} updated documents.'}))
     return data
@@ -123,5 +127,7 @@ def fetch_distinct_card_alias_name():
 
 
 if __name__ == '__main__':
-    print(fetch_distinct_card_alias_name())
+    projection = {'post_title': 1, 'post_author':1 , 'push':1, 'post_dt':1, 'post_link':1, 'article': 1, '_id': 0}
+    data = fetch_latest_from_mongodb(logger=dev_logger, pipeline='123', collection="ptt", projection=projection, push={'$gte': 90}, sorting='post_dt')
+    print(data)
     # get_chroma_content()
