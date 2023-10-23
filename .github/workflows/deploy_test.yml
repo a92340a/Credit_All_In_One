@@ -1,0 +1,34 @@
+name: CI/CD Pipeline Deploy to Google Compute Engine
+
+run-name: ${{ github.actor }} | Continuous Deployment by GitHub Actions 🚀
+
+on:
+  push:
+    branches:
+      - cicd
+  pull_request:
+    branches:
+      - cicd
+  workflow_dispatch:
+  
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout to repo
+      uses: 'actions/checkout@v3'
+
+    - name: Google Auth
+      id: 'auth'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        credentials_json: '${{ secrets.GCE_SA_KEY }}'
+
+    - name: Run command on prod server
+      id: 'compute-ssh'
+      uses: 'google-github-actions/ssh-compute@v0'
+      with:
+        instance_name: ${{ secrets.GCE_INSTANCE }}
+        zone: ${{ secrets.GCE_INSTANCE_ZONE }}
+        ssh_private_key: '${{ secrets.SSH_KEY }}'
+        command: 'echo Hello world'
