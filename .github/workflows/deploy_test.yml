@@ -18,6 +18,11 @@ jobs:
     - name: Checkout to repo
       uses: 'actions/checkout@v3'
 
+    - name: Authorize
+      uses: 'google-github-actions/auth@v0'
+      with:
+        credentials_json: ${{ secrets.GCE_SA_KEY }}
+        
     - name: Compute SSH
       uses: appleboy/ssh-action@master
       with:
