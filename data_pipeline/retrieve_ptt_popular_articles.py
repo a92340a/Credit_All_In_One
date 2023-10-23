@@ -52,8 +52,8 @@ mongo_db = _get_mongodb()
 
 def retrieve_popular_articles(collection:str="ptt", pipeline="ptt_popular_articles", push_num:int=50, redis_key:str="ptt_popular_articles"):
     projection = {'post_title': 1, 'post_author':1 , 'push':1, 'post_dt':1, 'post_link':1, 'article': 1, '_id': 0}
-    popular_articles = fetch_latest_from_mongodb(logger=dev_logger, pipeline=pipeline, collection=collection, projection=projection, push={'$gte': push_num})
-
+    popular_articles = fetch_latest_from_mongodb(logger=dev_logger, pipeline=pipeline, collection=collection, projection=projection, push={'$gte': push_num}, sorting='post_dt')
+    
     if popular_articles:
         insert_into_redis(logger=dev_logger, pipeline=pipeline, redis_key=redis_key, redis_value=popular_articles)
     else:
