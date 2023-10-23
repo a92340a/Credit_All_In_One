@@ -24,11 +24,17 @@ jobs:
       with:
         credentials_json: '${{ secrets.GCE_SA_KEY }}'
 
-    - name: Run command on prod server
-      id: 'compute-ssh'
-      uses: 'google-github-actions/ssh-compute@v0'
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0.3.0
       with:
-        instance_name: ${{ secrets.GCE_INSTANCE }}
-        zone: ${{ secrets.GCE_INSTANCE_ZONE }}
-        ssh_private_key: '${{ secrets.SSH_KEY }}'
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ secrets.GCE_PROJECT }}
+        export_default_credentials: true
+
+    - name: Run command on prod server
+      env:
+        PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+        HOST: ${{ secrets.GCP_HOST }}
+        USER: ${{ secrets.GCP_USER }}
+      run: |
         command: 'echo Hello world'
