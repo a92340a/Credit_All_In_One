@@ -1,6 +1,6 @@
-name: CI/CD Pipeline Deploy to Google Compute Engine
+name: CI/CD Pipeline Deploy Testing
 
-run-name: ${{ github.actor }} | Continuous Deployment by GitHub Actions 🚀🚀
+run-name: ${{ github.actor }} | CI/CD Pipeline Deploy Testing 🚀
 
 on:
   push:
@@ -32,6 +32,6 @@ jobs:
         port: 22
         script: |
           cd /home/finnou
-          mkdir test-folder
+          echo "Hello world"
           
       
