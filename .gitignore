@@ -15,3 +15,6 @@ config.ini
 
 # scrapy
 .scrapy
+
+# pytest
+.pytest_cache
