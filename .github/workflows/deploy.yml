@@ -28,7 +28,7 @@ jobs:
         port: 22
         script: |
           cd /home/finnou/Credit_All_In_One
-          source activate credit
+          conda activate credit
           git pull origin develop
           pm2 restart all
           pm2 save    
