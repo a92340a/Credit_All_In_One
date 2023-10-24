@@ -1,0 +1,39 @@
+name: CI/CD Pipeline Deploy on Credit_All_In_One
+
+run-name: ${{ github.actor }} | CI/CD Pipeline Deploy on Credit_All_In_One 🚀
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    # Step 1
+    - name: Checkout to repo
+      uses: 'actions/checkout@v3'
+    
+    # Step 2
+    - name: Compute SSH
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.GCP_HOST }}
+        username: ${{ secrets.GCP_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        port: 22
+        script: |
+          cd /home/finnou/Credit_All_In_One
+          source activate credit
+          git pull origin develop
+          pm2 restart all
+          pm2 save    
+
+    # Step 3
+    - name: Post-deployment notification
+      run: echo "🎉 Job Deploy ${{ job.status }}."
+      if: success()

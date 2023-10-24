@@ -1,0 +1,37 @@
+name: CI/CD Pipeline Deploy to Google Compute Engine
+
+run-name: ${{ github.actor }} | Continuous Deployment by GitHub Actions 🚀🚀
+
+on:
+  push:
+    branches:
+      - cicd
+  pull_request:
+    branches:
+      - cicd
+  workflow_dispatch:
+  
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout to repo
+      uses: 'actions/checkout@v3'
+
+    - name: Authorize
+      uses: 'google-github-actions/auth@v0'
+      with:
+        credentials_json: ${{ secrets.GCE_SA_KEY }}
+        
+    - name: Compute SSH
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.GCP_HOST }}
+        username: ${{ secrets.GCP_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        port: 22
+        script: |
+          cd /home/finnou
+          mkdir test-folder
+          
+      
