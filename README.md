@@ -31,7 +31,7 @@ Eager to improve the time-consuming and inflexible search challenges posed by la
 ## Architecture
 ### Overall Architecture
 <p align="center">
-  <img src="readme_img/personal_project.png" alt="Overall Architecture"/>
+  <img src="readme_img/personal_project_final.png" alt="Overall Architecture"/>
 </p>
 
 - Front-end:
