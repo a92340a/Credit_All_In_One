@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 from dotenv import load_dotenv
 from collections import Counter
+import numpy as np
 
 from flask import Flask, request, render_template
 from flask_socketio import SocketIO
@@ -16,7 +17,7 @@ from server_producer.models.hot_cards_model import fetch_all_banks, fetch_cards_
     fetch_total_banks_and_cards, fetch_latest_cards
 from server_producer.models.community_analysis_model import fetch_ptt_title_splitted, \
     fetch_ptt_article_scores, fetch_ptt_popular_articles
-from server_producer.models.chat_model import fetch_latest_chats
+from server_producer.models.chat_model import fetch_latest_chats, fetch_popular_card_names
 import my_logger 
 load_dotenv()
 
@@ -50,8 +51,8 @@ def index():
     card_cards = fetch_total_banks_and_cards()[0][1]
 
     # === part 2: bar ===
-    top_k_banks = 5
-    cards = fetch_cards_ranking(top_k_banks)
+    TOP_K_BANKS = 5
+    cards = fetch_cards_ranking(TOP_K_BANKS)
 
     fig1 = go.Figure()
     bank_names = [_[0] for _ in cards]
@@ -61,7 +62,7 @@ def index():
     fig1.add_trace(go.Bar(x=bank_names, y=card_counts, name='S', 
                           marker=dict(color=colors)))
     fig1.update_layout(autosize=True, title_x=0.5,
-                      title_text=f'前 {top_k_banks} 大流通信用卡之銀行及信用卡數',
+                      title_text=f'前 {TOP_K_BANKS} 大流通信用卡之銀行及信用卡數',
                       xaxis_title='銀行名稱', yaxis_title='流通信用卡數',
                       paper_bgcolor='rgba(0,0,0,0)',
                       plot_bgcolor='rgba(0,0,0,0)',
@@ -72,13 +73,12 @@ def index():
     plot_1 = json.dumps(fig1, cls=py.utils.PlotlyJSONEncoder)
 
     # === part 3: bank name, card name, card_link and image ===
-    release_intervals = 30 #######
+    RELEASE_INTERVALS = 30 
     latest = fetch_latest_cards()
-    # first_date, bank_name, card_name, card_image, card_link
     if latest:
         plot_2 = latest
     else:
-        plot_2 = release_intervals
+        plot_2 = RELEASE_INTERVALS
     
     ##### Community Analysis #####
     # === part 1: wordclouds from ptt titles ===
@@ -115,9 +115,13 @@ def index():
     ##### Recent chats #####
     # === part 5: recent chats: create_dt, question, answer ===
     plot_5 = fetch_latest_chats()
-        
-    return render_template('index.html', banks=banks, card_banks=card_banks ,card_cards=card_cards, plot_1=plot_1, plot_2=plot_2, plot_4=plot_4, plot_3=image_url, articles=articles, plot_5=plot_5)
+
+    ##### Suggested questions #####
+    # === part 6: popular cards ===
+    card_names = fetch_popular_card_names()
+    sorted_card_names = np.random.choice(list(card_names.keys()), size=3, replace=False, p=list(card_names.values()))
+    
+    return render_template('index.html', banks=banks, card_banks=card_banks ,card_cards=card_cards, plot_1=plot_1, plot_2=plot_2, plot_4=plot_4, plot_3=image_url, articles=articles, plot_5=plot_5, sorted_card_names=sorted_card_names)
 
 
-from server_producer.views import socketio_view
-from server_producer.controllers import lang_controller
+from server_producer.controllers import socketio_controller, lang_controller

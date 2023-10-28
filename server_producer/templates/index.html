@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Credit All-In-One</title>
-    <link rel="icon" type="image/x-icon" href="https://img.icons8.com/color/48/finn--v1.png">
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
     <!-- import CDN -->
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -158,12 +158,12 @@
                     <div class="container">
                         <div class="d-flex align-items-center">
                             <img class="avater user-icon" width="40" height="40" src="{{ chat[2] }}" alt="user-icon"/>
-                            <h5 class="qa-question card-title">{{ chat[3] }}</h5>
+                            <h5 class="container-fluid qa-question card-title">{{ chat[3] }}</h5>
                         </div>
                     </div>
                     <div class="container">
                         <div class="qa-answer-box d-flex align-items-center">
-                            <img class="avatar" width="48" height="48" src="https://img.icons8.com/color/48/finn--v1.png" alt="finn--v1"/>
+                            <img class="avatar" width="48" height="48" src="https://storage.googleapis.com/credit-398810-website-image/favicon/finn--v1.png" alt="finn--v1"/>
                             {% if '\n' in chat[4] %}
                             <ul class="qa-answer card-text cube" id="qa-answer-{{plot_5.index(chat)}}">
                                 {% for item in chat[4].split('\n') %}
@@ -197,10 +197,17 @@
                     </div>                    
                     <div class="ps-container ps-theme-default ps-active-y" id="chat-content" style="overflow-y: scroll !important; height:400px !important;">
                         <div class="media media-chat">
-                            <img class="avatar" width="48" height="48" src="https://img.icons8.com/color/48/finn--v1.png" alt="finn--v1"/>
-                            <div class="media-body">
+                            <img class="avatar" width="48" height="48" src="https://storage.googleapis.com/credit-398810-website-image/favicon/finn--v1.png" alt="finn--v1"/>
+                            <div class="media-body bot-message">
                                 <p>Hi! 我是 Finn Bot，你可以向我詢問詳細的信用卡介紹。</p>
                             </div>
+                        </div>
+                    </div>
+                    <div id="suggested-questions" class="container">
+                        <div class="row cube">
+                            {% for card in sorted_card_names %}
+                            <button id="suggested-question-{{ loop.index }}" onclick="addQuestion(this)" class="col text-center cube m-3 suggested-question">可以幫我介紹一下{{ card }}嗎？</button>
+                            {% endfor %}
                         </div>
                     </div>
                     <div class="publisher bt-1 border-light">
@@ -218,20 +225,21 @@
             <div class="row">
                 <div class="col-md-4">
                     <h5>Credit All-In-One</h5>
-                    <p>彙整台灣各家銀行信用卡資訊總覽與問答機器人的一站式平台</p>
-                    <img src="https://img.icons8.com/color/48/finn--v1.png" alt="finn--v1"/>
+                    <p class="custom-p">彙整台灣各家銀行信用卡資訊總覽與問答機器人的一站式平台</p>
+                    <img src="https://storage.googleapis.com/credit-398810-website-image/favicon/finn--v1.png" alt="finn--v1"/>
                 </div>
                 <div class="col-md-4">
                     <h5>快速導覽 - Links</h5>
                     <div><i class="fa-solid fa-credit-card"></i><a class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#hot-cards"> 信用卡資訊總覽</a></div>
                     <div><i class="fa-solid fa-address-card"></i><a class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#community-analysis"> 社群話題分析</a></div>
-                    <div><i class="fa-solid fa-comment-dots"></i><a class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#chill-questions"> 近期熱烈問答</a></div>
+                    <div><i class="fa-solid fa-comment-dots"></i><a class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#chill-questions"> 歷史熱烈問答</a></div>
                     <div><i class="fa-solid fa-robot"></i><a class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#chat-box"> 和 Finn Bot 聊聊</a></div>
                 </div>
                 <div class="col-md-4">
                     <h5>關於我 - Contact Me</h5>
                     <div>Finn Ou</div>
-                    <div><i class="fa-solid fa-envelope"></i><span class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"> a92340a@gmail.com</span></div>
+                    <div><i class="fa-solid fa-envelope"></i><a href="mailto:a92340a@gmail.com" class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"> a92340a@gmail.com</span></div>
+                    <div><i class="fa-solid fa-code-compare"></i><a href="https://github.com/a92340a" class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"> https://github.com/a92340a</a></div>
                     <div><i class="fa-brands fa-linkedin"></i><a href="https://www.linkedin.com/in/finn-ou-607008180/" class="link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"> https://www.linkedin.com/in/finn-ou-607008180/</a></div>
                 </div>
             </div>

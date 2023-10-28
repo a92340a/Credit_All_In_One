@@ -1,4 +1,3 @@
-import os
 import sys
 import json
 from datetime import datetime
@@ -8,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 sys.path.append('../Credit_All_In_One/')
 import my_logger
-from my_configuration import _get_pgsql
+from my_configuration import _get_pgsql, _get_redis
 
 # datetime
 now = datetime.now()
@@ -41,26 +40,35 @@ def fetch_latest_chats():
     pgsql_db.close()
     return data
 
-# class ChatHistory(db.Model):
-#     q_id = db.Column(db.Integer, nullable=False)
-#     sid = db.Column(db.String(20))
-#     create_dt = db.Column(db.Date)
-#     create_timestamp = db.Column(db.Integer)
-#     question = db.Column(db.Text())
-#     answer = db.Column(db.Text())
-#     keyword1 = db.Column(db.String(20))
-#     keyword2 = db.Column(db.String(20))
-#     keyword3 = db.Column(db.String(20))
-#     topic = db.Column(db.Text())
+
+def fetch_popular_card_names():
+    """
+    retrieve the scores of cards from Redis and map with card dict to show the exactly card name
+    """
+    redis_conn = _get_redis()
+    redis_data = json.loads(redis_conn.get("ptt_article").decode("utf-8"))
+
+    pgsql_db = _get_pgsql()
+    cursor = pgsql_db.cursor()
+    sql = "SELECT card_name FROM card_dictionary"
+    cursor.execute(sql)
+    pgsql_data = cursor.fetchall()
+    pgsql_data_upper = [i[0].replace(' ','').upper() for i in pgsql_data]
+    
+    total_scores = 0
+    for score in redis_data.values():
+        total_scores += score
+       
+    new_redis_data = dict()
+    for key, value in redis_data.items():
+        for card_upper_name, card_ori_name in zip(pgsql_data_upper, pgsql_data):
+            if key == card_upper_name:
+                new_redis_data[card_ori_name[0]] = value/total_scores
+
+    cursor.close()
+    pgsql_db.close()
+    return new_redis_data
 
 
-# def get_qa(sid):
-#     try:
-#         qa_history = User.query.filter_by(sid = sid).all()
-#         if qa_history:
-#             return qa_history[0].to_json()
-#         else:
-#             return None
-#     except Exception as e:
-#         print(e)
-#         return None
+if __name__ == '__main__':
+    fetch_popular_card_names()

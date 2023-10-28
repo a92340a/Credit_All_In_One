@@ -11,10 +11,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain.llms.openai import OpenAI
 from langchain.retrievers.self_query.base import SelfQueryRetriever
 from langchain.chains.query_constructor.base import AttributeInfo
-# from langchain.schema import Document
-# from langchain.callbacks.manager import AsyncCallbackManagerForRetrieverRun
-# from typing import List, cast
-# from langchain.chains.query_constructor.ir import StructuredQuery
+
 
 load_dotenv()
 os.environ["OPENAI_API_KEY"] = os.getenv('OPEN_KEY')
@@ -41,8 +38,10 @@ def load_data(mongo_history):
     template = """
     你是一個數家銀行信用卡介紹與優惠資訊的聊天機器人，請依據下方給定的內容與使用者本次問題進行回覆。
     請依使用者提問的語言回答他的問題，若有不清楚使用者語言或是簡體中文，一律使用繁體中文回答。
-    先模糊比對信用卡資訊，且也提供資料庫內該信用卡的link連結給使用者自行檢索。
-    如果使用者的問題與信用卡、基本問候無關的話，請回答「抱歉，我目前沒有這個問題的相關資訊。您可以調整您的提問，或是詢問我其他問題。」
+    You are given the following extracted parts of a long document and a question. Provide a conversational answer.
+    If you don't know the answer, just say "抱歉，我目前沒有這個問題的相關資訊。您可以調整您的提問，或是詢問我其他問題。" Don't try to make up an answer.
+    回答信用卡資訊時，也提供資料庫內該信用卡的link連結給使用者自行檢索。
+    如果使用者的問題與信用卡、基本問候無關的話，請回答「抱歉，我只能回答關於信用卡相關的問題。」
     Question: {question}
     =========
     {context}
@@ -53,7 +52,6 @@ def load_data(mongo_history):
     # 4. Now we can load the persisted database from disk
     vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding)
     
-    # retriever = vectordb.as_retriever() 
     # retriever = vectordb.as_retriever(search_type="similarity", search_kwargs={"k": 2}) 
     # retriever = vectordb.as_retriever(search_type="similarity_score_threshold", search_kwargs={"score_threshold": .5})
     retriever = _build_self_query_retriever(vectordb)
@@ -74,7 +72,7 @@ def _build_self_query_retriever(vectorstore): #cards_list
     metadata_field_info = [
         AttributeInfo(
             name="card_name",
-            description=f"The name of the credit card", #, including: {cards_list}
+            description=f"The name of the credit card", 
             type="string",
         )
     ]
@@ -86,17 +84,9 @@ def _build_self_query_retriever(vectorstore): #cards_list
     return retriever
 
 
-def _get_distinct_cards():
-    cards = mongo_collection.distinct('card_name')
-    return list(cards)
-
-
 
 if __name__ == '__main__':
-    cd_li = ['渣打LINE Bank聯名卡','渣打現金回饋御璽卡','TheShoppingCard 分期卡','渣打優先理財無限卡']
-    print(_get_distinct_cards())
     vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding)
-    # result = _build_self_query_retriever(vectordb, _get_distinct_cards()).get_relevant_documents('渣打現金回饋御璽卡的內容有什麼？')
-    # print(result)
+    result = _build_self_query_retriever(vectordb).get_relevant_documents('可以幫我介紹一下聯邦銀行吉鶴卡嗎？')
     result = _build_self_query_retriever(vectordb).get_relevant_documents('海外消費有什麼現金回饋比較多的信用卡？')
     print(result)

@@ -5,6 +5,7 @@ import time
 import pytz
 from datetime import datetime
 from dotenv import load_dotenv
+import configparser
 
 import requests
 from google.pubsub_v1 import PubsubMessage
@@ -13,6 +14,7 @@ from google.cloud.pubsublite.types import (CloudRegion, CloudZone,
                                            MessageMetadata, SubscriptionPath, FlowControlSettings)
 from langchain.memory import MongoDBChatMessageHistory
 from lang_openai import load_data
+from lang_moderation_test import is_moderation_check_passed, is_prompt_injection_passed
 
 
 load_dotenv()
@@ -21,16 +23,15 @@ sys.path.append('../Credit_All_In_One/')
 import my_logger
 from my_configuration import _get_mongodb, _get_pgsql
 
+config = configparser.ConfigParser()
+config.read('config.ini')
+
 # datetime
 taiwanTz = pytz.timezone("Asia/Taipei") 
-now = datetime.now(taiwanTz)
-today_date = now.date()
-today = now.strftime('%Y-%m-%d')
 
 # create a logger
 dev_logger = my_logger.MyLogger('consumer')
 dev_logger.console_handler()
-dev_logger.file_handler(today)
 
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv('KEY')
@@ -77,7 +78,7 @@ def language_calculation(message_data):
     1. Fetching chatting history for specific sid 
     2. Loading Conversational Retrieval Chain with vector ChromaDB
     3. Inserting the question and answer info to PostgreSQL from chatting history
-    :param:message_data: chatting related message from web server
+    :param message_data: chatting related message from web server
     """
     message_sid = json.loads(message_data)
     query = message_sid['message']
@@ -108,6 +109,16 @@ def language_calculation(message_data):
     return message_sid
 
 
+def fail_moderation_injection(message_data):
+    """ 
+    Verify if the query is failing in moderate check or propmt injection test
+    :param message_data: chatting related message from web server
+    """
+    message_sid = json.loads(message_data)
+    message_sid['message'] = "您的訊息應該已經違反我們的使用規範，無法繼續使用本服務。"
+    return message_sid
+
+
 def callback(message: PubsubMessage):
     message_data = message.data.decode("unicode_escape")
     metadata = MessageMetadata.decode(message.message_id)
@@ -117,15 +128,21 @@ def callback(message: PubsubMessage):
     # Acknowledgement to Pub/Sub Lite with successful subscription
     message.ack()
 
+    # Testing the moderation and prompt injection...
     # Call language_calculation function...
-    # Reply to producer server
-    processed_message = language_calculation(message_data)
+    if is_moderation_check_passed(json.loads(message_data)['message']) \
+        and is_prompt_injection_passed(json.loads(message_data)['message']):
+        processed_message = language_calculation(message_data)        
+    else:
+        processed_message = fail_moderation_injection(message_data) 
     payload = {'message': processed_message}
     headers = {'content-type': 'application/json'}
-    if os.getenv('ENV') == 'development':
-        HOST = '127.0.0.1'
-    else:
+    
+    # Reply to producer server
+    if config['environment']['ENV'] == 'production':
         HOST = '0.0.0.0'
+    else:
+        HOST = '127.0.0.1'
     response = requests.post('http://{}:{}/lang'.format(HOST, os.getenv('PRODUCER_PORT')), 
                                 data=json.dumps(payload), headers=headers)
 
