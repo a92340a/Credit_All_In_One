@@ -50,7 +50,7 @@ Eager to improve the time-consuming and inflexible search challenges posed by la
 #### How does the LLM work in the server consumer?
 1. Input  
     User's question with an anonymous ID 
-2. Server  
+2. Server
 - Prompt testing  
 Verify the user's question if it's inappropriate or malicious
     1. moderation checking: check the rating of 'sexual', 'hate', 'harassment', 'self-harm', 'sexual/minors', 'hate/threatening'
@@ -61,8 +61,8 @@ Retrieve the historical messages from MongoDB, and combine them with the user's 
 Implemented a two-step generative AI approach, involving inquiry-based and conversational models, to enhance the accuracy of retrieving credit card names.
     1. self-query retriever: build a structured query based on metadata construction
     2. conversational retrieval chain: generate a conversational response based on the previous structured query 
-3. Output
-- User's answer with an anonymous ID 
+3. Output  
+  User's answer with an anonymous ID 
 
 
 ## Data Pipeline
@@ -97,7 +97,7 @@ Implemented a two-step generative AI approach, involving inquiry-based and conve
 </p>
 
 ## Maintenance
-### Unit test and Integration test
+### Unit tests and Integration tests
 Implemented unit and integration tests to validate data transformation accuracy, and utilized GitHub Actions for continuous deployment, reducing the potential for human errors. 
 
 
