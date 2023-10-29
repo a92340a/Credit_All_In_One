@@ -62,7 +62,7 @@ Implemented a two-step generative AI approach, involving inquiry-based and conve
     1. self-query retriever: build a structured query based on metadata construction
     2. conversational retrieval chain: generate a conversational response based on the previous structured query 
 3. Output  
-  User's answer with an anonymous ID 
+    User's answer with an anonymous ID 
 
 
 ## Data Pipeline
@@ -102,7 +102,10 @@ Implemented unit and integration tests to validate data transformation accuracy,
 
 
 ### Real-time Monitoring 
-1. Monitored the overall status of daily crawling pipelines through ScrapeOps scheduled jobs and dashboard. 
+1. Monitored the overall status of daily crawling pipelines through ScrapeOps scheduled jobs and dashboard.  
+<p align="center">
+  <img src="readme_img/demo_monitoring_scrapeops.gif" alt="scrapeops"/>
+</p>
 2. Ensured the ETL pipelines running robustly and alerted by email as detecting the error message.
 3. Traced health status of instances, database, and cloud services like Pub/Sub by dashboard of Cloud Monitoring.
 
