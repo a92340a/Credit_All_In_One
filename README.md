@@ -36,7 +36,7 @@ Eager to improve the time-consuming and inflexible search challenges posed by la
 
 - Front-end:
     - Developed a Flask web service via Plotly graphing library, HTML, CSS/Bootstrap, and JavaScript.
-    - Established a one-to-one channel using the Socket.IO protocol to maintain a long-term connection between the server and client to sequentially chat with the bot.
+    - Established a one-to-one channel using the Socket.IO to maintain a long-term connection between the server and client to sequentially chat with the bot.
 - Back-end:
     - Designed a conversational model via OpenAI and LangChain, integrating a dataset of over 360 card contexts and applying a two-step generative AI approach to enhance the accuracy of retrieving credit card names. See [LLM Architecture](#llm-architecture) for more information about the conversational model.
     - Conducted a Pub/Sub message queue for receiving a large volume of questions from users, and ensured horizontal scalability for accommodating multiple consumers.  
