@@ -41,7 +41,7 @@ def load_data(mongo_history):
     You are given the following extracted parts of a long document and a question. Provide a conversational answer.
     If you don't know the answer, just say "抱歉，我目前沒有這個問題的相關資訊。您可以調整您的提問，或是詢問我其他問題。" Don't try to make up an answer.
     回答信用卡資訊時，也提供資料庫內該信用卡的link連結給使用者自行檢索。
-    如果使用者的問題與信用卡、基本問候無關的話，請回答「抱歉，我只能回答關於信用卡相關的問題。」
+    如果使用者的問題與信用卡、基本問候無關的話，請回答「抱歉，我目前沒有這個問題的相關資訊。」
     Question: {question}
     =========
     {context}
