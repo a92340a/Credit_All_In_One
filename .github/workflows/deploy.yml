@@ -29,6 +29,7 @@ jobs:
         script: |
           cd /home/finnou/Credit_All_In_One
           conda activate credit
+          git stash
           git pull origin develop
           pm2 restart all
           pm2 save    
