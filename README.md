@@ -68,7 +68,7 @@ Implemented a two-step generative AI approach, involving inquiry-based and conve
 ## Data Pipeline
 ![data_pipeline](https://github.com/a92340a/Credit_All_In_One/assets/30499702/27fc67fa-e06c-4b2d-96cc-8df8de79952d)
 ### Crawling pipelines by ScrapeOps
-1. Implemented an automated pipeline system to collect data utilizing Scrapy Spiders from 25 distinct sources, including official websites, blogs and the PTT community.
+1. Implemented an automated pipeline system to collect data utilizing Scrapy Spiders from about 20 sources, including official websites, blogs and the PTT community.
 2. Transformed and loaded data into MongoDB dispatched by Scrapy Engine.
     
 ### ETL pipelines
